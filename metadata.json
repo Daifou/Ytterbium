@@ -1,0 +1,5 @@
+{
+  "name": "Ytterbium",
+  "description": "A minimalist, AI-powered productivity and well-being platform inspired by Linear. It features dual-mode sessions, fatigue detection via input dynamics, and adaptive pacing.",
+  "requestFramePermissions": []
+}
