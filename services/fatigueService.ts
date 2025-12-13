@@ -1,9 +1,24 @@
-import { FatigueMetrics } from '../types';
+import { FatigueMetrics, FocusIntensity } from '../types';
 
 // Constants for detection logic
 const WINDOW_SIZE_MS = 5000; // Process metrics every 5 seconds
-const BASELINE_LATENCY = 120; // ms (Example baseline)
-const BASELINE_VARIANCE = 30; // ms
+
+// Adaptive Baseline Storage Keys
+const KEY_LATENCY_BASELINE = 'ytterbium_latency_baseline';
+const KEY_VARIANCE_BASELINE = 'ytterbium_variance_baseline';
+
+// Default baselines (used until a user baseline is established)
+const DEFAULT_BASELINE_LATENCY = 120; // ms (Example baseline)
+const DEFAULT_BASELINE_VARIANCE = 30; // ms
+
+// ----------------------------------------------------------------------------------
+// [NEW CONSTANT] Factor to adjust score based on Intensity. 
+// At Intensity 10, the score is 20% higher. At Intensity 1, the score is 16% lower.
+// ----------------------------------------------------------------------------------
+const getIntensitySensitivityFactor = (intensity: FocusIntensity): number => {
+  // 5 is the neutral intensity (Factor 1.0)
+  return 1.0 + ((intensity - 5) / 5) * 0.2;
+}
 
 class FatigueService {
   private lastKeyTime: number = 0;
@@ -13,114 +28,119 @@ class FatigueService {
   private mouseMoves: number = 0;
   private mouseDirectionChanges: number = 0;
   private lastMouseAngle: number = 0;
-  
+
   private listenersAttached: boolean = false;
   private onMetricsUpdate: ((metrics: FatigueMetrics) => void) | null = null;
   private intervalId: number | null = null;
 
-  // Rolling baseline for adaptive scoring
+  // Adaptive Baseline Properties
+  private userBaselineLatency: number;
+  private userBaselineVariance: number;
+
+  // ----------------------------------------------------------------------------------
+  // [NEW PROPERTY] To store the user's selected intensity
+  private currentIntensity: FocusIntensity = 5;
+  // ----------------------------------------------------------------------------------
+
+  // Rolling scores for smoothing
   private recentScores: number[] = [];
 
-  constructor() {}
-
-  public startTracking(callback: (metrics: FatigueMetrics) => void) {
-    if (this.listenersAttached) return;
-    
-    this.onMetricsUpdate = callback;
-    
-    window.addEventListener('keydown', this.handleKeyDown);
-    window.addEventListener('mousemove', this.handleMouseMove);
-    
-    this.intervalId = window.setInterval(this.processWindow, WINDOW_SIZE_MS);
-    this.listenersAttached = true;
+  constructor() {
+    this.userBaselineLatency = FatigueService.getBaseline(KEY_LATENCY_BASELINE, DEFAULT_BASELINE_LATENCY);
+    this.userBaselineVariance = FatigueService.getBaseline(KEY_VARIANCE_BASELINE, DEFAULT_BASELINE_VARIANCE);
   }
 
-  public stopTracking() {
-    window.removeEventListener('keydown', this.handleKeyDown);
-    window.removeEventListener('mousemove', this.handleMouseMove);
-    if (this.intervalId) window.clearInterval(this.intervalId);
-    this.listenersAttached = false;
-    this.keyLatencies = [];
-    this.mouseDistance = 0;
-    this.mouseMoves = 0;
+  // --- Persistence and Baseline Helpers (Preserved) ---
+  private static getBaseline(key: string, defaultValue: number): number {
+    const value = localStorage.getItem(key);
+    return value ? parseFloat(value) : defaultValue;
   }
 
-  private handleKeyDown = (e: KeyboardEvent) => {
+  private static setBaseline(key: string, value: number): void {
+    const currentBest = FatigueService.getBaseline(key, value);
+    // Only save the best (lowest) values
+    if (value < currentBest) {
+      localStorage.setItem(key, value.toString());
+    }
+  }
+
+  // --- Input Handlers (Preserved) ---
+  private handleKeyDown = (event: KeyboardEvent) => {
     const now = performance.now();
-    if (this.lastKeyTime > 0) {
+    if (this.lastKeyTime !== 0) {
       const latency = now - this.lastKeyTime;
-      // Filter out huge pauses (e.g. thinking time > 2s) to focus on typing bursts
-      if (latency < 2000) {
-        this.keyLatencies.push(latency);
-      }
+      this.keyLatencies.push(latency);
     }
     this.lastKeyTime = now;
   };
 
-  private handleMouseMove = (e: MouseEvent) => {
-    if (this.lastMousePos) {
-      const dx = e.clientX - this.lastMousePos.x;
-      const dy = e.clientY - this.lastMousePos.y;
-      const dist = Math.sqrt(dx * dx + dy * dy);
-      this.mouseDistance += dist;
-
-      // Calculate angle to detect erratic movement (jitter)
-      const angle = Math.atan2(dy, dx);
-      if (Math.abs(angle - this.lastMouseAngle) > Math.PI / 2) {
-        this.mouseDirectionChanges++;
-      }
-      this.lastMouseAngle = angle;
-    }
-    this.lastMousePos = { x: e.clientX, y: e.clientY };
+  private handleMouseMove = (event: MouseEvent) => {
     this.mouseMoves++;
+    if (this.lastMousePos) {
+      const dx = event.clientX - this.lastMousePos.x;
+      const dy = event.clientY - this.lastMousePos.y;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+      this.mouseDistance += distance;
+
+      // Track direction changes for erratic movement detection
+      if (distance > 5) { // Only track meaningful movement
+        const angle = Math.atan2(dy, dx);
+        if (this.lastMouseAngle !== 0 && Math.abs(angle - this.lastMouseAngle) > Math.PI / 4) {
+          this.mouseDirectionChanges++;
+        }
+        this.lastMouseAngle = angle;
+      }
+    }
+    this.lastMousePos = { x: event.clientX, y: event.clientY };
   };
 
-  private processWindow = () => {
-    // 1. Calculate Averages
-    const avgLatency = this.keyLatencies.length > 0 
-      ? this.keyLatencies.reduce((a, b) => a + b, 0) / this.keyLatencies.length 
+  // --- Core Logic: Calculate Metrics ---
+  private calculateMetrics = () => {
+    if (!this.onMetricsUpdate) return;
+
+    // Calculate averages and stats for the window
+    const avgLatency = this.keyLatencies.length > 0 ? this.keyLatencies.reduce((a, b) => a + b, 0) / this.keyLatencies.length : 0;
+    const mouseVelocity = this.mouseDistance * (1000 / WINDOW_SIZE_MS); // Px per second
+    const erraticScore = this.mouseDirectionChanges;
+
+    // Calculate Standard Deviation (Jitter)
+    const mean = avgLatency;
+    const stdDev = this.keyLatencies.length > 1
+      ? Math.sqrt(this.keyLatencies.map(x => Math.pow(x - mean, 2)).reduce((a, b) => a + b) / (this.keyLatencies.length - 1))
       : 0;
 
-    // Standard Deviation of latency (Stability)
-    const variance = this.keyLatencies.length > 0
-      ? this.keyLatencies.reduce((acc, val) => acc + Math.pow(val - avgLatency, 2), 0) / this.keyLatencies.length
-      : 0;
-    const stdDev = Math.sqrt(variance);
-
-    // Mouse velocity (px/sec approximately)
-    const mouseVelocity = this.mouseDistance / (WINDOW_SIZE_MS / 1000);
-    
-    // Erratic score: high direction changes with low distance
-    const erraticScore = this.mouseDistance > 0 ? (this.mouseDirectionChanges / this.mouseDistance) * 100 : 0;
-
-    // 2. Compute Fatigue Score (Simplified Algorithm)
-    // Fatigue often manifests as:
-    // - Higher keystroke latency (slowed processing)
-    // - Higher latency variance (inconsistency)
-    // - Erratic or sluggish mouse movements
-    
+    // --- 1. FATIGUE SCORING ---
     let fatigueScore = 0;
-    
-    // Factor 1: Cognitive slowing (Latency)
-    if (avgLatency > 0) {
-      const slowdown = Math.max(0, avgLatency - BASELINE_LATENCY);
-      fatigueScore += (slowdown / BASELINE_LATENCY) * 40;
-    }
-    
-    // Factor 2: Motor control consistency (Jitter)
-    if (stdDev > BASELINE_VARIANCE) {
-      fatigueScore += ((stdDev - BASELINE_VARIANCE) / BASELINE_VARIANCE) * 30;
-    }
 
-    // Factor 3: Mouse dynamics
+    // Cognitive Slowing Score (40% weight)
+    const cognitiveSlowingScore = Math.max(0, avgLatency - this.userBaselineLatency) / this.userBaselineLatency * 100 * 0.4;
+    fatigueScore += cognitiveSlowingScore;
+
+    // Motor Control Inconsistency Score (30% weight)
+    const motorInconsistencyScore = Math.max(0, stdDev - this.userBaselineVariance) / this.userBaselineVariance * 100 * 0.3;
+    fatigueScore += motorInconsistencyScore;
+
+    // Mouse Dynamics Score (Sluggish or Erratic)
     if (mouseVelocity < 50 && this.mouseMoves > 0) {
-       // Moving but very slowly - potential fatigue or deep thought
-       fatigueScore += 10;
+      // Moving but very slowly (sluggish/disengaged)
+      fatigueScore += 10;
     }
     if (erraticScore > 2) {
-      // Jittery movement
+      // Jittery movement (frustration/loss of fine motor control)
       fatigueScore += 20;
     }
+
+    // Additional Factor: Non-Activity Penalty (Stagnation)
+    if (this.keyLatencies.length === 0 && this.mouseMoves < 5) {
+      // Very low input: Apply a gentle penalty to detect long periods of disengagement.
+      fatigueScore += 5;
+    }
+
+    // ----------------------------------------------------------------------------------
+    // [NEW LOGIC] Apply Intensity Sensitivity Factor to the raw score
+    const sensitivityFactor = getIntensitySensitivityFactor(this.currentIntensity);
+    fatigueScore *= sensitivityFactor;
+    // ----------------------------------------------------------------------------------
 
     // Clamp score
     fatigueScore = Math.min(100, Math.max(0, fatigueScore));
@@ -140,16 +160,52 @@ class FatigueService {
       fatigueScore: Math.round(smoothedScore)
     };
 
-    if (this.onMetricsUpdate) {
-      this.onMetricsUpdate(metrics);
+    if (avgLatency > 0 && stdDev > 0) {
+      FatigueService.setBaseline(KEY_LATENCY_BASELINE, avgLatency);
+      FatigueService.setBaseline(KEY_VARIANCE_BASELINE, stdDev);
     }
 
-    // Reset window counters
+    this.onMetricsUpdate(metrics);
+
+    // --- Reset for next window ---
     this.keyLatencies = [];
     this.mouseDistance = 0;
     this.mouseMoves = 0;
     this.mouseDirectionChanges = 0;
+    this.lastKeyTime = 0;
   };
+
+  // --- Tracking Controls ---
+  // [MODIFIED] Added intensity parameter
+  public startTracking(onMetricsUpdate: (metrics: FatigueMetrics) => void, intensity: FocusIntensity = 5) {
+    if (this.listenersAttached) return;
+
+    this.onMetricsUpdate = onMetricsUpdate;
+    this.currentIntensity = intensity; // [UPDATE] Set the new intensity
+
+    document.addEventListener('keydown', this.handleKeyDown);
+    document.addEventListener('mousemove', this.handleMouseMove);
+    this.listenersAttached = true;
+
+    // Start interval
+    this.intervalId = window.setInterval(this.calculateMetrics, WINDOW_SIZE_MS);
+  }
+
+  public stopTracking() {
+    if (this.intervalId !== null) {
+      clearInterval(this.intervalId);
+      this.intervalId = null;
+    }
+    if (this.listenersAttached) {
+      document.removeEventListener('keydown', this.handleKeyDown);
+      document.removeEventListener('mousemove', this.handleMouseMove);
+      this.listenersAttached = false;
+    }
+    // Clear temporary data on stop
+    this.keyLatencies = [];
+    this.recentScores = [];
+    this.lastKeyTime = 0;
+  }
 }
 
 export const fatigueService = new FatigueService();

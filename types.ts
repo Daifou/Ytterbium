@@ -11,6 +11,12 @@ export enum SessionStatus {
   COMPLETED = 'COMPLETED'
 }
 
+// ----------------------------------------------------------------------------------
+// [NEW TYPE] Focus Intensity (1-10) for AI sensitivity control
+export type FocusIntensity = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
+// ----------------------------------------------------------------------------------
+
+
 export interface Task {
   id: string;
   title: string;
