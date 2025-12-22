@@ -1,4 +1,4 @@
-// App.tsx - FULL 738 LINE RESTORATION
+// App.tsx - WITH SUPABASE INTEGRATION
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sidebar } from './components/Sidebar';
@@ -15,6 +15,9 @@ import { QuantumRippleBackground } from './components/QuantumRippleBackground';
 import { AIWhisper } from './components/AIWhisper';
 import LandingPage from './components/LandingPage';
 import { AIOptimizedIndicator } from './components/AIOptimizedIndicator';
+import { authService } from './services/authService';
+import { databaseService } from './services/databaseService';
+import type { User } from '@supabase/supabase-js';
 
 const DEFAULT_DURATION = 25 * 60; // 25 min default
 const SCALE_FACTOR = 1.05; // Matches the transform: scale(1.05) in the JSX
@@ -66,10 +69,11 @@ const App: React.FC = () => {
   // State: Track the user's Focus Intensity (default 5)
   const [focusIntensity, setFocusIntensity] = useState(5);
 
-  const [tasks, setTasks] = useState<Task[]>([
-    { id: '1', title: 'Draft system architecture', completed: false, priority: 'high' },
-    { id: '2', title: 'Review API specs', completed: true, priority: 'medium' },
-  ]);
+  // Supabase state
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
+
+  const [tasks, setTasks] = useState<Task[]>([]);
   const [alienMode, setAlienMode] = useState(false);
 
   // Fatigue state is initialized to null
@@ -276,7 +280,7 @@ const App: React.FC = () => {
 
 
   // Handler functions
-  const handleStart = () => {
+  const handleStart = async () => {
     // [FIX] If the session was finished (Limit Reached), clicking "NEW SESSION" should reset to IDLE
     // so the user can re-configure settings (Intensity) before starting again.
     if (elapsed >= duration) {
@@ -291,14 +295,51 @@ const App: React.FC = () => {
     setCurrentMetrics(null);
     setStatus(SessionStatus.RUNNING);
     setInsight('AI optimizing focus...');
+
+    // Create session in database
+    if (currentUser && !currentSessionId) {
+      const sessionId = await databaseService.createSession(currentUser.id, {
+        duration_seconds: duration,
+        type: 'FOCUS',
+        focus_intensity: focusIntensity,
+      });
+      if (sessionId) {
+        setCurrentSessionId(sessionId);
+      }
+    } else if (currentSessionId) {
+      // Update existing session to RUNNING
+      await databaseService.updateSession(currentSessionId, {
+        status: 'RUNNING',
+      });
+    }
   };
-  const handlePause = () => setStatus(SessionStatus.PAUSED);
-  const handleReset = () => {
+  const handlePause = async () => {
+    setStatus(SessionStatus.PAUSED);
+    // Update session status in database
+    if (currentSessionId) {
+      await databaseService.updateSession(currentSessionId, {
+        status: 'PAUSED',
+        elapsed_seconds: elapsed,
+      });
+    }
+  };
+
+  const handleReset = async () => {
     setStatus(SessionStatus.IDLE);
     setElapsed(0);
     // CRITICAL: Reset fatigue metrics on full session reset
     setCurrentMetrics(null);
     setInsight('Ready to initiate Deep Work sequence.');
+
+    // Mark session as completed in database
+    if (currentSessionId) {
+      await databaseService.updateSession(currentSessionId, {
+        status: 'COMPLETED',
+        elapsed_seconds: elapsed,
+        end_time: new Date().toISOString(),
+      });
+      setCurrentSessionId(null);
+    }
   };
 
   const handleIntensityChange = (intensity: number) => {
@@ -313,12 +354,38 @@ const App: React.FC = () => {
     setInsight(`Focus Intensity set to ${validatedIntensity}/10. AI detection threshold adjusted.`);
   };
 
-  const toggleTask = (id: string) => {
-    setTasks(prev => prev.map(t => t.id === id ? { ...t, completed: !t.completed } : t));
+  const toggleTask = async (id: string) => {
+    const task = tasks.find(t => t.id === id);
+    if (!task) return;
+
+    const newCompleted = !task.completed;
+    setTasks(prev => prev.map(t => t.id === id ? { ...t, completed: newCompleted } : t));
+
+    // Update in database
+    if (currentUser) {
+      await databaseService.updateTask(id, { completed: newCompleted });
+    }
   };
-  const addTask = (title: string) => {
-    const newTask = { id: Date.now().toString(), title, completed: false, priority: 'medium' as const };
-    setTasks(prev => [...prev, newTask]);
+
+  const addTask = async (title: string) => {
+    if (!currentUser) {
+      // Local-only mode
+      const newTask = { id: Date.now().toString(), title, completed: false, priority: 'medium' as const };
+      setTasks(prev => [...prev, newTask]);
+      return;
+    }
+
+    // Create in database
+    const dbTask = await databaseService.createTask(currentUser.id, {
+      title,
+      priority: 'medium',
+      session_id: currentSessionId || undefined,
+    });
+
+    if (dbTask) {
+      const newTask = databaseService.dbTaskToTask(dbTask);
+      setTasks(prev => [...prev, newTask]);
+    }
   };
 
   // Layout observer (Preserved)
@@ -364,17 +431,62 @@ const App: React.FC = () => {
     };
   }, [updatePaths, mode, tasks, hasEntered]);
 
+  // Load user tasks on mount
+  useEffect(() => {
+    const loadUserData = async () => {
+      if (currentUser) {
+        // Load tasks from database
+        const dbTasks = await databaseService.getTasks(currentUser.id, false);
+        const appTasks = dbTasks.map(databaseService.dbTaskToTask);
+        setTasks(appTasks);
+      }
+    };
+
+    loadUserData();
+  }, [currentUser]);
+
+  // Save metrics periodically
+  useEffect(() => {
+    if (currentMetrics && currentSessionId && status === SessionStatus.RUNNING) {
+      // Save metrics every 10 seconds
+      const saveInterval = setInterval(async () => {
+        if (currentMetrics) {
+          await databaseService.saveMetrics(currentSessionId, currentMetrics);
+        }
+      }, 10000);
+
+      return () => clearInterval(saveInterval);
+    }
+  }, [currentMetrics, currentSessionId, status]);
+
+  // Update session elapsed time periodically
+  useEffect(() => {
+    if (currentSessionId && status === SessionStatus.RUNNING) {
+      const updateInterval = setInterval(async () => {
+        await databaseService.updateSession(currentSessionId, {
+          elapsed_seconds: elapsed,
+        });
+      }, 30000); // Every 30 seconds
+
+      return () => clearInterval(updateInterval);
+    }
+  }, [currentSessionId, status, elapsed]);
+
   if (!hasEntered) {
     return <LandingPage onEnter={(data) => {
       setHasEntered(true);
       if (data) {
+        // Set current user from auth
+        if (data.user) {
+          setCurrentUser(data.user);
+        }
+
         // Apply AI settings
         handleIntensityChange(data.intensity);
         setInsight(data.insight);
 
         // Add the analyzed task
-        const newTask = { id: Date.now().toString(), title: data.task, completed: false, priority: 'high' as const };
-        setTasks(prev => [newTask, ...prev]);
+        addTask(data.task);
 
         // Auto-start Timer with "Beauty Shot" delay
         setElapsed(0);
@@ -383,7 +495,7 @@ const App: React.FC = () => {
 
         // Delay start by 2 seconds to showcase the UI
         setTimeout(() => {
-          setStatus(SessionStatus.RUNNING);
+          handleStart();
         }, 2000);
       }
     }} />;

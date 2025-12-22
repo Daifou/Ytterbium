@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ollamaService } from '../services/ollamaService';
+import { authService } from '../services/authService';
+import type { User } from '@supabase/supabase-js';
 
 // --- DESIGN TOKENS ---
 const COLORS = {
@@ -114,6 +116,136 @@ const EnvironmentalBackground = React.memo(() => (
     </div>
 ));
 
+// --- AUTH FORM COMPONENT ---
+const AuthForm = ({ onAuthSuccess }: { onAuthSuccess: (user: User) => void }) => {
+    const [mode, setMode] = useState<'signin' | 'signup'>('signin');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [fullName, setFullName] = useState('');
+    const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setError('');
+        setLoading(true);
+
+        try {
+            if (mode === 'signup') {
+                const { user, error: authError } = await authService.signUp(email, password, fullName);
+                if (authError) throw authError;
+                if (user) onAuthSuccess(user);
+            } else {
+                const { user, error: authError } = await authService.signIn(email, password);
+                if (authError) throw authError;
+                if (user) onAuthSuccess(user);
+            }
+        } catch (err: any) {
+            setError(err.message || 'Authentication failed');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="relative overflow-hidden backdrop-blur-[50px] bg-white/70 border border-white/50 rounded-[40px] p-10 md:p-12 shadow-[0_40px_100px_-20px_rgba(0,0,0,0.15)] max-w-md w-full"
+        >
+            {/* Inner Rim Light Detail */}
+            <div className="absolute inset-0 rounded-[40px] pointer-events-none border border-white/60 shadow-[inset_0_1px_1px_rgba(255,255,255,1)]" />
+
+            <div className="mb-8 text-center">
+                <span className="text-[10px] font-black tracking-[0.4em] text-blue-600/40 uppercase">
+                    {mode === 'signin' ? 'Welcome Back' : 'Create Account'}
+                </span>
+                <h2 className="text-4xl font-black tracking-tighter text-blue-600 mt-2">
+                    Ytterbium
+                </h2>
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-4">
+                {mode === 'signup' && (
+                    <div>
+                        <input
+                            type="text"
+                            value={fullName}
+                            onChange={(e) => setFullName(e.target.value)}
+                            placeholder="Full Name"
+                            className="w-full px-4 py-3 bg-white/50 border border-white/60 rounded-xl outline-none focus:border-blue-400 transition-colors text-gray-800 placeholder:text-gray-400"
+                        />
+                    </div>
+                )}
+
+                <div>
+                    <input
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="Email"
+                        required
+                        className="w-full px-4 py-3 bg-white/50 border border-white/60 rounded-xl outline-none focus:border-blue-400 transition-colors text-gray-800 placeholder:text-gray-400"
+                    />
+                </div>
+
+                <div>
+                    <input
+                        type="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        placeholder="Password"
+                        required
+                        minLength={6}
+                        className="w-full px-4 py-3 bg-white/50 border border-white/60 rounded-xl outline-none focus:border-blue-400 transition-colors text-gray-800 placeholder:text-gray-400"
+                    />
+                </div>
+
+                {error && (
+                    <motion.div
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="text-red-600 text-sm text-center bg-red-50/50 py-2 rounded-lg"
+                    >
+                        {error}
+                    </motion.div>
+                )}
+
+                <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    type="submit"
+                    disabled={loading}
+                    className="relative w-full py-4 bg-blue-600 rounded-2xl text-white font-bold shadow-lg shadow-blue-500/30 overflow-hidden disabled:opacity-50"
+                >
+                    <span className="relative z-10 text-[9px] uppercase tracking-[0.5em] pl-[0.5em]">
+                        {loading ? 'Processing...' : mode === 'signin' ? 'Sign In' : 'Sign Up'}
+                    </span>
+                    {!loading && (
+                        <motion.div
+                            animate={{ x: ['-100%', '200%'] }}
+                            transition={{ repeat: Infinity, duration: 3, ease: "linear" }}
+                            className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
+                        />
+                    )}
+                </motion.button>
+            </form>
+
+            <div className="mt-6 text-center">
+                <button
+                    onClick={() => setMode(mode === 'signin' ? 'signup' : 'signin')}
+                    className="text-sm text-blue-600/70 hover:text-blue-600 transition-colors"
+                >
+                    {mode === 'signin' ? "Don't have an account? Sign up" : 'Already have an account? Sign in'}
+                </button>
+            </div>
+
+            {/* Outer Soft Glow */}
+            <div className="absolute -inset-10 bg-blue-400/10 blur-[100px] -z-10 rounded-full" />
+        </motion.div>
+    );
+};
+
 const TopLeftInputBar = ({ status, onSubmit }: { status: 'IDLE' | 'THINKING', onSubmit: (task: string) => void }) => {
     const [localTask, setLocalTask] = useState('');
     const handleSubmit = (e: React.FormEvent) => {
@@ -162,6 +294,8 @@ const TopLeftInputBar = ({ status, onSubmit }: { status: 'IDLE' | 'THINKING', on
 };
 
 const LandingPage: React.FC<{ onEnter: (data: any) => void }> = ({ onEnter }) => {
+    const [authState, setAuthState] = useState<'checking' | 'unauthenticated' | 'authenticated'>('checking');
+    const [currentUser, setCurrentUser] = useState<User | null>(null);
     const [finalTask, setFinalTask] = useState('');
     const [status, setStatus] = useState<'IDLE' | 'THINKING' | 'READY'>('IDLE');
     const [analysisResult, setAnalysisResult] = useState<{
@@ -170,6 +304,36 @@ const LandingPage: React.FC<{ onEnter: (data: any) => void }> = ({ onEnter }) =>
         type: string,
         focusMode: string
     } | null>(null);
+
+    // Check for existing session on mount
+    useEffect(() => {
+        const checkAuth = async () => {
+            const user = await authService.getCurrentUser();
+            if (user) {
+                setCurrentUser(user);
+                setAuthState('authenticated');
+            } else {
+                setAuthState('unauthenticated');
+            }
+        };
+
+        checkAuth();
+
+        // Listen for auth changes
+        const subscription = authService.onAuthStateChange((user) => {
+            setCurrentUser(user);
+            setAuthState(user ? 'authenticated' : 'unauthenticated');
+        });
+
+        return () => {
+            subscription.unsubscribe();
+        };
+    }, []);
+
+    const handleAuthSuccess = (user: User) => {
+        setCurrentUser(user);
+        setAuthState('authenticated');
+    };
 
     const handleInitialSubmit = async (task: string) => {
         setFinalTask(task);
@@ -221,16 +385,43 @@ const LandingPage: React.FC<{ onEnter: (data: any) => void }> = ({ onEnter }) =>
             </AnimatePresence>
 
             <AnimatePresence>
-                {status !== 'READY' && (
+                {status !== 'READY' && authState === 'authenticated' && (
                     <TopLeftInputBar status={status as 'IDLE' | 'THINKING'} onSubmit={handleInitialSubmit} />
                 )}
             </AnimatePresence>
 
-            {/* --- UPDATED "DEEP FOCUS" CONTAINER (COMPACT & CUTE) --- */}
+            {/* --- MAIN CONTENT AREA --- */}
             <main className="relative z-20 min-h-screen flex items-center justify-center p-6">
-                <AnimatePresence>
-                    {status === 'READY' && analysisResult && (
+                <AnimatePresence mode="wait">
+                    {/* Loading State */}
+                    {authState === 'checking' && (
                         <motion.div
+                            key="loading"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="text-white text-xl"
+                        >
+                            Loading...
+                        </motion.div>
+                    )}
+
+                    {/* Auth Form */}
+                    {authState === 'unauthenticated' && (
+                        <motion.div
+                            key="auth"
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.9 }}
+                        >
+                            <AuthForm onAuthSuccess={handleAuthSuccess} />
+                        </motion.div>
+                    )}
+
+                    {/* Analysis Result */}
+                    {status === 'READY' && analysisResult && authState === 'authenticated' && (
+                        <motion.div
+                            key="ready"
                             initial={{ opacity: 0, scale: 0.8, y: 30 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
                             transition={{ type: "spring", damping: 25, stiffness: 300 }}
@@ -257,7 +448,7 @@ const LandingPage: React.FC<{ onEnter: (data: any) => void }> = ({ onEnter }) =>
                                 <motion.button
                                     whileHover={{ scale: 1.03 }}
                                     whileTap={{ scale: 0.97 }}
-                                    onClick={() => onEnter({ ...analysisResult, task: finalTask })}
+                                    onClick={() => onEnter({ ...analysisResult, task: finalTask, user: currentUser })}
                                     className="relative w-full py-5 bg-blue-600 rounded-2xl text-white font-bold shadow-lg shadow-blue-500/30 overflow-hidden"
                                 >
                                     <span className="relative z-10 text-[9px] uppercase tracking-[0.5em] pl-[0.5em]">Enter System</span>
@@ -281,8 +472,8 @@ const LandingPage: React.FC<{ onEnter: (data: any) => void }> = ({ onEnter }) =>
             <motion.div
                 className="fixed bottom-12 right-12 text-right z-[150] pointer-events-none text-white"
                 animate={{
-                    filter: status !== 'IDLE' ? 'blur(10px)' : 'blur(0px)',
-                    opacity: status !== 'IDLE' ? 0.4 : 1
+                    filter: authState !== 'unauthenticated' && status !== 'IDLE' ? 'blur(10px)' : 'blur(0px)',
+                    opacity: authState !== 'unauthenticated' && status !== 'IDLE' ? 0.4 : 1
                 }}
                 transition={{ duration: 0.8 }}
             >
