@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@500;600&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400&family=Playfair+Display:wght@600;700&family=PT+Serif:wght@400;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
     <script>
       tailwind.config = {
         darkMode: 'class',
@@ -15,17 +15,25 @@
           extend: {
             fontFamily: {
               sans: ['Inter', 'sans-serif'],
-              serif: ['Playfair Display', 'serif'],
+              tight: ['Inter Tight', 'Inter', 'sans-serif'],
+              serif: ['PT Serif', 'serif'],
+              logo: ['"Helvetica World"', 'Helvetica', 'Arial', 'sans-serif'],
+              mono: ['JetBrains Mono', 'monospace'],
               alien: ['"Share Tech Mono"', 'monospace'],
             },
             colors: {
-              background: '#09090b', // zinc-950
-              surface: '#18181b',    // zinc-900
-              border: '#27272a',     // zinc-800
-              primary: '#5e6ad2',    // Linear-ish purple/indigo
-              'primary-hover': '#4f5bbf',
-              success: '#2da44e',
-              warning: '#d29922',
+              // Intelligent Sky Palette
+              'pale-blue': '#e8f1f7',
+              'soft-sky': '#b8d4e8',
+              'clear-blue': '#7aa8c9',
+              'deep-intelligence': '#2d5f8f',
+              'warm-white': '#faf8f5',
+              'cloud-cream': '#f5f0eb',
+              'vesper-clay': '#e8dad3',
+              'warm-stone': '#d4c4b8',
+              'text-primary': '#1a2332',
+              'text-secondary': '#4a5568',
+              'text-tertiary': '#7a8599',
             },
             animation: {
               'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
@@ -45,8 +53,8 @@
     </script>
     <style>
       body {
-        background-color: #09090b;
-        color: #e4e4e7;
+        background-color: #faf8f5;
+        color: #1a2332;
         font-family: 'Inter', sans-serif;
         -webkit-font-smoothing: antialiased;
         /* FIX: Removing overflow: hidden to allow fixed SVG arrows to render */

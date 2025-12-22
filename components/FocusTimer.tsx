@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Play, Pause, Square, Clock, Zap, Activity, Gauge, Target } from 'lucide-react';
+import { Play, Pause, Square, Clock, Zap, Activity, Gauge, Target, Sparkles } from 'lucide-react';
 
 export enum SessionStatus {
   IDLE = 'IDLE',
@@ -17,6 +17,7 @@ interface FocusTimerProps {
   onPause: () => void;
   onReset: () => void;
   onIntensityChange: (intensity: number) => void;
+  currentInsight?: string; // Prop kept for compatibility with App.tsx
 }
 
 // ----------------------------------------------------------------------------------
@@ -41,6 +42,7 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({
   onPause,
   onReset,
   onIntensityChange,
+  currentInsight,
 }) => {
   const [sliderValue, setSliderValue] = useState(5);
   // Get the current label based on the slider value
@@ -49,13 +51,22 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({
   const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = parseInt(e.target.value);
     setSliderValue(val);
-    // Call the intensity handler to update App.tsx and fatigueService.ts
+    // Call the intensity handler to update App.tsx and its hidden duration mapping
     onIntensityChange(val);
   };
 
-  const progressPercent = Math.min(100, (elapsedSeconds / durationSeconds) * 100);
+  // [FIX] Progress Bar now uses the dynamic duration from App.tsx 
+  // This ensures the bar hits 100% exactly when the hidden cap (e.g., 40 mins) is reached.
+  const progressPercent = durationSeconds > 0
+    ? Math.min(100, (elapsedSeconds / durationSeconds) * 100)
+    : 0;
+
+  // Timer Display Logic (Counting Up)
   const minutes = Math.floor(elapsedSeconds / 60).toString().padStart(2, '0');
   const seconds = (elapsedSeconds % 60).toString().padStart(2, '0');
+
+  // [UPDATED] Check if session is finished via AI Intervention
+  const isFinished = elapsedSeconds >= durationSeconds && durationSeconds > 0;
 
   // Status configuration - Simplified
   let StatusIcon = Clock;
@@ -77,9 +88,16 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({
       statusText = "FLOW";
     }
   } else if (status === SessionStatus.PAUSED) {
-    StatusIcon = Clock;
-    statusColor = "text-blue-400";
-    statusText = "PAUSED";
+    // [UPDATED] If paused because we hit the peak, show "PEAK REACHED"
+    if (isFinished) {
+      StatusIcon = Sparkles;
+      statusColor = "text-amber-400";
+      statusText = "PEAK REACHED";
+    } else {
+      StatusIcon = Clock;
+      statusColor = "text-blue-400";
+      statusText = "PAUSED";
+    }
   }
 
   const actionButtonClasses = `
@@ -101,20 +119,53 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({
     backdrop-blur-sm
   `;
 
+  // APPLE SPECTRAL GLOW LOGIC
+  const isRunning = status === SessionStatus.RUNNING;
+
   return (
-    <div className="
+    <div className={`
       w-full h-full
       bg-gradient-to-br from-zinc-900/40 via-zinc-900/30 to-zinc-950/40
       backdrop-blur-xl
-      border border-white/[0.08]
       rounded-2xl
       shadow-[0_0_0_1px_rgba(255,255,255,0.02),0_8px_32px_rgba(0,0,0,0.32),0_16px_60px_rgba(0,0,0,0.28)]
       hover:shadow-[0_0_0_1px_rgba(255,255,255,0.03),0_8px_40px_rgba(0,0,0,0.36),0_20px_80px_rgba(0,0,0,0.32)]
       relative flex flex-col
-      transition-all duration-500
-      before:absolute before:inset-0 before:rounded-2xl before:bg-gradient-to-b before:from-white/[0.04] before:to-transparent before:pointer-events-none
+      transition-all duration-700 ease-in-out
+
+      /* Standard border (reverts to this when not running) */
+      border ${(!isRunning && !isFinished) ? 'border-white/[0.08]' : 'border-transparent'}
+
+      /* [UPDATED] Spectral Edge Glow Pseudo-element */
+      /* Adds a pulsing Gold/Amber glow when the session reaches its peak */
+      ${isRunning ? `
+        before:content-['']
+        before:absolute before:inset-0 before:rounded-2xl 
+        before:p-[1px] 
+        before:bg-gradient-to-tr 
+        before:from-emerald-400/10 before:via-cyan-300/5 before:to-emerald-400/10
+        before:mask-[linear-gradient(#fff_0_0)_content-box,linear-gradient(#fff_0_0)]
+        before:mask-composite-exclude
+        before:pointer-events-none
+        before:z-20
+      ` : isFinished ? `
+        before:content-['']
+        before:absolute before:inset-0 before:rounded-2xl 
+        before:p-[1px] 
+        before:bg-gradient-to-tr 
+        before:from-amber-400/40 before:via-white/20 before:to-amber-400/40
+        before:mask-[linear-gradient(#fff_0_0)_content-box,linear-gradient(#fff_0_0)]
+        before:mask-composite-exclude
+        before:pointer-events-none
+        before:z-20
+        before:animate-pulse
+        shadow-[0_0_30px_rgba(251,191,36,0.15)]
+      ` : `
+        before:absolute before:inset-0 before:rounded-2xl before:bg-gradient-to-b before:from-white/[0.04] before:to-transparent before:pointer-events-none
+      `}
+
       after:absolute after:inset-0 after:rounded-2xl after:bg-gradient-to-br after:from-transparent after:via-transparent after:to-white/[0.01] after:pointer-events-none
-    ">
+    `}>
 
       {/* Header: Title bar aesthetic */}
       <div className="
@@ -145,18 +196,19 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({
       </div>
 
       {/* Main Content Area */}
-      <div className="p-3 space-y-3 flex-1 flex flex-col justify-between">
+      <div className="p-3 space-y-3 flex-1 flex flex-col relative z-10">
 
         {/* Timer Display */}
         <div className="flex flex-col items-center justify-center">
-          <div className="
-            text-2xl font-mono font-medium text-white tracking-tighter tabular-nums
+          <div className={`
+            text-2xl font-mono font-medium tracking-tighter tabular-nums
             drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)]
-          ">
+            ${isFinished ? 'text-amber-400' : 'text-white'}
+          `}>
             {minutes}:{seconds}
           </div>
 
-          {/* Progress indicator */}
+          {/* Progress indicator - Invisible Target Logic */}
           <div className="w-full max-w-[120px] flex items-center gap-2 mt-1">
             <div className="
               flex-1 h-1 
@@ -166,19 +218,22 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({
               border border-white/[0.05]
             ">
               <motion.div
-                className="
+                className={`
                   h-full 
-                  bg-gradient-to-r from-indigo-500 via-blue-400 to-cyan-400
+                  ${isFinished
+                    ? 'bg-gradient-to-r from-amber-500 via-white to-amber-500'
+                    : 'bg-gradient-to-r from-indigo-500 via-blue-400 to-cyan-400'
+                  }
                   shadow-[0_0_8px_rgba(99,102,241,0.3),0_1px_2px_rgba(255,255,255,0.2)_inset]
                   relative
                   before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/[0.2] before:to-transparent before:opacity-50
-                "
+                `}
                 initial={{ width: "0%" }}
                 animate={{ width: `${progressPercent}%` }}
-                transition={{ duration: 0.3 }}
+                transition={{ duration: 0.5, ease: "linear" }}
               />
             </div>
-            <div className="text-[9px] text-gray-500 font-mono tabular-nums w-6 text-right">
+            <div className={`text-[9px] font-mono tabular-nums w-6 text-right ${isFinished ? 'text-amber-400' : 'text-gray-500'}`}>
               {Math.round(progressPercent)}%
             </div>
           </div>
@@ -191,13 +246,11 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1.5">
                   <Target className="w-3 h-3 text-gray-500 drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]" />
-                  {/* [MODIFICATION] Display the conceptual label */}
                   <span className={`text-[9px] uppercase tracking-wider ${intensityColor} font-medium drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]`}>
                     {intensityLabel}
                   </span>
                 </div>
-                {/* [MODIFICATION] Display the technical number for power users */}
-                <div className="text-[10px] text-gray-400 font-mono">/10</div>
+                <div className="text-[10px] text-gray-400 font-mono">{sliderValue}/10</div>
               </div>
 
               {/* Slider */}
@@ -205,8 +258,8 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({
                 <div className="flex-1 relative">
                   <div className="
                     absolute inset-0 
-                    bg-gradient-to-r from-purple-500/10 via-cyan-500/10 to-red-500/10 
-                    rounded-full
+                    bg-gradient-to-r from-purple-500/40 via-cyan-500/40 to-red-500/40 
+                    rounded-full pointer-events-none
                   "></div>
                   <input
                     type="range"
@@ -235,11 +288,12 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({
                       [&::-webkit-slider-thumb]:duration-200
                       [&::-webkit-slider-thumb]:hover:scale-110
                       [&::-webkit-slider-thumb]:hover:shadow-[0_4px_12px_rgba(99,102,241,0.4),0_1px_2px_rgba(255,255,255,0.8)_inset]
+                      [&::-webkit-slider-thumb]:-translate-y-[calc((0.75rem-0.125rem)/2)]
                       [&::-webkit-slider-track]:appearance-none
                       [&::-webkit-slider-track]:bg-gradient-to-r
-                      [&::-webkit-slider-track]:from-purple-500/30
-                      [&::-webkit-slider-track]:via-cyan-500/30
-                      [&::-webkit-slider-track]:to-red-500/30
+                      [&::-webkit-slider-track]:from-purple-500/70
+                      [&::-webkit-slider-track]:via-cyan-500/70
+                      [&::-webkit-slider-track]:to-red-500/70
                       [&::-webkit-slider-track]:rounded-full
                       [&::-webkit-slider-track]:h-0.5
                       cursor-pointer
@@ -282,6 +336,10 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({
               </div>
             </div>
           )}
+        </div>
+
+        {/* Grouped Controls (Action Buttons and Footer) */}
+        <div className="mt-auto shrink-0 space-y-2">
 
           {/* Action Buttons */}
           <div className="pt-2 border-t border-white/[0.08]">
@@ -304,7 +362,6 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({
                   </button>
                 </>
               ) : (
-                // START SESSION button
                 <button
                   onClick={onStart}
                   className="
@@ -327,38 +384,40 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({
                   "
                 >
                   <Play className="w-3 h-3 relative z-10" />
-                  <span className="relative z-10">START SESSION</span>
+                  <span className="relative z-10">{isFinished ? 'NEW SESSION' : 'START SESSION'}</span>
                 </button>
               )}
             </div>
           </div>
-        </div>
 
-        {/* Footer */}
-        <div className="mt-auto pt-2 border-t border-white/[0.08]">
-          <div className="flex items-center justify-between">
-            <div className="text-[9px] text-gray-500">
-              {status === SessionStatus.IDLE ? 'Ready for session' :
-                status === SessionStatus.RUNNING ? 'AI optimizing focus...' : 'Session paused'}
-            </div>
+          {/* Footer */}
+          <div className="pt-2 border-t border-white/[0.08]">
+            <div className="flex items-center justify-between">
+              <div className="text-[9px] text-gray-500">
+                {status === SessionStatus.IDLE ? 'Ready for session' :
+                  status === SessionStatus.RUNNING ? 'AI optimizing focus...' :
+                    isFinished ? 'Optimal window utilized' : 'Session paused'}
+              </div>
 
-            {/* Status indicators */}
-            <div className="flex items-center gap-0.5">
-              {Array.from({ length: 4 }).map((_, i) => (
-                <div
-                  key={i}
-                  className={`
-                    w-0.5 h-1.5 rounded-sm 
-                    transition-all duration-300
-                    ${status === SessionStatus.RUNNING && fatigueScore > (i * 25)
-                      ? 'bg-gradient-to-b from-emerald-500 to-amber-500 shadow-[0_0_4px_rgba(34,197,94,0.3)]'
-                      : 'bg-white/[0.05]'
-                    }
-                  `}
-                />
-              ))}
+              {/* Status indicators */}
+              <div className="flex items-center gap-0.5">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className={`
+                      w-0.5 h-1.5 rounded-sm 
+                      transition-all duration-300
+                      ${(status === SessionStatus.RUNNING || isFinished) && fatigueScore > (i * 25)
+                        ? 'bg-gradient-to-b from-emerald-500 to-amber-500 shadow-[0_0_4px_rgba(34,197,94,0.3)]'
+                        : 'bg-white/[0.05]'
+                      }
+                    `}
+                  />
+                ))}
+              </div>
             </div>
           </div>
+
         </div>
       </div>
     </div>

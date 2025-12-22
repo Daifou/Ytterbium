@@ -2,8 +2,6 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { AppMode } from '../types';
 
-const MotionDiv = motion.div as any;
-
 interface SidebarProps {
   currentMode: AppMode;
   setMode: (mode: AppMode) => void;
@@ -11,47 +9,109 @@ interface SidebarProps {
   toggleAlienMode: () => void;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ currentMode, setMode, alienMode, toggleAlienMode }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ currentMode, setMode, alienMode }) => {
   const items = [
     { mode: AppMode.FOCUS, label: 'Focus' },
     { mode: AppMode.STATS, label: 'Insights' },
     { mode: AppMode.RELAX, label: 'Relax' },
   ];
 
+  // Animation variants for the whole panel (subtle entrance)
+  const panelVariants = {
+    hidden: { opacity: 0, x: -50 },
+    visible: { opacity: 1, x: 0, transition: { duration: 0.5, ease: 'easeOut', delay: 0.2 } },
+  };
+
+  // Base button styles for clean separation
+  const baseButtonStyle = `
+    relative w-full py-2 px-2 transition-all duration-300
+    rounded-full flex items-center justify-center border
+  `;
+
   return (
-    <aside className="fixed left-0 top-0 w-52 h-screen flex flex-col justify-center z-50 pointer-events-auto">
+    <aside className="fixed left-0 top-0 w-52 h-screen flex flex-col justify-center z-50 pointer-events-none">
+
+      {/* 1. TITLE SECTION (Clear, high-contrast text) */}
       <div className="px-5 pt-8 pb-4 pointer-events-auto">
-        <h1 className={`text-6xl font-bold text-gray-100 tracking-tight leading-none drop-shadow-2xl transition-all duration-700 ${alienMode ? 'font-alien tracking-widest text-indigo-200 shadow-[0_0_15px_rgba(99,102,241,0.5)]' : 'font-serif'}`}>
+        <motion.h1
+          className={`
+            text-6xl font-bold tracking-tight leading-none transition-all duration-500 
+            drop-shadow-lg cursor-default
+            ${alienMode
+              // Alien mode: Clean Cyan Glow
+              ? 'font-alien tracking-widest text-cyan-400 shadow-[0_0_15px_rgba(0,255,255,0.6)] hover:text-white'
+              // Default mode: Crisp White
+              : 'font-serif text-white hover:text-gray-100'
+            }
+          `}
+        // Removed complex text shadow motion for clarity
+        >
           Ytterbium
-        </h1>
+        </motion.h1>
       </div>
 
-      <nav className="flex-grow flex flex-col justify-center items-center w-full px-5 gap-2 pointer-events-auto -mt-48">
-        {/* Narrower container with bigger text */}
-        <div className="w-24 bg-zinc-900/30 backdrop-blur-md border border-white/5 rounded-xl overflow-hidden shadow-2xl relative group/panel">
-          {items.map((item, index) => (
-            <button
-              key={item.mode}
-              onClick={() => setMode(item.mode)}
-              className={`
-                relative w-full py-3 px-1.5 transition-all duration-300
-                flex items-center justify-center gap-1 border-l-2
-                ${currentMode === item.mode
-                  ? 'bg-white/8 text-white font-medium border-white/20'
-                  : 'border-transparent text-gray-300/80 font-medium hover:text-white hover:bg-white/4 hover:border-white/10'
-                }
-                ${index !== items.length - 1 ? 'border-b border-white/5' : ''}
-                ${alienMode ? 'font-alien text-sm tracking-[0.1em] uppercase' : 'text-sm font-sans'}
-                group
-              `}
-            >
-              <span>{item.label}</span>
-            </button>
-          ))}
-        </div>
+      <nav className="flex-grow flex flex-col justify-center items-center w-full px-5 pointer-events-auto -mt-48">
+
+        {/* 2. PANEL CONTAINER (FINAL ART: Increased Transparency) */}
+        <motion.div
+          className={`
+            w-32 p-3 
+            // Increased transparency: Changed from 40% to 30% opacity
+            bg-zinc-900/30 backdrop-blur-2xl border border-white/20 rounded-3xl 
+            shadow-2xl flex flex-col gap-3 
+            transition-all duration-500 group/panel
+            // Clearer outer shadow for depth, no complex color glows
+            shadow-[0_0_20px_rgba(0,0,0,0.5)] 
+            hover:shadow-[0_0_30px_rgba(0,0,0,0.8)]
+          `}
+          variants={panelVariants}
+          initial="hidden"
+          animate="visible"
+        >
+          {items.map((item) => {
+            const isActive = currentMode === item.mode;
+
+            // 3. BUTTONS (Refined Pro, Light, and Smart Active State)
+            const activeStyles = `
+                // Background: Subtle translucent white/light gray
+                bg-white/10 text-white border-white/30
+                
+                // Shadow: Pale, smart, internal glow (no aggressive solid white)
+                shadow-[inset_0_0_8px_rgba(255,255,255,0.2),_0_0_10px_rgba(255,255,255,0.1)] 
+                
+                // Hover: Boost the soft glow
+                hover:bg-white/15 hover:shadow-[inset_0_0_8px_rgba(255,255,255,0.3),_0_0_15px_rgba(255,255,255,0.2)]
+            `;
+
+            const inactiveStyles = `
+                // Inactive: Transparent background, clear gray text, subtle border
+                bg-white/5 text-gray-300 border-white/10 
+                hover:bg-white/10 hover:text-white hover:border-white/30
+                shadow-inner shadow-black/30 // Simple recess shadow
+            `;
+
+            const fontStyles = alienMode
+              ? 'font-alien text-[11px] tracking-[0.3em] uppercase font-light'
+              : 'text-sm font-medium font-sans';
+
+            return (
+              <motion.button
+                key={item.mode}
+                onClick={() => setMode(item.mode)}
+                className={`${baseButtonStyle} ${isActive ? activeStyles : inactiveStyles} ${fontStyles}`}
+                // Cute/Haptic Feedback: Maintained
+                whileHover={{ scale: 1.05, rotate: alienMode ? 1 : 0 }}
+                whileTap={{ scale: 0.95 }}
+                transition={{ type: "spring", stiffness: 400, damping: 20 }}
+              >
+                <span className="relative z-10">{item.label}</span>
+              </motion.button>
+            );
+          })}
+        </motion.div>
       </nav>
 
-      {/* Empty div to maintain layout - no typography/alien mode toggle */}
+      {/* Spacer to maintain vertical balance */}
       <div className="px-5 pb-8 pointer-events-auto"></div>
     </aside>
   );

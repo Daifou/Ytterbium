@@ -1,157 +1,307 @@
-// LandingPage.tsx - FINAL, REFINED VERSION: Atmospheric Glow, Premium Navbar, Module Depth
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ollamaService } from '../services/ollamaService';
 
-import React from 'react';
-import { motion } from 'framer-motion';
-import { Pickaxe, BrainCircuit, HeartPulse, Timer, Zap, ArrowRight, Database, Layers } from 'lucide-react';
+// --- DESIGN TOKENS ---
+const COLORS = {
+    electricBlue: "#2A5EE8",
+    deepMoss: "#2D3A30",
+    white: "#ffffff",
+    borderWidth: "6px"
+};
 
-const LandingPage = ({ onEnter }) => {
-    // Glacial Style for Components - Consistent theme
-    const glacialPanelStyle = "bg-zinc-900/40 backdrop-blur-md border border-white/5 rounded-xl shadow-2xl transition-all hover:shadow-[0_0_30px_-5px_rgba(0,0,0,0.5)]";
+// --- COMPONENT: ANIMATED CLOUDS ---
+const Cloud = ({ delay = 0, duration = 40, top = '10%', scale = 1 }) => (
+    <motion.div
+        initial={{ x: '-40vw', opacity: 0 }}
+        animate={{
+            x: '110vw',
+            opacity: [0, 0.5, 0.5, 0]
+        }}
+        transition={{
+            duration: duration,
+            repeat: Infinity,
+            delay: delay,
+            ease: "linear"
+        }}
+        className="absolute pointer-events-none"
+        style={{ top, transform: `scale(${scale})`, zIndex: 5 }}
+    >
+        <div className="relative">
+            <div className="w-96 h-24 bg-white/40 blur-[50px] rounded-full" />
+            <div className="absolute -top-8 left-16 w-48 h-24 bg-white/30 blur-[40px] rounded-full" />
+            <div className="absolute top-4 left-40 w-56 h-20 bg-white/20 blur-[35px] rounded-full" />
+        </div>
+    </motion.div>
+);
 
-    // Primary Button: Subtle, Translucent (as requested previously)
-    const primaryButton = "flex items-center gap-2 px-5 py-2.5 bg-white/10 text-white text-sm rounded-lg font-semibold border border-indigo-500/50 hover:bg-white/20 transition-colors shadow-lg shadow-indigo-500/10";
+// --- COMPONENT: THE PIXEL CLONE MEADOW ---
+const EnvironmentalBackground = React.memo(() => (
+    <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none bg-[#E8EDF5]">
+        {/* 1. Sky Gradient */}
+        <div
+            className="absolute inset-0 h-full w-full z-0"
+            style={{
+                background: `linear-gradient(to bottom, #2A5EE8 0%, #5C85EE 30%, #A5BFF0 60%, #E8EDF5 100%)`
+            }}
+        />
 
-    // Secondary Button 
-    const secondaryButton = "flex items-center gap-2 px-5 py-2.5 border border-gray-700 text-gray-400 text-sm rounded-lg font-semibold hover:border-indigo-500 hover:text-white transition-colors";
+        {/* 2. Cloud Layer */}
+        <Cloud top="10%" delay={0} duration={80} scale={1.2} />
+        <Cloud top="25%" delay={25} duration={60} scale={0.9} />
+        <Cloud top="5%" delay={45} duration={100} scale={1.5} />
 
-    // --- Background Mimicry (Enhanced Glow - Request 1) ---
-    const BackgroundMimic = () => (
-        <>
-            {/* Main Indigo Glow (Amplified) */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[40%] w-[900px] h-[900px] bg-indigo-500/10 blur-[150px] rounded-full pointer-events-none z-0" />
-            {/* Subtle Cyan/Teal secondary Glow for atmosphere */}
-            <div className="absolute bottom-0 right-0 translate-x-[20%] translate-y-[20%] w-[500px] h-[500px] bg-teal-500/5 blur-[100px] rounded-full pointer-events-none z-0" />
-        </>
-    );
+        {/* 3. Soft Volumetric Haze */}
+        <div className="absolute top-[10%] left-[5%] w-[500px] h-[150px] bg-white/20 blur-[100px] rounded-full z-[6]" />
+
+        {/* 4. The Meadow */}
+        <div
+            className="absolute bottom-0 w-full h-[35vh] z-10"
+            style={{
+                backgroundColor: COLORS.deepMoss,
+                backgroundImage: `
+                    linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, transparent 100%),
+                    repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(0,0,0,0.05) 2px, rgba(0,0,0,0.05) 4px)
+                `,
+                clipPath: 'polygon(0% 15%, 5% 10%, 12% 18%, 18% 8%, 25% 15%, 32% 10%, 40% 18%, 48% 12%, 55% 16%, 62% 8%, 70% 15%, 78% 11%, 85% 19%, 92% 10%, 100% 16%, 100% 100%, 0% 100%)'
+            }}
+        />
+
+        {/* Shadow Depth for Grass */}
+        <div
+            className="absolute bottom-0 w-full h-[25vh] opacity-20 z-[11]"
+            style={{
+                background: `linear-gradient(to top, #000, transparent)`,
+                maskImage: 'repeating-linear-gradient(90deg, black 0px, black 1px, transparent 1px, transparent 4px)',
+            }}
+        />
+
+        {/* 5. Floating Particles */}
+        {[...Array(18)].map((_, i) => (
+            <motion.div
+                key={i}
+                initial={{ y: "110vh", x: `${Math.random() * 100}vw`, opacity: 0 }}
+                animate={{
+                    y: "-10vh",
+                    opacity: [0, 0.4, 0],
+                    x: `${(Math.random() * 100) + (Math.sin(i) * 8)}vw`
+                }}
+                transition={{
+                    duration: 20 + Math.random() * 20,
+                    repeat: Infinity,
+                    ease: "linear",
+                    delay: Math.random() * 15
+                }}
+                className="absolute w-[2px] h-[2px] bg-white/40 z-20"
+            />
+        ))}
+
+        {/* 6. MASTER PIXEL GRAIN */}
+        <div className="absolute inset-0 opacity-[0.4] mix-blend-overlay z-[100]">
+            <svg className="w-full h-full">
+                <filter id="ultraPixelGrain">
+                    <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" stitchTiles="stitch" />
+                    <feColorMatrix type="saturate" values="0" />
+                    <feComponentTransfer>
+                        <feFuncR type="linear" slope="1.5" intercept="-0.2" />
+                        <feFuncG type="linear" slope="1.5" intercept="-0.2" />
+                        <feFuncB type="linear" slope="1.5" intercept="-0.2" />
+                    </feComponentTransfer>
+                </filter>
+                <rect width="100%" height="100%" filter="url(#ultraPixelGrain)" />
+            </svg>
+        </div>
+    </div>
+));
+
+const TopLeftInputBar = ({ status, onSubmit }: { status: 'IDLE' | 'THINKING', onSubmit: (task: string) => void }) => {
+    const [localTask, setLocalTask] = useState('');
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (localTask.trim()) onSubmit(localTask);
+    };
 
     return (
-        // ROOT: Using grid place-items-center for centering
-        <div className="min-h-screen bg-black text-gray-200 font-sans relative overflow-hidden grid place-items-center">
-
-            <BackgroundMimic />
-
-            {/* NAVBAR (Fixed to top) - Enhanced Glass Blur (Request 2) */}
-            <header className="fixed top-6 w-full z-50 flex justify-center">
-                <div
-                    className="w-full max-w-4xl mx-auto px-6 py-3 flex justify-between items-center 
-                               bg-zinc-900/40 backdrop-blur-xl border border-white/5 rounded-full shadow-2xl" // shadow-2xl for floating depth
-                >
-                    <div className="flex items-center space-x-2">
-                        <span className="text-base font-semibold text-gray-100 tracking-wide">Ytterbium System</span>
+        <motion.div
+            initial={{ x: -100, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            className="fixed top-12 left-12 z-[150] w-full max-w-xl px-4"
+        >
+            <div className="bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/50 overflow-hidden">
+                <div className="px-4 py-2 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+                    <span className="text-[9px] font-black tracking-widest uppercase opacity-40">Project // Focus</span>
+                    <div className="flex gap-1">
+                        <div className="w-1.5 h-1.5 rounded-full bg-blue-200" />
+                        <div className="w-1.5 h-1.5 rounded-full bg-blue-400" />
                     </div>
-
-                    <nav className="flex items-center space-x-8">
-                        <div className="flex items-center space-x-6 text-[11px] text-gray-500 uppercase tracking-widest">
-                            <a href="#" className="hover:text-white transition-colors">Modules</a>
-                            <a href="#" className="hover:text-white transition-colors">Protocol</a>
-                        </div>
-
-                        <motion.button
-                            onClick={onEnter}
-                            className="text-indigo-400 border border-indigo-500/50 rounded-full px-3 py-1 font-medium hover:bg-indigo-500/10 transition-colors text-sm"
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.98 }}
-                        >
-                            Launch Terminal
-                        </motion.button>
-                    </nav>
                 </div>
-            </header>
+                <form onSubmit={handleSubmit} className="p-6 relative">
+                    <input
+                        type="text"
+                        value={localTask}
+                        onChange={(e) => setLocalTask(e.target.value)}
+                        disabled={status === 'THINKING'}
+                        placeholder="What needs focus?"
+                        className="w-full bg-transparent text-3xl font-bold tracking-tighter outline-none border-none placeholder:text-gray-200 text-black leading-none"
+                        autoComplete="off"
+                        autoFocus
+                    />
+                    {status === 'THINKING' && (
+                        <motion.div
+                            className="absolute bottom-0 left-0 h-1"
+                            style={{ backgroundColor: COLORS.electricBlue }}
+                            initial={{ width: 0 }}
+                            animate={{ width: '100%' }}
+                            transition={{ duration: 1.5, repeat: Infinity }}
+                        />
+                    )}
+                </form>
+            </div>
+        </motion.div>
+    );
+};
 
-            {/* MAIN SYSTEM ACCESS CARD - Perfect Centering + Robust Margin Offset */}
-            <main className="p-6 relative z-10">
-                <motion.div
-                    initial={{ opacity: 0, scale: 0.85, y: 100 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1], delay: 0.2 }}
-                    className={`w-full max-w-xl ${glacialPanelStyle} overflow-hidden mt-24`}
-                >
-                    {/* Panel Header */}
-                    <div className="px-5 py-2 border-b border-white/10 flex items-center gap-3 bg-zinc-900/50">
-                        <Database className="w-4 h-4 text-indigo-400" />
-                        <h3 className="text-xs font-medium text-gray-400 uppercase tracking-widest">System Access Terminal</h3>
-                    </div>
+const LandingPage: React.FC<{ onEnter: (data: any) => void }> = ({ onEnter }) => {
+    const [finalTask, setFinalTask] = useState('');
+    const [status, setStatus] = useState<'IDLE' | 'THINKING' | 'READY'>('IDLE');
+    const [analysisResult, setAnalysisResult] = useState<{
+        intensity: number,
+        insight: string,
+        type: string,
+        focusMode: string
+    } | null>(null);
 
-                    {/* Panel Content */}
-                    <div className="divide-y divide-white/5">
+    const handleInitialSubmit = async (task: string) => {
+        setFinalTask(task);
+        setStatus('THINKING');
 
-                        {/* 1. HERO/ACCESS BLOCK */}
-                        <div className="p-8 text-center">
-                            <h1 className="text-3xl font-extrabold leading-snug tracking-tight">
-                                <span className="text-gray-100">AI Deep-Work </span>
-                                <span className="text-indigo-400">Interface</span>
-                            </h1>
-                            <p className="mt-3 text-gray-400 text-sm max-w-sm mx-auto">
-                                The intelligence layer for burnout detection, dynamic session timing, and contextual task automation.
-                            </p>
+        try {
+            // Call AI service to analyze and classify the task
+            const aiResult = await ollamaService.analyzeTask(task);
 
-                            <div className="mt-6 flex justify-center gap-4">
+            setAnalysisResult({
+                intensity: aiResult.suggestedIntensity,
+                insight: aiResult.explanation,
+                type: aiResult.taskType,
+                focusMode: aiResult.focusMode
+            });
+            setStatus('READY');
+        } catch (error) {
+            console.error('AI Classification Error:', error);
+            // Fallback to balanced focus if AI fails
+            setAnalysisResult({
+                intensity: 6,
+                insight: "AI analysis unavailable. Using balanced focus mode.",
+                type: "Standard Task",
+                focusMode: "Balanced Focus"
+            });
+            setStatus('READY');
+        }
+    };
+
+    return (
+        <div className="min-h-screen relative font-sans selection:bg-blue-600 selection:text-white overflow-hidden">
+            <div
+                className="fixed inset-0 z-[200] pointer-events-none border-white"
+                style={{ borderStyle: 'solid', borderWidth: COLORS.borderWidth }}
+            />
+
+            <EnvironmentalBackground />
+
+            <AnimatePresence>
+                {status !== 'IDLE' && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-[15] backdrop-blur-3xl bg-white/5"
+                        transition={{ duration: 0.8 }}
+                    />
+                )}
+            </AnimatePresence>
+
+            <AnimatePresence>
+                {status !== 'READY' && (
+                    <TopLeftInputBar status={status as 'IDLE' | 'THINKING'} onSubmit={handleInitialSubmit} />
+                )}
+            </AnimatePresence>
+
+            {/* --- UPDATED "DEEP FOCUS" CONTAINER (COMPACT & CUTE) --- */}
+            <main className="relative z-20 min-h-screen flex items-center justify-center p-6">
+                <AnimatePresence>
+                    {status === 'READY' && analysisResult && (
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.8, y: 30 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                            className="relative"
+                        >
+                            {/* Smaller, Jewelry-Box Glass Container */}
+                            <div className="relative overflow-hidden backdrop-blur-[50px] bg-white/70 border border-white/50 rounded-[40px] p-10 md:p-14 shadow-[0_40px_100px_-20px_rgba(0,0,0,0.15)] max-w-sm w-full text-center">
+
+                                {/* Inner Rim Light Detail */}
+                                <div className="absolute inset-0 rounded-[40px] pointer-events-none border border-white/60 shadow-[inset_0_1px_1px_rgba(255,255,255,1)]" />
+
+                                <div className="mb-2">
+                                    <span className="text-[10px] font-black tracking-[0.4em] text-blue-600/40 uppercase">Analysis Ready</span>
+                                </div>
+
+                                <h2 className="text-4xl font-black tracking-tighter text-blue-600 mb-2">
+                                    {analysisResult.focusMode}
+                                </h2>
+
+                                <p className="text-sm text-slate-500/80 font-medium italic mb-10 px-4 leading-relaxed">
+                                    "{analysisResult.insight}"
+                                </p>
+
                                 <motion.button
-                                    onClick={onEnter}
-                                    className={primaryButton}
-                                    whileHover={{ scale: 1.05 }}
-                                    whileTap={{ scale: 0.98 }}
+                                    whileHover={{ scale: 1.03 }}
+                                    whileTap={{ scale: 0.97 }}
+                                    onClick={() => onEnter({ ...analysisResult, task: finalTask })}
+                                    className="relative w-full py-5 bg-blue-600 rounded-2xl text-white font-bold shadow-lg shadow-blue-500/30 overflow-hidden"
                                 >
-                                    Initiate Session <ArrowRight className="w-4 h-4" />
+                                    <span className="relative z-10 text-[9px] uppercase tracking-[0.5em] pl-[0.5em]">Enter System</span>
+                                    {/* Shimmer Effect */}
+                                    <motion.div
+                                        animate={{ x: ['-100%', '200%'] }}
+                                        transition={{ repeat: Infinity, duration: 3, ease: "linear" }}
+                                        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
+                                    />
                                 </motion.button>
-                                <button className={secondaryButton}>
-                                    <Layers className="w-4 h-4" />
-                                    Protocol Docs
-                                </button>
                             </div>
-                        </div>
 
-                        {/* 2. MODULES/FEATURES BLOCK */}
-                        <div id="modules" className="p-5">
-                            <h2 className="text-xs font-semibold mb-4 text-gray-500 uppercase tracking-widest text-center">Core Modules</h2>
-                            <div className="grid grid-cols-3 gap-4">
-                                {/* Feature 1: Depth Added (Request 3) */}
-                                <div className="flex flex-col gap-1 p-3 
-                                            border border-white/10 rounded-lg 
-                                            bg-white/5 shadow-inner shadow-black/50
-                                            transition-all duration-300
-                                            hover:shadow-[0_0_15px_-3px_rgba(99,102,241,0.5)] hover:bg-white/10"
-                                >
-                                    <BrainCircuit className="w-4 h-4 text-indigo-400 mb-1" />
-                                    <h3 className="text-xs font-semibold text-white uppercase leading-none">Neural Load</h3>
-                                    <p className="text-gray-500 text-xs">Predictive fatigue.</p>
-                                </div>
-                                {/* Feature 2: Depth Added (Request 3) */}
-                                <div className="flex flex-col gap-1 p-3 
-                                            border border-white/10 rounded-lg 
-                                            bg-white/5 shadow-inner shadow-black/50
-                                            transition-all duration-300
-                                            hover:shadow-[0_0_15px_-3px_rgba(99,102,241,0.5)] hover:bg-white/10"
-                                >
-                                    <Timer className="w-4 h-4 text-indigo-400 mb-1" />
-                                    <h3 className="text-xs font-semibold text-white uppercase leading-none">Time Dilation</h3>
-                                    <p className="text-gray-500 text-xs">AI-optimized session.</p>
-                                </div>
-                                {/* Feature 3: Depth Added (Request 3) */}
-                                <div className="flex flex-col gap-1 p-3 
-                                            border border-white/10 rounded-lg 
-                                            bg-white/5 shadow-inner shadow-black/50
-                                            transition-all duration-300
-                                            hover:shadow-[0_0_15px_-3px_rgba(99,102,241,0.5)] hover:bg-white/10"
-                                >
-                                    <HeartPulse className="w-4 h-4 text-indigo-400 mb-1" />
-                                    <h3 className="text-xs font-semibold text-white uppercase leading-none">Adaptive Breaks</h3>
-                                    <p className="text-gray-500 text-xs">Maximized recovery.</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* 3. FOOTER/STATUS BLOCK */}
-                        <div className="p-3 flex justify-between items-center text-gray-600 text-[10px]">
-                            <div className="flex items-center gap-1.5">
-                                <Zap className="w-3 h-3 text-green-500" />
-                                <span>Status: Operational</span>
-                            </div>
-                            <span>Ytterbium System v1.0 | Access Terminal</span>
-                        </div>
-                    </div>
-                </motion.div>
+                            {/* Outer Soft Glow */}
+                            <div className="absolute -inset-10 bg-blue-400/10 blur-[100px] -z-10 rounded-full" />
+                        </motion.div>
+                    )}
+                </AnimatePresence>
             </main>
+
+            {/* 5. Footer Branding (RESTORED) */}
+            <motion.div
+                className="fixed bottom-12 right-12 text-right z-[150] pointer-events-none text-white"
+                animate={{
+                    filter: status !== 'IDLE' ? 'blur(10px)' : 'blur(0px)',
+                    opacity: status !== 'IDLE' ? 0.4 : 1
+                }}
+                transition={{ duration: 0.8 }}
+            >
+                <div className="flex flex-col items-end">
+                    <h2
+                        className="text-[34px] tracking-tighter uppercase leading-[0.85] flex flex-col items-end"
+                        style={{ fontFamily: "'EB Garamond', serif" }}
+                    >
+                        <span className="opacity-90">WHERE BIOLOGY</span>
+                        <span className="opacity-90">MEETS</span>
+                        <div className="flex items-end gap-3 translate-y-[-1px]">
+                            <div className="text-[8px] font-sans font-bold tracking-[0.2em] leading-tight opacity-50 mb-1">
+                                ©2025<br />YTTERBIUM
+                            </div>
+                            <span className="text-[34px] text-white">DEEP FOCUS.</span>
+                        </div>
+                    </h2>
+                </div>
+            </motion.div>
         </div>
     );
 };
