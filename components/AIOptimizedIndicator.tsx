@@ -19,7 +19,7 @@ export const AIOptimizedIndicator: React.FC<AIOptimizedIndicatorProps> = ({ curr
             initial={{ x: 50, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             transition={{ type: "spring", stiffness: 100, damping: 20, delay: 0.5 }}
-            className="fixed top-10 right-6 z-[60] pointer-events-auto" // <<< CHANGED HERE
+            className="fixed top-4 right-4 md:top-10 md:right-6 z-[60] pointer-events-auto"
         >
             <div
                 className="px-4 py-2 bg-zinc-900/40 backdrop-blur-md border border-white/5 rounded-full shadow-lg flex items-center gap-2 cursor-default transition-all duration-300 hover:ring-2 ring-emerald-400/30"

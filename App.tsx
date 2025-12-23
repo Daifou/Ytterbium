@@ -322,10 +322,10 @@ const App: React.FC = () => {
     const getHeight = (rect: DOMRect) => rect.height / SCALE_FACTOR;
 
     // Path 1: Tasks (Right side) → Timer (Left side)
-    const startX1 = relativeX(tasksRect) + getWidth(tasksRect) - 1;
-    const startY1 = relativeY(tasksRect) + getHeight(tasksRect) / 2 - 25;
+    const startX1 = relativeX(tasksRect) + getWidth(tasksRect) - 2;
+    const startY1 = relativeY(tasksRect) + getHeight(tasksRect) / 3 - 30;
     const endX1 = relativeX(timerRect);
-    const endY1 = relativeY(timerRect) + getHeight(timerRect) / 2;
+    const endY1 = relativeY(timerRect) + getHeight(timerRect) / 3;
 
     const controlOffset1 = 40;
     const path1String = `M ${startX1} ${startY1} 
@@ -705,9 +705,9 @@ const App: React.FC = () => {
               {/* Scaled Layout Wrapper - SVG Parent */}
               <div
                 ref={layoutWrapperRef}
-                className="flex justify-start items-start w-full max-w-[1600px] px-4 -ml-32 gap-6 relative"
+                className="flex flex-col md:flex-row justify-start items-center md:items-start w-full max-w-[1600px] px-4 md:-ml-32 relative"
                 style={{
-                  transform: `scale(${SCALE_FACTOR})`,
+                  transform: typeof window !== 'undefined' && window.innerWidth < 768 ? 'none' : `scale(${SCALE_FACTOR})`,
                   transformOrigin: 'center',
                   // CRITICAL FIX: Hide when not in FOCUS mode, but KEEP IT IN THE DOM
                   opacity: isFocusMode ? 1 : 0,
@@ -717,7 +717,7 @@ const App: React.FC = () => {
               >
                 {/* PRO DATABASE CONNECTION LINES - SVG REMAINS ALWAYS RENDERED */}
                 <svg
-                  className="absolute top-0 left-0 w-full h-full overflow-visible pointer-events-none z-40"
+                  className="absolute top-0 left-0 w-full h-full overflow-visible pointer-events-none z-40 hidden md:block"
                   style={{ isolation: 'isolate' }}
                 >
                   <defs>
@@ -863,7 +863,7 @@ const App: React.FC = () => {
 
 
                 {/* 1. Left Column: Contextual Tasks - RENDERED ALWAYS */}
-                <div ref={tasksRef} className={`w-[24rem] min-h-[13rem] mt-24 relative z-20 transition-opacity duration-700 ${isFocusMode ? 'opacity-100 animate-in slide-in-from-left-8 fade-in' : 'opacity-0'}`}>
+                <div ref={tasksRef} className={`w-full max-w-[24rem] min-h-[13rem] mt-24 md:mt-24 relative z-20 transition-opacity duration-700 ${isFocusMode ? 'opacity-100 animate-in slide-in-from-left-8 fade-in' : 'opacity-0'}`}>
                   {/* Only render TaskList content when in Focus mode */}
                   {isFocusMode ? (
                     <TaskList tasks={tasks} onToggle={toggleTask} onAdd={addTask} />
@@ -873,10 +873,10 @@ const App: React.FC = () => {
                 </div>
 
                 {/* Connector 1 Placeholder */}
-                <div className="w-24 relative z-0 pointer-events-none" />
+                <div className="w-[32rem] relative z-0 pointer-events-none" />
 
                 {/* 2. Center Column: AI Optimized - RENDERED ALWAYS */}
-                <div ref={timerRefDiv} className={`w-[24rem] h-[15rem] relative z-30 transition-opacity duration-1000 ${isFocusMode ? 'opacity-100 animate-in zoom-in-95 fade-in' : 'opacity-0'}`}>
+                <div ref={timerRefDiv} className={`w-full max-w-[24rem] h-[15rem] relative z-30 transition-opacity duration-1000 ${isFocusMode ? 'opacity-100 animate-in zoom-in-95 fade-in' : 'opacity-0'}`}>
                   {/* Only render FocusTimer content when in Focus mode */}
                   {isFocusMode ? (
                     <FocusTimer
@@ -896,10 +896,10 @@ const App: React.FC = () => {
                 </div>
 
                 {/* Connector 2 Placeholder */}
-                <div className="w-24 relative z-0 pointer-events-none" />
+                <div className="w-[32rem] relative z-0 pointer-events-none" />
 
                 {/* 3. Right Column: Gold Vault - RENDERED ALWAYS */}
-                <div ref={vaultRef} className={`w-[24rem] h-[9.25rem] mt-24 relative z-20 transition-opacity duration-700 ${isFocusMode ? 'opacity-100 animate-in slide-in-from-right-8 fade-in' : 'opacity-0'}`}>
+                <div ref={vaultRef} className={`w-full max-w-[24rem] h-[9.25rem] mt-0 md:mt-24 relative z-20 transition-opacity duration-700 ${isFocusMode ? 'opacity-100 animate-in slide-in-from-right-8 fade-in' : 'opacity-0'}`}>
                   {/* Only render GoldVault content when in Focus mode */}
                   {isFocusMode ? (
                     <GoldVault

@@ -429,7 +429,7 @@ const LandingPage: React.FC<{ onEnter: (data: any) => void }> = ({ onEnter }) =>
             </AnimatePresence>
 
             {/* --- MAIN CONTENT AREA --- */}
-            <main className="relative z-20 min-h-screen flex items-center justify-center p-6">
+            <main className="relative z-20 min-h-screen flex items-center justify-center p-6 pb-24 md:pb-6">
                 <AnimatePresence mode="wait">
                     {/* Loading State */}
                     {authState === 'checking' && (
@@ -556,25 +556,25 @@ const LandingPage: React.FC<{ onEnter: (data: any) => void }> = ({ onEnter }) =>
 
             {/* 5. Footer Branding (RESTORED) */}
             <motion.div
-                className="fixed bottom-12 right-12 text-right z-[150] pointer-events-none text-white"
+                className="fixed bottom-24 right-0 left-0 md:bottom-12 md:right-12 text-center md:text-right z-[150] pointer-events-none text-white px-6"
                 animate={{
                     filter: authState !== 'unauthenticated' && status !== 'IDLE' ? 'blur(10px)' : 'blur(0px)',
                     opacity: authState !== 'unauthenticated' && status !== 'IDLE' ? 0.4 : 1
                 }}
                 transition={{ duration: 0.8 }}
             >
-                <div className="flex flex-col items-end">
+                <div className="flex flex-col items-center md:items-end">
                     <h2
-                        className="text-[34px] tracking-tighter uppercase leading-[0.85] flex flex-col items-end"
+                        className="text-[28px] md:text-[34px] tracking-tighter uppercase leading-[0.85] flex flex-col items-center md:items-end"
                         style={{ fontFamily: "'EB Garamond', serif" }}
                     >
                         <span className="opacity-90">WHERE BIOLOGY</span>
                         <span className="opacity-90">MEETS</span>
-                        <div className="flex items-end gap-3 translate-y-[-1px]">
-                            <div className="text-[8px] font-sans font-bold tracking-[0.2em] leading-tight opacity-50 mb-1">
+                        <div className="flex items-center md:items-end gap-3 translate-y-[-1px]">
+                            <div className="text-[7px] md:text-[8px] font-sans font-bold tracking-[0.2em] leading-tight opacity-50 mb-1">
                                 ©2025<br />YTTERBIUM
                             </div>
-                            <span className="text-[34px] text-white">DEEP FOCUS.</span>
+                            <span className="text-[28px] md:text-[34px] text-white">DEEP FOCUS.</span>
                         </div>
                     </h2>
                 </div>
