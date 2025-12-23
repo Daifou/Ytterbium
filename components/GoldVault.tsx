@@ -13,7 +13,7 @@ export const GoldVault: React.FC<GoldVaultProps> = ({ progress, barsToday, total
         <div className="w-full h-full bg-zinc-900/40 backdrop-blur-md border border-white/5 rounded-xl overflow-hidden shadow-2xl transition-all hover:shadow-[0_0_30px_-5px_rgba(0,0,0,0.5)] relative flex flex-col group/panel">
 
             {/* Header */}
-            <div className="px-3 py-1.5 border-b border-border flex justify-between items-center bg-surface relative z-10 shrink-0">
+            <div className="px-3 py-1.5 border-b border-white/[0.03] flex justify-between items-center bg-zinc-900/90 relative z-10 shrink-0">
                 <div className="flex items-center gap-2">
                     <Pickaxe className="w-3 h-3 text-[#D4AF37]" />
                     <h3 className="text-[11px] font-medium text-gray-400">Gold Vault</h3>
@@ -27,7 +27,7 @@ export const GoldVault: React.FC<GoldVaultProps> = ({ progress, barsToday, total
             </div>
 
             {/* Content */}
-            <div className="divide-y divide-border/50 relative z-10 flex-1 overflow-y-auto custom-scrollbar">
+            <div className="relative z-10 flex-1 overflow-y-auto custom-scrollbar">
                 {/* Progress Section */}
                 <div className="px-2 py-1.5 hover:bg-white/5 transition-all">
                     <div className="flex items-center justify-between mb-1">

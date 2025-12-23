@@ -13,7 +13,7 @@ interface TopNavProps {
 }
 
 export const TopNav: React.FC<TopNavProps> = ({ currentMode, setMode, fatigueScore }) => {
-  
+
   // Determine AI Dot Color based on Fatigue/Status
   const getDotColor = () => {
     if (fatigueScore > 70) return 'bg-rose-500 shadow-[0_0_10px_rgba(244,63,94,0.8)]';
@@ -28,19 +28,19 @@ export const TopNav: React.FC<TopNavProps> = ({ currentMode, setMode, fatigueSco
   ];
 
   return (
-    <MotionDiv 
+    <MotionDiv
       initial={{ y: -100, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-4xl"
     >
       <div className="relative px-6 py-3 rounded-2xl bg-zinc-900/60 backdrop-blur-xl border border-white/5 shadow-2xl flex items-center justify-between">
-        
+
         {/* Left: Brand */}
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
             <span className="text-white font-bold text-sm">Y</span>
           </div>
-          <span className="hidden sm:block text-gray-200 font-medium tracking-tight">Ytterbium</span>
+          <span className="hidden sm:block text-gray-200 text-lg font-bold tracking-tight" style={{ fontFamily: "'EB Garamond', serif" }}>Ytterbium</span>
         </div>
 
         {/* Center: Navigation */}
@@ -51,9 +51,8 @@ export const TopNav: React.FC<TopNavProps> = ({ currentMode, setMode, fatigueSco
               <button
                 key={item.mode}
                 onClick={() => setMode(item.mode)}
-                className={`relative px-5 py-2 rounded-lg text-sm font-medium transition-colors duration-300 outline-none ${
-                  isActive ? 'text-white' : 'text-gray-500 hover:text-gray-300'
-                }`}
+                className={`relative px-5 py-2 rounded-lg text-sm font-medium transition-colors duration-300 outline-none ${isActive ? 'text-white' : 'text-gray-500 hover:text-gray-300'
+                  }`}
               >
                 {isActive && (
                   <MotionDiv
@@ -70,7 +69,7 @@ export const TopNav: React.FC<TopNavProps> = ({ currentMode, setMode, fatigueSco
 
         {/* Right: Actions */}
         <div className="flex items-center gap-4">
-          
+
           {/* AI Activity Indicator */}
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/40 border border-white/5" title={`AI Load: ${fatigueScore}%`}>
             <div className={`w-2 h-2 rounded-full ${getDotColor()} animate-pulse`} />
@@ -84,7 +83,7 @@ export const TopNav: React.FC<TopNavProps> = ({ currentMode, setMode, fatigueSco
 
           {/* Avatar */}
           <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-zinc-700 to-zinc-600 border border-white/10 flex items-center justify-center cursor-pointer hover:ring-2 ring-white/20 transition-all">
-             <User className="w-4 h-4 text-gray-300" />
+            <User className="w-4 h-4 text-gray-300" />
           </div>
 
         </div>

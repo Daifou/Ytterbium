@@ -63,14 +63,14 @@ export const TaskList: React.FC<TaskListProps> = ({ tasks, onToggle, onAdd }) =>
         />
       </svg>
 
-      <div className="px-3 py-1.5 border-b border-border flex justify-between items-center bg-surface relative z-10 shrink-0">
+      <div className="px-3 py-1.5 border-b border-white/[0.03] flex justify-between items-center bg-zinc-900/90 relative z-10 shrink-0">
         <h3 className="text-[11px] font-medium text-gray-400">Contextual Tasks</h3>
         <button onClick={() => setIsAdding(true)} className="text-gray-500 hover:text-primary transition-colors">
           <Plus className="w-3 h-3" />
         </button>
       </div>
 
-      <div className="divide-y divide-border/50 relative z-10 flex-1 overflow-y-auto custom-scrollbar">
+      <div className="relative z-10 flex-1 overflow-y-auto custom-scrollbar">
         <AnimatePresence>
           {tasks.map((task, index) => (
             <AIAttention key={task.id}>

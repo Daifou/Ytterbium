@@ -49,7 +49,7 @@ export interface Database {
             sessions: {
                 Row: {
                     id: string;
-                    user_id: string;
+                    user_id: string | null;
                     start_time: string;
                     end_time: string | null;
                     duration_seconds: number;
@@ -62,7 +62,7 @@ export interface Database {
                 };
                 Insert: {
                     id?: string;
-                    user_id: string;
+                    user_id: string | null;
                     start_time?: string;
                     end_time?: string | null;
                     duration_seconds: number;
@@ -83,7 +83,7 @@ export interface Database {
             tasks: {
                 Row: {
                     id: string;
-                    user_id: string;
+                    user_id: string | null;
                     session_id: string | null;
                     title: string;
                     completed: boolean;
@@ -93,7 +93,7 @@ export interface Database {
                 };
                 Insert: {
                     id?: string;
-                    user_id: string;
+                    user_id: string | null;
                     session_id?: string | null;
                     title: string;
                     completed?: boolean;

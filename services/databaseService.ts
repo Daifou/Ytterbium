@@ -26,7 +26,7 @@ class DatabaseService {
         }
     }
 
-    async updateProfile(userId: string, updates: { full_name?: string }): Promise<boolean> {
+    async updateProfile(userId: string, updates: { full_name?: string, total_reserve?: number }): Promise<boolean> {
         try {
             const { error } = await supabase
                 .from('profiles')
@@ -41,10 +41,60 @@ class DatabaseService {
         }
     }
 
+    // ==================== VAULT OPERATIONS ====================
+
+    async getVaultStats(userId: string): Promise<{ barsToday: number; totalBars: number }> {
+        try {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            // 1. Get today's yield (1 bar per 10 minutes of completed focus sessions since midnight)
+            const { data: sessionData, error: sessionError } = await supabase
+                .from('sessions')
+                .select('elapsed_seconds')
+                .eq('user_id', userId)
+                .eq('status', 'COMPLETED')
+                .eq('type', 'FOCUS')
+                .gte('created_at', today.toISOString());
+
+            if (sessionError) throw sessionError;
+
+            const totalSecondsToday = sessionData?.reduce((acc, s) => acc + (s.elapsed_seconds || 0), 0) || 0;
+            const barsToday = Math.floor(totalSecondsToday / 600);
+
+            // 2. Get total reserve from profile
+            const { data: profileData, error: profileError } = await supabase
+                .from('profiles')
+                .select('*') // Select all to avoid schema mismatch issues if specific field is missing
+                .eq('id', userId)
+                .single();
+
+            let totalBars = 0;
+            if (!profileError && profileData) {
+                totalBars = (profileData as any).total_reserve || 0;
+            }
+
+            return { barsToday, totalBars };
+        } catch (err) {
+            console.error('Get vault stats error:', err);
+            return { barsToday: 0, totalBars: 0 };
+        }
+    }
+
+    async incrementTotalReserve(userId: string, amount: number = 1): Promise<boolean> {
+        try {
+            const stats = await this.getVaultStats(userId);
+            return await this.updateProfile(userId, { total_reserve: stats.totalBars + amount });
+        } catch (err) {
+            console.error('Increment total reserve error:', err);
+            return false;
+        }
+    }
+
     // ==================== SESSION OPERATIONS ====================
 
     async createSession(
-        userId: string,
+        userId: string | null,
         sessionData: {
             duration_seconds: number;
             type: 'FOCUS' | 'RELAX';
@@ -137,7 +187,7 @@ class DatabaseService {
     // ==================== TASK OPERATIONS ====================
 
     async createTask(
-        userId: string,
+        userId: string | null,
         task: {
             title: string;
             priority?: 'low' | 'medium' | 'high';
@@ -222,6 +272,55 @@ class DatabaseService {
         } catch (err) {
             console.error('Get tasks error:', err);
             return [];
+        }
+    }
+
+    /**
+     * Subscribe to real-time task updates for a user
+     */
+    subscribeToTasks(userId: string, callback: (payload: any) => void) {
+        return supabase
+            .channel(`tasks:user_id=eq.${userId}`)
+            .on(
+                'postgres_changes',
+                {
+                    event: '*',
+                    schema: 'public',
+                    table: 'tasks',
+                    filter: `user_id=eq.${userId}`,
+                },
+                (payload) => callback(payload)
+            )
+            .subscribe();
+    }
+
+    /**
+     * "Claim" an anonymous session and its tasks for a newly authenticated user
+     */
+    async claimGhostData(userId: string, sessionId: string): Promise<boolean> {
+        try {
+            // 1. Update session
+            const { error: sessionError } = await supabase
+                .from('sessions')
+                .update({ user_id: userId })
+                .eq('id', sessionId)
+                .is('user_id', null);
+
+            if (sessionError) throw sessionError;
+
+            // 2. Update all tasks linked to this session
+            const { error: tasksError } = await supabase
+                .from('tasks')
+                .update({ user_id: userId })
+                .eq('session_id', sessionId)
+                .is('user_id', null);
+
+            if (tasksError) throw tasksError;
+
+            return true;
+        } catch (err) {
+            console.error('Claim ghost data error:', err);
+            return false;
         }
     }
 

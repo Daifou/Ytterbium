@@ -7,9 +7,11 @@ interface SidebarProps {
   setMode: (mode: AppMode) => void;
   alienMode: boolean;
   toggleAlienMode: () => void;
+  onSignOut: () => void;
+  user: any; // Type from Supabase User
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ currentMode, setMode, alienMode }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ currentMode, setMode, alienMode, onSignOut, user }) => {
   const items = [
     { mode: AppMode.FOCUS, label: 'Focus' },
     { mode: AppMode.STATS, label: 'Insights' },
@@ -41,10 +43,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentMode, setMode, alienMod
               // Alien mode: Clean Cyan Glow
               ? 'font-alien tracking-widest text-cyan-400 shadow-[0_0_15px_rgba(0,255,255,0.6)] hover:text-white'
               // Default mode: Crisp White
-              : 'font-serif text-white hover:text-gray-100'
+              : 'text-white hover:text-gray-100'
             }
           `}
-        // Removed complex text shadow motion for clarity
+          style={!alienMode ? { fontFamily: "'EB Garamond', serif" } : {}}
         >
           Ytterbium
         </motion.h1>
@@ -111,8 +113,22 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentMode, setMode, alienMod
         </motion.div>
       </nav>
 
-      {/* Spacer to maintain vertical balance */}
-      <div className="px-5 pb-8 pointer-events-auto"></div>
+      {/* Sign Out Section */}
+      <div className="px-5 pb-8 pointer-events-auto flex flex-col items-center gap-4">
+        {user && (
+          <div className="text-[10px] text-white/40 font-bold tracking-widest uppercase text-center w-full truncate px-2">
+            {user.email}
+          </div>
+        )}
+        <motion.button
+          onClick={onSignOut}
+          className="text-[10px] text-white/60 hover:text-white font-bold tracking-[0.3em] uppercase transition-colors"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          Sign Out
+        </motion.button>
+      </div>
     </aside>
   );
 };

@@ -160,7 +160,7 @@ const AuthForm = ({ onAuthSuccess }: { onAuthSuccess: (user: User) => void }) =>
                 <span className="text-[10px] font-black tracking-[0.4em] text-blue-600/40 uppercase">
                     {mode === 'signin' ? 'Welcome Back' : 'Create Account'}
                 </span>
-                <h2 className="text-4xl font-black tracking-tighter text-blue-600 mt-2">
+                <h2 className="text-4xl font-black tracking-tighter text-blue-600 mt-2" style={{ fontFamily: "'EB Garamond', serif" }}>
                     Ytterbium
                 </h2>
             </div>
@@ -246,12 +246,51 @@ const AuthForm = ({ onAuthSuccess }: { onAuthSuccess: (user: User) => void }) =>
     );
 };
 
+const PLACEHOLDERS = [
+    "What needs focus?",
+    "Define your primary objective.",
+    "What task are you working on?",
+    "What shall we accomplish?",
+    "Enter your focus target."
+];
+
 const TopLeftInputBar = ({ status, onSubmit }: { status: 'IDLE' | 'THINKING', onSubmit: (task: string) => void }) => {
     const [localTask, setLocalTask] = useState('');
+    const [currentPlaceholder, setCurrentPlaceholder] = useState("");
+    const [placeholderIndex, setPlaceholderIndex] = useState(0);
+    const [isTyping, setIsTyping] = useState(true);
+
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (localTask.trim()) onSubmit(localTask);
     };
+
+    // --- TYPEWRITER LOGIC ---
+    useEffect(() => {
+        let timer: NodeJS.Timeout;
+        const fullText = PLACEHOLDERS[placeholderIndex];
+
+        if (isTyping) {
+            if (currentPlaceholder.length < fullText.length) {
+                timer = setTimeout(() => {
+                    setCurrentPlaceholder(fullText.slice(0, currentPlaceholder.length + 1));
+                }, 70); // Typing speed
+            } else {
+                timer = setTimeout(() => setIsTyping(false), 3000); // Wait at end
+            }
+        } else {
+            if (currentPlaceholder.length > 0) {
+                timer = setTimeout(() => {
+                    setCurrentPlaceholder(currentPlaceholder.slice(0, -1));
+                }, 30); // Deleting speed
+            } else {
+                setPlaceholderIndex((prev) => (prev + 1) % PLACEHOLDERS.length);
+                setIsTyping(true);
+            }
+        }
+
+        return () => clearTimeout(timer);
+    }, [currentPlaceholder, isTyping, placeholderIndex]);
 
     return (
         <motion.div
@@ -273,11 +312,12 @@ const TopLeftInputBar = ({ status, onSubmit }: { status: 'IDLE' | 'THINKING', on
                         value={localTask}
                         onChange={(e) => setLocalTask(e.target.value)}
                         disabled={status === 'THINKING'}
-                        placeholder="What needs focus?"
-                        className="w-full bg-transparent text-3xl font-bold tracking-tighter outline-none border-none placeholder:text-gray-200 text-black leading-none"
+                        placeholder={currentPlaceholder}
+                        className="w-full bg-transparent text-3xl font-bold tracking-tighter outline-none border-none placeholder:text-gray-300 text-black leading-none"
                         autoComplete="off"
                         autoFocus
                     />
+
                     {status === 'THINKING' && (
                         <motion.div
                             className="absolute bottom-0 left-0 h-1"
@@ -298,17 +338,15 @@ const LandingPage: React.FC<{ onEnter: (data: any) => void }> = ({ onEnter }) =>
     const [currentUser, setCurrentUser] = useState<User | null>(null);
     const [finalTask, setFinalTask] = useState('');
     const [status, setStatus] = useState<'IDLE' | 'THINKING' | 'READY'>('IDLE');
-    const [analysisResult, setAnalysisResult] = useState<{
-        intensity: number,
-        insight: string,
-        type: string,
-        focusMode: string
-    } | null>(null);
+    const [analysisResult, setAnalysisResult] = useState<any>(null);
+    const [showAuth, setShowAuth] = useState(false);
+
+
 
     // Check for existing session on mount
     useEffect(() => {
         const checkAuth = async () => {
-            const user = await authService.getCurrentUser();
+            const user = await authService.getUser();
             if (user) {
                 setCurrentUser(user);
                 setAuthState('authenticated');
@@ -385,7 +423,7 @@ const LandingPage: React.FC<{ onEnter: (data: any) => void }> = ({ onEnter }) =>
             </AnimatePresence>
 
             <AnimatePresence>
-                {status !== 'READY' && authState === 'authenticated' && (
+                {status !== 'READY' && (
                     <TopLeftInputBar status={status as 'IDLE' | 'THINKING'} onSubmit={handleInitialSubmit} />
                 )}
             </AnimatePresence>
@@ -406,63 +444,111 @@ const LandingPage: React.FC<{ onEnter: (data: any) => void }> = ({ onEnter }) =>
                         </motion.div>
                     )}
 
-                    {/* Auth Form */}
-                    {authState === 'unauthenticated' && (
-                        <motion.div
-                            key="auth"
-                            initial={{ opacity: 0, scale: 0.9 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            exit={{ opacity: 0, scale: 0.9 }}
-                        >
-                            <AuthForm onAuthSuccess={handleAuthSuccess} />
-                        </motion.div>
-                    )}
+                    {/* Auth form removed for Ghost Session flow - Focus Input is now the primary entry point */}
 
-                    {/* Analysis Result */}
-                    {status === 'READY' && analysisResult && authState === 'authenticated' && (
+                    {/* Analysis Result (Now works for both auth and ghost) */}
+                    {status === 'READY' && analysisResult && (
                         <motion.div
                             key="ready"
-                            initial={{ opacity: 0, scale: 0.8, y: 30 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
                             className="relative"
                         >
-                            {/* Smaller, Jewelry-Box Glass Container */}
-                            <div className="relative overflow-hidden backdrop-blur-[50px] bg-white/70 border border-white/50 rounded-[40px] p-10 md:p-14 shadow-[0_40px_100px_-20px_rgba(0,0,0,0.15)] max-w-sm w-full text-center">
-
-                                {/* Inner Rim Light Detail */}
-                                <div className="absolute inset-0 rounded-[40px] pointer-events-none border border-white/60 shadow-[inset_0_1px_1px_rgba(255,255,255,1)]" />
-
-                                <div className="mb-2">
-                                    <span className="text-[10px] font-black tracking-[0.4em] text-blue-600/40 uppercase">Analysis Ready</span>
+                            {/* Precision Glass Card - "Contextual Tasks" Inspired Layout */}
+                            <div
+                                className="relative overflow-hidden backdrop-blur-[40px] border border-white/40 rounded-[24px] w-full max-w-[380px] text-left shadow-[0_40px_100px_-20px_rgba(0,0,0,0.1)]"
+                                style={{
+                                    background: `rgba(255, 255, 255, 0.7)`,
+                                }}
+                            >
+                                {/* 1. Header Bar */}
+                                <div className="px-6 py-4 border-b border-black/[0.05] bg-black/[0.02] flex justify-between items-center">
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.6)] animate-pulse" />
+                                        <span className="text-[10px] font-black tracking-[0.2em] text-slate-400 uppercase">System State</span>
+                                    </div>
+                                    <div className="flex gap-1.5">
+                                        <div className="w-1 h-1 rounded-full bg-black/10" />
+                                        <div className="w-1 h-1 rounded-full bg-black/10" />
+                                    </div>
                                 </div>
 
-                                <h2 className="text-4xl font-black tracking-tighter text-blue-600 mb-2">
-                                    {analysisResult.focusMode}
-                                </h2>
+                                {/* 2. Body Content */}
+                                <div className="p-8 space-y-8">
+                                    {/* Title & Description */}
+                                    <div className="space-y-3">
+                                        <motion.h2
+                                            initial={{ opacity: 0, x: -10 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: 0.3 }}
+                                            className="text-2xl font-black tracking-tight text-slate-800 leading-none"
+                                        >
+                                            Focus: {analysisResult.focusMode.split(' ')[0]}
+                                        </motion.h2>
 
-                                <p className="text-sm text-slate-500/80 font-medium italic mb-10 px-4 leading-relaxed">
-                                    "{analysisResult.insight}"
-                                </p>
+                                        <motion.p
+                                            initial={{ opacity: 0, x: -10 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: 0.4 }}
+                                            className="text-[14px] text-slate-500 font-medium leading-relaxed max-w-[90%]"
+                                        >
+                                            {analysisResult.focusMode === "Balanced Focus"
+                                                ? "Designed for sustained clarity, not strain."
+                                                : analysisResult.insight.replace(/^"|"$/g, '')}
+                                        </motion.p>
+                                    </div>
 
-                                <motion.button
-                                    whileHover={{ scale: 1.03 }}
-                                    whileTap={{ scale: 0.97 }}
-                                    onClick={() => onEnter({ ...analysisResult, task: finalTask, user: currentUser })}
-                                    className="relative w-full py-5 bg-blue-600 rounded-2xl text-white font-bold shadow-lg shadow-blue-500/30 overflow-hidden"
-                                >
-                                    <span className="relative z-10 text-[9px] uppercase tracking-[0.5em] pl-[0.5em]">Enter System</span>
-                                    {/* Shimmer Effect */}
+                                    {/* Focus Intensity Bar */}
                                     <motion.div
-                                        animate={{ x: ['-100%', '200%'] }}
-                                        transition={{ repeat: Infinity, duration: 3, ease: "linear" }}
-                                        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
-                                    />
-                                </motion.button>
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: 0.5 }}
+                                        className="space-y-3"
+                                    >
+                                        <div className="relative h-2 w-full bg-black/[0.05] rounded-full overflow-hidden">
+                                            <div
+                                                className="absolute inset-0 opacity-80"
+                                                style={{
+                                                    background: 'linear-gradient(to right, #ff9b9b 0%, #ffdf91 40%, #a8e6cf 70%, #81c784 100%)'
+                                                }}
+                                            />
+                                            <motion.div
+                                                initial={{ left: '0%' }}
+                                                animate={{ left: `${((analysisResult.intensity - 1) / 9) * 100}%` }}
+                                                transition={{ duration: 1.5, delay: 0.8, ease: "circOut" }}
+                                                className="absolute top-0 bottom-0 w-[2px] bg-black/80 z-10"
+                                            />
+                                        </div>
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Calibration: {analysisResult.intensity}/10</span>
+                                            <div className="flex gap-4">
+                                                <span className="text-[9px] font-bold text-slate-300 uppercase">Calm</span>
+                                                <span className="text-[9px] font-bold text-slate-300 uppercase">Peak</span>
+                                            </div>
+                                        </div>
+                                    </motion.div>
+
+                                    {/* Shopify Button */}
+                                    <div className="pt-2">
+                                        <motion.button
+                                            initial={{ opacity: 0, y: 10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ delay: 0.6 }}
+                                            whileHover={{ scale: 1.02 }}
+                                            whileTap={{ scale: 0.98 }}
+                                            onClick={() => onEnter({ ...analysisResult, task: finalTask, user: currentUser })}
+                                            className="relative w-full h-[48px] bg-gradient-to-b from-[#2d2d2d] via-[#1a1a1a] to-[#000000] border border-black/50 rounded-[12px] text-white font-bold shadow-lg overflow-hidden group"
+                                        >
+                                            <span className="relative z-10 text-[13px] tracking-tight">Begin Session</span>
+                                            <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                        </motion.button>
+                                    </div>
+                                </div>
                             </div>
 
-                            {/* Outer Soft Glow */}
-                            <div className="absolute -inset-10 bg-blue-400/10 blur-[100px] -z-10 rounded-full" />
+                            {/* Outer Deep Glow */}
+                            <div className="absolute -inset-20 bg-blue-500/5 blur-[120px] -z-10 rounded-full" />
                         </motion.div>
                     )}
                 </AnimatePresence>

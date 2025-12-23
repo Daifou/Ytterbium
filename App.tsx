@@ -17,10 +17,12 @@ import LandingPage from './components/LandingPage';
 import { AIOptimizedIndicator } from './components/AIOptimizedIndicator';
 import { authService } from './services/authService';
 import { databaseService } from './services/databaseService';
+import { AuthModal } from './components/AuthModal';
 import type { User } from '@supabase/supabase-js';
 
 const DEFAULT_DURATION = 25 * 60; // 25 min default
 const SCALE_FACTOR = 1.05; // Matches the transform: scale(1.05) in the JSX
+const GHOST_SESSION_KEY = 'ytterbium_ghost_session_id';
 
 const MotionDiv = motion.div as any;
 
@@ -72,6 +74,8 @@ const App: React.FC = () => {
   // Supabase state
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
+  const [isAuthLoading, setIsAuthLoading] = useState(true);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
   const [tasks, setTasks] = useState<Task[]>([]);
   const [alienMode, setAlienMode] = useState(false);
@@ -79,7 +83,7 @@ const App: React.FC = () => {
   // Fatigue state is initialized to null
   const [currentMetrics, setCurrentMetrics] = useState<FatigueMetrics | null>(null);
   const [metricsHistory, setMetricsHistory] = useState<FatigueMetrics[]>([]);
-  const [insight, setInsight] = useState('Welcome. Ready to initiate Deep Work sequence.');
+  const [insight, setInsight] = useState('Initializing quantum focus systems...');
 
   // Layout Refs
   const tasksRef = useRef<HTMLDivElement>(null);
@@ -92,6 +96,84 @@ const App: React.FC = () => {
   // Path States
   const [path1, setPath1] = useState<string>('');
   const [path2, setPath2] = useState<string>('');
+
+  // Vault state
+  const [barsToday, setBarsToday] = useState(0);
+  const [totalBars, setTotalBars] = useState(0);
+
+  const refreshVaultStats = useCallback(async () => {
+    if (currentUser) {
+      const stats = await databaseService.getVaultStats(currentUser.id);
+      setBarsToday(stats.barsToday);
+      setTotalBars(stats.totalBars);
+    }
+  }, [currentUser]);
+
+  // --- 4. AUTH & SESSION INITIALIZATION ---
+  useEffect(() => {
+    const initAuth = async () => {
+      setIsAuthLoading(true);
+      try {
+        const user = await authService.getUser();
+        if (user) {
+          setCurrentUser(user);
+          setHasEntered(true); // Auto-enter if already logged in
+
+          // Check for ongoing session
+          const activeSession = await databaseService.getCurrentSession(user.id);
+          if (activeSession) {
+            setCurrentSessionId(activeSession.id);
+            setStatus(activeSession.status as SessionStatus);
+            setElapsed(activeSession.elapsed_seconds);
+            setFocusIntensity(activeSession.focus_intensity);
+
+            // Set mode based on session type if needed
+            if (activeSession.type === 'RELAX') setMode(AppMode.RELAX);
+
+            setInsight(`Welcome back. Resuming ${activeSession.type.toLowerCase()} session.`);
+          }
+        } else {
+          // GHOST RESTORATION: Check if there's a ghost session to restore
+          const ghostSessionId = localStorage.getItem(GHOST_SESSION_KEY);
+          if (ghostSessionId) {
+            setCurrentSessionId(ghostSessionId);
+            setHasEntered(true);
+            setInsight('Quantum session active. (Ghost Mode)');
+          }
+        }
+      } catch (err) {
+        console.error('Initialization error:', err);
+      } finally {
+        setIsAuthLoading(false);
+      }
+    };
+
+    initAuth();
+
+    // Listen for auth changes globally
+    const subscription = authService.onAuthStateChange(async (user) => {
+      setCurrentUser(user);
+      if (!user) {
+        setHasEntered(false);
+        setCurrentSessionId(null);
+        setTasks([]);
+      } else {
+        // HANDSHAKE: If a user just logged in and we have a ghost session, claim it
+        const ghostSessionId = localStorage.getItem(GHOST_SESSION_KEY);
+        if (ghostSessionId) {
+          const success = await databaseService.claimGhostData(user.id, ghostSessionId);
+          if (success) {
+            localStorage.removeItem(GHOST_SESSION_KEY);
+            setInsight('Data secured. Ghost session successfully linked to your account.');
+          }
+        }
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
 
   // --- 1. TIMER LOGIC (Preserved) ---
   useEffect(() => {
@@ -148,49 +230,28 @@ const App: React.FC = () => {
         // AI automatically stops the timer
         setStatus(SessionStatus.PAUSED);
 
-        // Haptic & Audio "Chime"
-        // A "Pro" solution often relies on a single, high-quality audio cue.
-        // Audio: Play a single, low-frequency "glass bowl" chime or a soft "thrum" when the session pauses automatically.
-        // Haptic: If used on a device with haptics, a double-tap vibration synchronized with the UI transition to SessionStatus.PAUSED.
-
-        // [SENSORY CUE] Audio & Haptic Feedback
+        // [SENSORY CUE] Audio & Haptic Feedback - "Glass Bowl" Chime
         try {
-          // 1. Audio: Low-frequency "Glass Bowl" Chime
           const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
           if (AudioContext) {
             const ctx = new AudioContext();
             const now = ctx.currentTime;
-
-            // Glass bowl harmonics (ratios) - creating a resonant, complex sound
-            const ratios = [1.0, 1.5, 2.0, 3.5];
-            const fundamental = 174.61; // F3 (Solfeggio "healing" frequency - deeper and more grounding)
-
-            ratios.forEach((ratio, i) => {
+            const fundamental = 174.61; // F3
+            [1.0, 1.5, 2.0, 3.5].forEach((ratio, i) => {
               const osc = ctx.createOscillator();
               const gain = ctx.createGain();
-
               osc.type = 'sine';
               osc.frequency.value = fundamental * ratio;
-
-              const duration = 3.5; // Longer tail
-
-              // ADSR Envelope
               gain.gain.setValueAtTime(0, now);
-              gain.gain.linearRampToValueAtTime(0.08 - (i * 0.015), now + 0.1); // Softer attack
-              gain.gain.exponentialRampToValueAtTime(0.0001, now + duration); // Smooth decay
-
+              gain.gain.linearRampToValueAtTime(0.08 - (i * 0.015), now + 0.1);
+              gain.gain.exponentialRampToValueAtTime(0.0001, now + 3.5);
               osc.connect(gain);
               gain.connect(ctx.destination);
-
               osc.start(now);
-              osc.stop(now + duration);
+              osc.stop(now + 3.5);
             });
           }
-
-          // 2. Haptic: Double-tap (Pulse - Pause - Pulse)
-          if (navigator.vibrate) {
-            navigator.vibrate([40, 60, 40]);
-          }
+          if (navigator.vibrate) navigator.vibrate([40, 60, 40]);
         } catch (e) {
           console.error("Sensory cue failed:", e);
         }
@@ -203,8 +264,18 @@ const App: React.FC = () => {
           setInsight(`🚨 Critical Fatigue Detected (${score}%). Session paused based on Intensity ${focusIntensity}/10 threshold of ${criticalThreshold}%.`);
         }
 
+        // AUTH WALL: Trigger modal on auto-pause if not logged in
+        if (!currentUser) {
+          setIsAuthModalOpen(true);
+        }
+
         if (currentMetrics) {
           setMetricsHistory(prev => [...prev, currentMetrics]);
+
+          // CRITICAL: Save last metrics before pausing
+          if (currentSessionId) {
+            databaseService.saveMetrics(currentSessionId, currentMetrics);
+          }
         }
       }
     }
@@ -297,16 +368,20 @@ const App: React.FC = () => {
     setInsight('AI optimizing focus...');
 
     // Create session in database
-    if (currentUser && !currentSessionId) {
-      const sessionId = await databaseService.createSession(currentUser.id, {
+    if (!currentSessionId) {
+      const sessionId = await databaseService.createSession(currentUser?.id || null, {
         duration_seconds: duration,
         type: 'FOCUS',
         focus_intensity: focusIntensity,
       });
       if (sessionId) {
         setCurrentSessionId(sessionId);
+        // If it's a ghost session, save ID to localStorage
+        if (!currentUser) {
+          localStorage.setItem(GHOST_SESSION_KEY, sessionId);
+        }
       }
-    } else if (currentSessionId) {
+    } else {
       // Update existing session to RUNNING
       await databaseService.updateSession(currentSessionId, {
         status: 'RUNNING',
@@ -314,6 +389,12 @@ const App: React.FC = () => {
     }
   };
   const handlePause = async () => {
+    // AUTH WALL: Intercept pause if not logged in
+    if (!currentUser) {
+      setIsAuthModalOpen(true);
+      return;
+    }
+
     setStatus(SessionStatus.PAUSED);
     // Update session status in database
     if (currentSessionId) {
@@ -325,6 +406,9 @@ const App: React.FC = () => {
   };
 
   const handleReset = async () => {
+    // Capture elapsed time for vault calculation before resetting
+    const sessionElapsed = elapsed;
+
     setStatus(SessionStatus.IDLE);
     setElapsed(0);
     // CRITICAL: Reset fatigue metrics on full session reset
@@ -335,11 +419,26 @@ const App: React.FC = () => {
     if (currentSessionId) {
       await databaseService.updateSession(currentSessionId, {
         status: 'COMPLETED',
-        elapsed_seconds: elapsed,
+        elapsed_seconds: sessionElapsed,
         end_time: new Date().toISOString(),
       });
+
+      // If it was a focus session, earn 1 bar per 10 minutes (600 seconds)
+      if (mode === AppMode.FOCUS && currentUser) {
+        const barsEarned = Math.floor(sessionElapsed / 600);
+        if (barsEarned > 0) {
+          await databaseService.incrementTotalReserve(currentUser.id, barsEarned);
+          await refreshVaultStats();
+        }
+      }
+
       setCurrentSessionId(null);
     }
+  };
+
+  const handleSignOut = async () => {
+    await authService.signOut();
+    // State is handled by onAuthStateChange listener
   };
 
   const handleIntensityChange = (intensity: number) => {
@@ -376,7 +475,7 @@ const App: React.FC = () => {
     }
 
     // Create in database
-    const dbTask = await databaseService.createTask(currentUser.id, {
+    const dbTask = await databaseService.createTask(currentUser?.id || null, {
       title,
       priority: 'medium',
       session_id: currentSessionId || undefined,
@@ -431,19 +530,43 @@ const App: React.FC = () => {
     };
   }, [updatePaths, mode, tasks, hasEntered]);
 
-  // Load user tasks on mount
+  // Load user tasks on mount and subscribe to changes
   useEffect(() => {
+    let subscription: any;
+
     const loadUserData = async () => {
       if (currentUser) {
-        // Load tasks from database
+        // Load initial tasks from database
         const dbTasks = await databaseService.getTasks(currentUser.id, false);
         const appTasks = dbTasks.map(databaseService.dbTaskToTask);
         setTasks(appTasks);
+
+        // Subscribe to real-time updates
+        subscription = databaseService.subscribeToTasks(currentUser.id, (payload) => {
+          if (payload.eventType === 'INSERT') {
+            const newTask = databaseService.dbTaskToTask(payload.new as any);
+            setTasks(prev => {
+              // Avoid duplicates
+              if (prev.some(t => t.id === newTask.id)) return prev;
+              return [newTask, ...prev];
+            });
+          } else if (payload.eventType === 'UPDATE') {
+            const updatedTask = databaseService.dbTaskToTask(payload.new as any);
+            setTasks(prev => prev.map(t => t.id === updatedTask.id ? updatedTask : t));
+          } else if (payload.eventType === 'DELETE') {
+            setTasks(prev => prev.filter(t => t.id === payload.old.id));
+          }
+        });
       }
     };
 
     loadUserData();
-  }, [currentUser]);
+    refreshVaultStats();
+
+    return () => {
+      if (subscription) subscription.unsubscribe();
+    };
+  }, [currentUser, refreshVaultStats]);
 
   // Save metrics periodically
   useEffect(() => {
@@ -473,7 +596,8 @@ const App: React.FC = () => {
   }, [currentSessionId, status, elapsed]);
 
   if (!hasEntered) {
-    return <LandingPage onEnter={(data) => {
+    return <LandingPage onEnter={(data: any) => {
+      // Start Ethereal 475Hz drone on first real interaction
       setHasEntered(true);
       if (data) {
         // Set current user from auth
@@ -512,7 +636,9 @@ const App: React.FC = () => {
 
 
   return (
-    <div className={`h-screen bg-transparent text-gray-200 selection:bg-primary/30 relative overflow-hidden flex flex-col ${alienMode ? 'font-alien' : 'font-sans'}`}>
+    <div
+      className={`h-screen bg-transparent text-gray-200 selection:bg-primary/30 relative overflow-hidden flex flex-col ${alienMode ? 'font-alien' : 'font-sans'}`}
+    >
       {/* Background System and Sidebar */}
       <Background />
       <CosmicParticles />
@@ -524,6 +650,19 @@ const App: React.FC = () => {
         setMode={setMode}
         alienMode={alienMode}
         toggleAlienMode={() => setAlienMode(!alienMode)}
+        onSignOut={handleSignOut}
+        user={currentUser}
+      />
+
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        onSuccess={(user) => {
+          setCurrentUser(user);
+          setIsAuthModalOpen(false);
+          // Handshake logic is triggered by onAuthStateChange in useEffect
+        }}
+        intensityMode={insight.includes('Intensity') ? insight.split(' threshold')[0].replace('🚨 ', '') : 'Focus Mode'}
       />
 
       {/* AI Optimized Indicator displayed globally in the top right */}
@@ -765,8 +904,8 @@ const App: React.FC = () => {
                   {isFocusMode ? (
                     <GoldVault
                       progress={(elapsed / duration) * 100}
-                      barsToday={3}
-                      totalBars={47}
+                      barsToday={barsToday}
+                      totalBars={totalBars}
                     />
                   ) : (
                     <div className="h-full w-full" /> // Placeholder to maintain ref size/position

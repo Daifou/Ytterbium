@@ -80,7 +80,7 @@ export const StatsView: React.FC<StatsViewProps> = ({ metricsHistory }) => {
       {/* Header (Clean, Pro Look) */}
       <div className="px-4 py-3 border-b border-white/5 flex items-center bg-white/5 relative z-10 shrink-0">
         <Icon className={`w-4 h-4 mr-2 ${sessionAnalysis.isFatigueStop ? 'text-red-400' : 'text-emerald-400'}`} />
-        <h3 className="text-xs font-semibold text-gray-300 uppercase tracking-widest">Ytterbium Insights</h3>
+        <h3 className="text-xs font-semibold text-gray-300 uppercase tracking-widest" style={{ fontFamily: "'EB Garamond', serif" }}>Ytterbium Insights</h3>
       </div>
 
       {/* Main Content Area */}

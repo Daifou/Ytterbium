@@ -86,14 +86,14 @@ class AuthService {
     }
 
     /**
-     * Get the current authenticated user
+     * Get the current authenticated user from local session
      */
-    async getCurrentUser(): Promise<User | null> {
+    async getUser(): Promise<User | null> {
         try {
             const { data: { user } } = await supabase.auth.getUser();
             return user;
         } catch (err) {
-            console.error('Get current user error:', err);
+            console.error('Get user error:', err);
             return null;
         }
     }
