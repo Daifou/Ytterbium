@@ -137,17 +137,19 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({
       border ${(!isRunning && !isFinished) ? 'border-white/[0.08]' : 'border-transparent'}
 
       /* [UPDATED] Spectral Edge Glow Pseudo-element */
-      /* Adds a pulsing Gold/Amber glow when the session reaches its peak */
+      /* Adds a VERY subtle pulsing Emerald glow when the session is running */
       ${isRunning ? `
         before:content-['']
         before:absolute before:inset-0 before:rounded-2xl 
-        before:p-[1px] 
+        before:p-[0.5px] 
         before:bg-gradient-to-tr 
-        before:from-emerald-400/10 before:via-cyan-300/5 before:to-emerald-400/10
+        before:from-emerald-400/20 before:via-white/5 before:to-emerald-400/20
         before:mask-[linear-gradient(#fff_0_0)_content-box,linear-gradient(#fff_0_0)]
         before:mask-composite-exclude
         before:pointer-events-none
         before:z-20
+        before:animate-pulse
+        shadow-[0_0_20px_rgba(52,211,153,0.08)]
       ` : isFinished ? `
         before:content-['']
         before:absolute before:inset-0 before:rounded-2xl 
@@ -202,7 +204,7 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({
         <div className="flex flex-col items-center justify-center">
           <div className={`
             text-2xl font-mono font-medium tracking-tighter tabular-nums
-            drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)]
+            drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]
             ${isFinished ? 'text-amber-400' : 'text-white'}
           `}>
             {minutes}:{seconds}
@@ -222,18 +224,20 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({
                   h-full 
                   ${isFinished
                     ? 'bg-gradient-to-r from-amber-500 via-white to-amber-500'
-                    : 'bg-gradient-to-r from-indigo-500 via-blue-400 to-cyan-400'
+                    : isRunning
+                      ? 'bg-gradient-to-r from-emerald-500/60 via-emerald-400/40 to-emerald-500/60'
+                      : 'bg-gradient-to-r from-indigo-500/80 via-blue-400/80 to-cyan-400/80'
                   }
-                  shadow-[0_0_8px_rgba(99,102,241,0.3),0_1px_2px_rgba(255,255,255,0.2)_inset]
+                  shadow-[0_0_6px_rgba(16,185,129,0.2),0_1px_1px_rgba(255,255,255,0.1)_inset]
                   relative
-                  before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/[0.2] before:to-transparent before:opacity-50
+                  before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/[0.1] before:to-transparent before:opacity-30
                 `}
                 initial={{ width: "0%" }}
                 animate={{ width: `${progressPercent}%` }}
                 transition={{ duration: 0.5, ease: "linear" }}
               />
             </div>
-            <div className={`text-[9px] font-mono tabular-nums w-6 text-right ${isFinished ? 'text-amber-400' : 'text-gray-500'}`}>
+            <div className={`text-[9px] font-mono tabular-nums w-6 text-right ${isFinished ? 'text-amber-400' : isRunning ? 'text-emerald-400' : 'text-gray-500'}`}>
               {Math.round(progressPercent)}%
             </div>
           </div>
