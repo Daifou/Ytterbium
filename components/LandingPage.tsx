@@ -254,16 +254,34 @@ const PLACEHOLDERS = [
     "Enter your focus target."
 ];
 
+const ANALYSIS_MESSAGES = [
+    "Connecting to Ytterbium Core...",
+    "Analyzing task semantics...",
+    "Calibrating neural intensity...",
+    "Mapping focus trajectories...",
+    "Optimizing cognitive load..."
+];
+
 const TopLeftInputBar = ({ status, onSubmit }: { status: 'IDLE' | 'THINKING', onSubmit: (task: string) => void }) => {
     const [localTask, setLocalTask] = useState('');
     const [currentPlaceholder, setCurrentPlaceholder] = useState("");
     const [placeholderIndex, setPlaceholderIndex] = useState(0);
     const [isTyping, setIsTyping] = useState(true);
+    const [analysisMsgIndex, setAnalysisMsgIndex] = useState(0);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (localTask.trim()) onSubmit(localTask);
     };
+
+    // --- ANALYSIS MESSAGE CYCLING ---
+    useEffect(() => {
+        if (status !== 'THINKING') return;
+        const interval = setInterval(() => {
+            setAnalysisMsgIndex(prev => (prev + 1) % ANALYSIS_MESSAGES.length);
+        }, 2000);
+        return () => clearInterval(interval);
+    }, [status]);
 
     // --- TYPEWRITER LOGIC ---
     useEffect(() => {
@@ -300,10 +318,12 @@ const TopLeftInputBar = ({ status, onSubmit }: { status: 'IDLE' | 'THINKING', on
         >
             <div className="bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/50 overflow-hidden">
                 <div className="px-4 py-2 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
-                    <span className="text-[9px] font-black tracking-widest uppercase opacity-40">Project // Focus</span>
+                    <span className="text-[9px] font-black tracking-widest uppercase opacity-40">
+                        {status === 'THINKING' ? ANALYSIS_MESSAGES[analysisMsgIndex] : "Project // Focus"}
+                    </span>
                     <div className="flex gap-1">
-                        <div className="w-1.5 h-1.5 rounded-full bg-blue-200" />
-                        <div className="w-1.5 h-1.5 rounded-full bg-blue-400" />
+                        <div className={`w-1.5 h-1.5 rounded-full ${status === 'THINKING' ? 'bg-blue-600 animate-ping' : 'bg-blue-200'}`} />
+                        <div className={`w-1.5 h-1.5 rounded-full ${status === 'THINKING' ? 'bg-blue-400 animate-pulse' : 'bg-blue-400'}`} />
                     </div>
                 </div>
                 <form onSubmit={handleSubmit} className="p-6 relative">
@@ -468,9 +488,14 @@ const LandingPage: React.FC<{ onEnter: (data: any) => void }> = ({ onEnter }) =>
                                         <div className="w-1.5 h-1.5 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.6)] animate-pulse" />
                                         <span className="text-[10px] font-black tracking-[0.2em] text-slate-400 uppercase">System State</span>
                                     </div>
-                                    <div className="flex gap-1.5">
-                                        <div className="w-1 h-1 rounded-full bg-black/10" />
-                                        <div className="w-1 h-1 rounded-full bg-black/10" />
+                                    <div className="flex items-center gap-3">
+                                        <div className="flex gap-1.5">
+                                            <div className="w-1 h-1 rounded-full bg-black/10" />
+                                            <div className="w-1 h-1 rounded-full bg-black/10" />
+                                        </div>
+                                        <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-full bg-blue-50 text-blue-500 border border-blue-100/50 uppercase tracking-tighter">
+                                            {analysisResult.source || 'AI Core'}
+                                        </span>
                                     </div>
                                 </div>
 

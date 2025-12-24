@@ -18,9 +18,11 @@ const GROQ_MODEL = "openai/gpt-oss-20b";
 const OLLAMA_ENDPOINT = '/api/ollama/api/generate';
 const OLLAMA_MODEL = 'gemma3:4b';
 
+const PROJECT_CONTEXT = "Ytterbium is a productivity tool where Focus Intensity ranges from 1 (Calm) to 10 (Peak). Focus Modes are 'Creative Focus', 'Balanced Focus', and 'Deep Laser Focus'.";
+
 export const ollamaService = {
     analyzeTask: async (taskDescription: string): Promise<TaskAnalysisResult> => {
-        const prompt = `Task: "${taskDescription}". Identify focus mode: Creative(3), Balanced(6), or Deep(10). Return JSON: {"thinking_trace":"Analysis...","taskType":"Type","focusMode":"Creative Focus"|"Balanced Focus"|"Deep Laser Focus","explanation":"Why? (1 sentence)","suggestedIntensity":3|6|10}`;
+        const prompt = `${PROJECT_CONTEXT}\n\nTask: "${taskDescription}". Identify the best focus mode and intensity. Return ONLY a raw JSON object with this structure: {"thinking_trace":"Step-by-step analysis of why this mode was chosen","taskType":"Short category (e.g., Coding, Writing)","focusMode":"Creative Focus"|"Balanced Focus"|"Deep Laser Focus","explanation":"One short sentence to showing to the user","suggestedIntensity":3|6|10}`;
 
         const isProd = import.meta.env.PROD;
 
@@ -52,6 +54,7 @@ export const ollamaService = {
                             { role: "user", content: prompt }
                         ],
                         response_format: { type: "json_object" },
+                        reasoning_format: "parsed",
                         temperature: 0.1
                     })
                 });
@@ -63,9 +66,12 @@ export const ollamaService = {
             }
 
             const data = await response.json();
+            console.log(`[AI SERVICE] Groq Response Received:`, data);
+
             // If via proxy, the structure might be different depending on how Vercel returns it
             // Our proxy returns the raw Groq response
-            const result = JSON.parse(data.choices[0].message.content);
+            const content = data.choices[0].message.content;
+            const result = JSON.parse(content);
             const endTime = performance.now();
 
             return {

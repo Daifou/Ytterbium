@@ -36,6 +36,7 @@ export default async function handler(req: Request) {
                     { role: "user", content: prompt },
                 ],
                 response_format: { type: "json_object" },
+                reasoning_format: "parsed",
                 temperature: 0.1,
             }),
         });
