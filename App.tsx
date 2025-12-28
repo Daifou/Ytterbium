@@ -18,6 +18,7 @@ import { AIOptimizedIndicator } from './components/AIOptimizedIndicator';
 import { authService } from './services/authService';
 import { databaseService } from './services/databaseService';
 import { AuthModal } from './components/AuthModal';
+import { ImmersiveJourney } from './components/ImmersiveJourney';
 import type { User } from '@supabase/supabase-js';
 
 const DEFAULT_DURATION = 25 * 60; // 25 min default
@@ -63,6 +64,7 @@ const INTENSITY_TIME_CAPS: Record<number, number> = {
 
 const App: React.FC = () => {
   const [hasEntered, setHasEntered] = useState(false);
+  const [showJourney, setShowJourney] = useState(false);
   const [mode, setMode] = useState<AppMode>(AppMode.FOCUS);
   const [status, setStatus] = useState<SessionStatus>(SessionStatus.IDLE);
   const [duration, setDuration] = useState(DEFAULT_DURATION);
@@ -284,7 +286,7 @@ const App: React.FC = () => {
 
   // Utility to get coordinates from the path string for connection points
   const getPathCoords = useCallback((path: string, type: 'start' | 'end') => {
-    const parts = path.split(' ');
+    const parts = path.trim().split(/\s+/);
     if (parts.length < 3) return { x: 0, y: 0 };
 
     if (type === 'start') {
@@ -328,10 +330,7 @@ const App: React.FC = () => {
     const endY1 = relativeY(timerRect) + getHeight(timerRect) / 3;
 
     const controlOffset1 = 40;
-    const path1String = `M ${startX1} ${startY1} 
-                         C ${startX1 + controlOffset1} ${startY1} 
-                           ${endX1 - controlOffset1} ${endY1} 
-                           ${endX1} ${endY1}`;
+    const path1String = `M ${startX1} ${startY1} C ${startX1 + controlOffset1} ${startY1} ${endX1 - controlOffset1} ${endY1} ${endX1} ${endY1}`;
     setPath1(path1String);
 
     // Path 2: Timer (Right side) → Vault (Left side)
@@ -341,10 +340,7 @@ const App: React.FC = () => {
     const endY2 = relativeY(vaultRef.current.getBoundingClientRect()) + getHeight(vaultRef.current.getBoundingClientRect()) / 2;
 
     const controlOffset2 = 40;
-    const path2String = `M ${startX2} ${startY2} 
-                         C ${startX2 + controlOffset2} ${startY2} 
-                           ${endX2 - controlOffset2} ${endY2} 
-                           ${endX2} ${endY2}`;
+    const path2String = `M ${startX2} ${startY2} C ${startX2 + controlOffset2} ${startY2} ${endX2 - controlOffset2} ${endY2} ${endX2} ${endY2}`;
     setPath2(path2String);
 
   }, []);
@@ -599,6 +595,7 @@ const App: React.FC = () => {
     return <LandingPage onEnter={(data: any) => {
       // Start Ethereal 475Hz drone on first real interaction
       setHasEntered(true);
+      setShowJourney(true);
       if (data) {
         // Set current user from auth
         if (data.user) {
@@ -623,7 +620,10 @@ const App: React.FC = () => {
         }, 2000);
       }
     }} />;
+  }
 
+  if (showJourney) {
+    return <ImmersiveJourney onComplete={() => setShowJourney(false)} />;
   }
 
   const path1Start = getPathCoords(path1, 'start');
@@ -721,16 +721,16 @@ const App: React.FC = () => {
                   style={{ isolation: 'isolate' }}
                 >
                   <defs>
-                    {/* Lighter, more transparent gradient */}
+                    {/* High visibility gradient */}
                     <linearGradient id="connection-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                      <stop offset="0%" stopColor="#a5b4fc" stopOpacity="0.2" />
-                      <stop offset="50%" stopColor="#c7d2fe" stopOpacity="0.5" />
-                      <stop offset="100%" stopColor="#a5b4fc" stopOpacity="0.2" />
+                      <stop offset="0%" stopColor="#818cf8" stopOpacity="0.6" />
+                      <stop offset="50%" stopColor="#c7d2fe" stopOpacity="0.9" />
+                      <stop offset="100%" stopColor="#818cf8" stopOpacity="0.6" />
                     </linearGradient>
 
-                    {/* Subtle Glow - Reduced intensity */}
+                    {/* Subtle Glow */}
                     <filter id="subtle-glow" x="-50%" y="-50%" width="200%" height="200%">
-                      <feGaussianBlur in="SourceGraphic" stdDeviation="0.5" result="blur" />
+                      <feGaussianBlur in="SourceGraphic" stdDeviation="1" result="blur" />
                       <feMerge>
                         <feMergeNode in="blur" />
                         <feMergeNode in="SourceGraphic" />
@@ -750,20 +750,20 @@ const App: React.FC = () => {
                       <path
                         d="M0,0 L6,3 L0,6"
                         fill="#c7d2fe"
-                        fillOpacity="0.6"
+                        fillOpacity="1"
                       />
                     </marker>
                   </defs>
 
                   {/* CONNECTION 1: Tasks → Timer */}
                   {path1 && (
-                    <g>
+                    <g filter="url(#subtle-glow)">
                       <path
                         d={path1}
                         fill="none"
                         stroke="url(#connection-gradient)"
-                        strokeWidth="1.5"
-                        strokeDasharray="4 4"
+                        strokeWidth="2"
+                        strokeDasharray="6 6"
                         strokeLinecap="round"
                         strokeLinejoin="round"
                         markerEnd="url(#arrow-head)"
@@ -793,13 +793,13 @@ const App: React.FC = () => {
 
                   {/* CONNECTION 2: Timer → Vault */}
                   {path2 && (
-                    <g>
+                    <g filter="url(#subtle-glow)">
                       <path
                         d={path2}
                         fill="none"
                         stroke="url(#connection-gradient)"
-                        strokeWidth="1.5"
-                        strokeDasharray="4 4"
+                        strokeWidth="2"
+                        strokeDasharray="6 6"
                         strokeLinecap="round"
                         strokeLinejoin="round"
                         markerEnd="url(#arrow-head)"
@@ -829,14 +829,14 @@ const App: React.FC = () => {
                     </g>
                   )}
 
-                  {/* Connection Points - Smaller, less glow */}
+                  {/* Connection Points - Higher visibility */}
                   {path1Start.x > 0 && (
                     <circle
                       cx={path1Start.x}
                       cy={path1Start.y}
-                      r="2.5"
+                      r="3"
                       fill="#c7d2fe"
-                      className="transition-all duration-300 opacity-80"
+                      className="transition-all duration-300 opacity-100"
                     />
                   )}
 
@@ -844,9 +844,9 @@ const App: React.FC = () => {
                     <circle
                       cx={path1End.x}
                       cy={path1End.y}
-                      r="2.5"
+                      r="3"
                       fill="#c7d2fe"
-                      className="transition-all duration-300 opacity-80"
+                      className="transition-all duration-300 opacity-100"
                     />
                   )}
 
@@ -854,9 +854,9 @@ const App: React.FC = () => {
                     <circle
                       cx={path2End.x}
                       cy={path2End.y}
-                      r="2.5"
+                      r="3"
                       fill="#c7d2fe"
-                      className="transition-all duration-300 opacity-80"
+                      className="transition-all duration-300 opacity-100"
                     />
                   )}
                 </svg>
