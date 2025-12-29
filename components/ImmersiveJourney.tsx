@@ -1,192 +1,243 @@
-import React, { useEffect, useRef } from 'react';
-import Lenis from 'lenis';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface ImmersiveJourneyProps {
     onComplete: () => void;
 }
 
-// Helper for drawn borders
-const BorderDraw = ({ className, delay = 0, duration = 1.5 }: { className?: string, delay?: number, duration?: number }) => (
-    <motion.div
-        initial={{ scaleX: 0, scaleY: 0, originX: 0, originY: 0 }}
-        whileInView={{ scaleX: 1, scaleY: 1 }}
-        transition={{ duration, delay, ease: "easeInOut" }}
-        className={`absolute bg-[#D1CDC0] ${className}`}
-    />
-);
-
 export const ImmersiveJourney: React.FC<ImmersiveJourneyProps> = ({ onComplete }) => {
-    const containerRef = useRef<HTMLDivElement>(null);
+    const [step, setStep] = useState(0);
 
-    // --- Smooth Scroll Setup (Lenis) ---
     useEffect(() => {
-        const lenis = new Lenis({
-            duration: 2.0, // Heavy, luxurious feel
-            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-            touchMultiplier: 2,
-        });
-
-        const raf = (time: number) => {
-            lenis.raf(time);
-            requestAnimationFrame(raf);
-        };
-
-        requestAnimationFrame(raf);
-
-        return () => {
-            lenis.destroy();
-        };
+        document.body.style.overflow = 'hidden';
+        return () => { document.body.style.overflow = 'unset'; };
     }, []);
 
+    const nextStep = () => setStep((prev) => prev + 1);
+
+    const protocols = [
+        { label: "SOLUTION 1", name: "Non-Invasive Vagus Nerve Stimulation Protocol", type: "NEURAL", color: "hover:bg-[#00FFFF] hover:text-black" },
+        { label: "SOLUTION 2", name: "Deep Tissue Decalcification & Spinal Reset", type: "PHYSICAL", color: "hover:bg-[#FF00FF] hover:text-black" },
+        { label: "SOLUTION 3", name: "Retinal Frequency Calibration & Blue Light Rejection", type: "OCULAR", color: "hover:bg-[#CCFF00] hover:text-black" },
+        { label: "SOLUTION 4", name: "Dopamine Receptor Resensitization Framework", type: "COGNITIVE", color: "hover:bg-[#FF3300] hover:text-white" },
+        { label: "SOLUTION 5", name: "Neural Plasticity Enhancement through Ultradian Rhythms", type: "SYSTEMS", color: "hover:bg-[#7000FF] hover:text-white" },
+        { label: "SOLUTION 6", name: "Circadian Thermal Regulation & Sleep Architecture", type: "BIOLOGIC", color: "hover:bg-[#00FF66] hover:text-black" },
+        { label: "SOLUTION 7", name: "Cortisol Management via Bio-Feedback AI Integration", type: "HORMONAL", color: "hover:bg-[#FF9900] hover:text-black" },
+    ];
+
+    const benefits = [
+        { title: "Income Increase", category: "FINANCIAL", subCategory: "optimization", desc: "Monetary growth" },
+        { title: "Stress Decrease", category: "NEURAL", subCategory: "CORTISOL", desc: "Stress suppression" },
+        { title: "Sleep Better", category: "BIOLOGIC", subCategory: "REM CYCLE", desc: "Deep restoration" },
+        { title: "Better Posture", category: "PHYSICAL", subCategory: "SPINAL", desc: "Alignment reset" },
+        { title: "Healthy Eyes", category: "OCULAR", subCategory: "RETINAL", desc: "Vision clarity" },
+        { title: "Work Smarter", category: "SYSTEMIC", subCategory: "EFFICIENCY", desc: "Weeks into hours" },
+        { title: "Neural Silence", category: "COGNITIVE", subCategory: "ZENITH", desc: "Zero brain fog" },
+        { title: "Age Reverse", category: "CELLULAR", subCategory: "TELOMERE", desc: "Biological youth" },
+    ];
+
     return (
-        <div ref={containerRef} className="relative w-full min-h-screen bg-[#F9F7F2] text-[#1a1a1a] overflow-hidden selection:bg-[#2F4F4F] selection:text-[#F9F7F2] font-sans">
-            {/* --- Global Grain Overlay --- */}
+        <div className="relative w-full h-screen bg-[#F9F7F2] text-[#1a1a1a] overflow-hidden selection:bg-[#2F4F4F] font-sans">
+            {/* Grain Overlay */}
             <div className="fixed inset-0 pointer-events-none z-50 opacity-[0.05] mix-blend-multiply"
                 style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }}
             />
 
-            {/* --- Section 1: The Emotional Mirror --- */}
-            <section className="relative w-full min-h-screen flex items-center justify-center p-6 md:p-12">
-                <div className="relative w-full max-w-[1400px] h-[80vh] grid grid-cols-12">
-                    {/* Drawn Borders */}
-                    <BorderDraw className="top-0 left-0 w-full h-[1px]" delay={0.2} />
-                    <BorderDraw className="bottom-0 left-0 w-full h-[1px]" delay={0.4} />
-                    <BorderDraw className="top-0 left-0 w-[1px] h-full" delay={0.3} />
-                    <BorderDraw className="top-0 right-0 w-[1px] h-full" delay={0.5} />
+            <AnimatePresence mode="wait">
+                {/* Steps 0-5 remain identical */}
+                {step === 0 && (
+                    <motion.section key="s0" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, scale: 1.05 }} transition={{ duration: 1.2 }} className="absolute inset-0 flex items-center justify-center p-6 text-center">
+                        <h1 className="font-instrument text-[8rem] md:text-[13rem] lg:text-[16rem] tracking-[-0.06em] leading-[0.75]">
+                            You are losing <br /> your sight.
+                        </h1>
+                    </motion.section>
+                )}
 
-                    {/* Content */}
-                    <div className="col-span-12 flex flex-col items-center justify-center p-12 text-center relative z-10">
-                        <motion.h1
-                            initial={{ opacity: 0, y: 40 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 1.2, delay: 0.6, ease: [0.16, 1, 0.3, 1] }}
-                            className="font-instrument text-7xl md:text-9xl tracking-tighter text-[#1a1a1a] mb-12 leading-[0.9]"
-                        >
-                            The Quiet Exhaustion.
-                        </motion.h1>
-                        <motion.p
-                            initial={{ opacity: 0, y: 20 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 1.2, delay: 0.8, ease: "easeOut" }}
-                            className="font-sans text-xl md:text-2xl max-w-2xl leading-relaxed text-[#4a4a4a] tracking-tight"
-                        >
-                            You aren’t lazy. You’re overstimulated. Modern work is an assault on your biology—a constant state of emergency that leaves your brain frayed and your best ideas buried under noise.
-                        </motion.p>
-                    </div>
+                {step === 1 && (
+                    <motion.section key="s1" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -30 }} transition={{ duration: 1.2 }} className="absolute inset-0 flex items-center justify-center p-6 text-center">
+                        <div className="max-w-6xl">
+                            <h2 className="font-instrument text-[4rem] md:text-[7rem] lg:text-[9rem] tracking-[-0.04em] leading-[0.85] mb-12">
+                                Your posture is broken. <br /> Your hormones are dead.
+                            </h2>
+                            <h3 className="font-instrument text-4xl md:text-6xl text-[#8a8a8a] tracking-tight">
+                                Your brain is no longer yours.
+                            </h3>
+                        </div>
+                    </motion.section>
+                )}
 
-                    {/* Visual Element: Distorted Shape */}
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        whileInView={{ opacity: 1, scale: 1 }}
-                        transition={{ duration: 2, delay: 1 }}
-                        className="absolute right-12 bottom-12 w-32 h-32 border border-[#1a1a1a] rounded-full opacity-20"
-                        animate={{
-                            d: ["M10 10 L90 90", "M10 90 L90 10"],
-                            rotate: [0, 5, -5, 0],
-                            scale: [1, 1.05, 0.95, 1]
-                        }}
-                        style={{ borderRadius: "40% 60% 70% 30% / 40% 50% 60% 50%" }}
-                    />
-                </div>
-            </section>
-
-            {/* --- Section 2: The Shift (Bento Grid) --- */}
-            <section className="relative w-full min-h-screen flex items-center justify-center p-6 md:p-12 box-border">
-                <div className="w-full max-w-[1400px] grid grid-cols-1 md:grid-cols-2 relative">
-
-                    {/* Cell 1: Biology */}
-                    <div className="relative p-12 h-[600px] flex flex-col justify-between group">
-                        {/* Cell Borders */}
-                        <BorderDraw className="top-0 left-0 w-full h-[1px]" delay={0.1} />
-                        <BorderDraw className="bottom-0 left-0 w-full h-[1px]" delay={0.1} />
-                        <BorderDraw className="top-0 left-0 w-[1px] h-full" delay={0.1} />
-                        <BorderDraw className="top-0 right-0 w-[1px] h-full self-border" delay={0.3} />
-
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            whileInView={{ opacity: 1 }}
-                            transition={{ duration: 1, delay: 0.4 }}
-                        >
-                            <span className="block font-mono text-xs tracking-[0.2em] text-[#8a8a8a] mb-6">01 / BIOLOGY</span>
-                            <h2 className="font-instrument text-6xl mb-8">Neural Synchronization.</h2>
-                            <p className="font-sans text-xl text-[#5a5a5a] leading-relaxed max-w-sm">We align your task complexity with your natural ultradian rhythms. No more forcing. Just flowing.</p>
-                        </motion.div>
-                    </div>
-
-                    {/* Cell 2: Focus */}
-                    <div className="relative p-12 h-[600px] flex flex-col justify-between group">
-                        {/* Cell Borders */}
-                        <BorderDraw className="top-0 left-0 w-full h-[1px]" delay={0.1} />
-                        <BorderDraw className="bottom-0 left-0 w-full h-[1px]" delay={0.1} />
-                        <BorderDraw className="top-0 right-0 w-[1px] h-full" delay={0.1} />
-
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            whileInView={{ opacity: 1 }}
-                            transition={{ duration: 1, delay: 0.6 }}
-                        >
-                            <span className="block font-mono text-xs tracking-[0.2em] text-[#8a8a8a] mb-6">02 / FOCUS</span>
-                            <h2 className="font-instrument text-6xl mb-8">Deep Architecture.</h2>
-                            <p className="font-sans text-xl text-[#5a5a5a] leading-relaxed max-w-sm">A digital environment designed to protect your prefrontal cortex from the 'switch-cost' of notifications.</p>
-                        </motion.div>
-
-                        {/* Visual: Perfect Circle */}
-                        <motion.div
-                            initial={{ scale: 0, opacity: 0 }}
-                            whileInView={{ scale: 1, opacity: 1 }}
-                            transition={{ type: "spring", stiffness: 50, damping: 20, delay: 0.8 }}
-                            className="w-24 h-24 border border-[#2F4F4F] rounded-full self-end"
-                        />
-                    </div>
-                </div>
-            </section>
-
-            {/* --- Section 3 & 4: Invitation & Entry --- */}
-            <section className="relative w-full min-h-[90vh] flex items-center justify-center p-6 md:p-12 pb-32">
-                <div className="relative w-full max-w-[1400px] grid grid-cols-1 p-12 md:p-24 text-center">
-                    <BorderDraw className="top-0 left-0 w-full h-[1px]" />
-                    <BorderDraw className="bottom-0 left-0 w-full h-[1px]" />
-                    <BorderDraw className="top-0 left-0 w-[1px] h-full" />
-                    <BorderDraw className="top-0 right-0 w-[1px] h-full" />
-
-                    <motion.div
-                        initial={{ opacity: 0, y: 30 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 1 }}
-                        className="mb-20"
-                    >
-                        <span className="block font-mono text-xs tracking-[0.3em] text-[#8a8a8a] mb-8">INVESTMENT</span>
-                        <h2 className="font-instrument text-[8rem] md:text-[12rem] leading-[0.8] mb-8 text-[#1a1a1a]">$12</h2>
-                        <p className="font-sans text-2xl text-[#4a4a4a] mt-4 font-light">One plan. Full access to your focused self.</p>
-                    </motion.div>
-
-                    {/* Sign Up Form */}
-                    <div className="w-full max-w-2xl mx-auto flex flex-col gap-12">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-                            <div className="relative group">
-                                <input type="email" placeholder="Email Address" className="w-full bg-transparent border-b border-[#D1CDC0] py-4 text-xl outline-none focus:border-[#2F4F4F] transition-all duration-500 placeholder:text-[#b0ada0] text-[#2F4F4F]" />
-                                <div className="absolute bottom-0 left-0 w-full h-[1px] bg-[#2F4F4F] scale-x-0 group-focus-within:scale-x-100 transition-transform duration-500 origin-left" />
+                {step === 2 && (
+                    <motion.section key="s2" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 1.2 }} className="absolute inset-0 flex items-center justify-center p-6">
+                        <div className="flex items-center gap-8 md:gap-16">
+                            <div className="border-2 border-black rounded-[40px] px-10 py-16 md:px-16 md:py-24 text-center">
+                                <h2 className="font-instrument text-5xl md:text-7xl font-bold leading-tight">
+                                    You sleep <br /> 8 hours
+                                </h2>
                             </div>
-                            <div className="relative group">
-                                <input type="password" placeholder="Password" className="w-full bg-transparent border-b border-[#D1CDC0] py-4 text-xl outline-none focus:border-[#2F4F4F] transition-all duration-500 placeholder:text-[#b0ada0] text-[#2F4F4F]" />
-                                <div className="absolute bottom-0 left-0 w-full h-[1px] bg-[#2F4F4F] scale-x-0 group-focus-within:scale-x-100 transition-transform duration-500 origin-left" />
+                            <span className="font-instrument text-6xl md:text-8xl font-light">+</span>
+                            <div className="border-2 border-black rounded-[40px] px-10 py-16 md:px-16 md:py-24 text-center">
+                                <h2 className="font-instrument text-5xl md:text-7xl font-bold leading-tight">
+                                    You work <br /> 12 hours
+                                </h2>
                             </div>
                         </div>
+                    </motion.section>
+                )}
 
-                        <motion.button
-                            whileHover={{ scale: 1.01 }}
-                            whileTap={{ scale: 0.99 }}
-                            onClick={onComplete}
-                            className="mt-8 w-full bg-[#1A2E2E] text-[#F9F7F2] py-8 text-xl tracking-[0.1em] uppercase hover:bg-[#142424] transition-all duration-500 font-medium relative overflow-hidden group"
-                        >
-                            <span className="relative z-10">Claim your focus</span>
-                            <div className="absolute inset-0 bg-[#2F4F4F] transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
-                        </motion.button>
-                    </div>
+                {step === 3 && (
+                    <motion.section key="s3" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 1.2 }} className="absolute inset-0 flex items-center justify-center p-6 text-center">
+                        <div className="max-w-6xl">
+                            <p className="font-instrument text-[2rem] md:text-[3.2rem] text-[#8a8a8a] tracking-tight italic font-light mb-4">
+                                If you live to 70, you only spend
+                            </p>
+                            <p className="font-instrument text-[2.2rem] md:text-[3.8rem] tracking-tight">
+                                <span className="text-[#1a1a1a] font-medium">14 years</span> <span className="text-[#8a8a8a] italic font-light">actually awake for yourself.</span>
+                            </p>
+                        </div>
+                    </motion.section>
+                )}
+
+                {step === 4 && (
+                    <motion.section key="s4" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: 1.5 }} className="absolute inset-0 flex items-center justify-center p-6 text-center">
+                        <div className="max-w-4xl">
+                            <span className="block font-mono text-sm tracking-[0.5em] text-[#8a8a8a] mb-8 uppercase">The Protocol</span>
+                            <h1 className="font-instrument text-7xl md:text-[10rem] tracking-[-0.04em] leading-[0.9]">
+                                Ytterbium is <br /> the solution.
+                            </h1>
+                        </div>
+                    </motion.section>
+                )}
+
+                {step === 5 && (
+                    <motion.section key="s5" initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -40 }} transition={{ duration: 1 }} className="absolute inset-0 flex items-center justify-center p-6 md:p-12 overflow-hidden">
+                        <div className="w-full max-w-[1300px] h-[85vh] flex flex-col">
+                            <div className="grid grid-cols-12 py-3 border-b border-black font-mono text-[11px] tracking-widest text-black/60 uppercase">
+                                <div className="col-span-2">/ SOLUTIONS WE OFFER</div>
+                                <div className="col-span-8 px-4">/ PROTOCOL NAME</div>
+                                <div className="col-span-2 text-right">/ CLASSIFICATION</div>
+                            </div>
+                            <div className="flex-1 overflow-y-auto pr-4 custom-scrollbar">
+                                {protocols.map((row, i) => (
+                                    <div key={i} className={`grid grid-cols-12 py-7 border-b border-black items-center group transition-all duration-300 cursor-crosshair ${row.color}`}>
+                                        <div className="col-span-2 font-mono text-sm tracking-tighter pl-2 flex items-center gap-2">
+                                            <span className="text-[8px]">■</span> {row.label}
+                                        </div>
+                                        <div className="col-span-8 px-4 font-instrument text-3xl md:text-5xl tracking-tight leading-none transition-transform duration-300 group-hover:translate-x-2 font-medium uppercase">
+                                            {row.name}
+                                        </div>
+                                        <div className="col-span-2 text-right pr-2 flex justify-end items-center gap-8">
+                                            <span className="font-mono text-[11px] border border-current px-3 py-1 bg-transparent transition-colors uppercase rounded-sm">
+                                                {row.type}
+                                            </span>
+                                            <span className="text-xl font-light opacity-30 group-hover:opacity-100">+</span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </motion.section>
+                )}
+
+                {/* Step 6 remains with 8 benefits and no grid */}
+                {step === 6 && (
+                    <motion.section key="s6" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 1 }} className="absolute inset-0 flex flex-col items-center justify-center p-6">
+                        <div className="relative z-10 w-full max-w-6xl">
+                            <motion.h2
+                                initial={{ opacity: 0, y: -10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                className="font-instrument text-2xl md:text-3xl italic text-[#8a8a8a] mb-16 text-center font-light tracking-tight"
+                            >
+                                In simple language
+                            </motion.h2>
+
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-x-12 gap-y-16 w-full">
+                                {benefits.map((b, i) => (
+                                    <motion.div
+                                        key={i}
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: i * 0.1 }}
+                                        className="flex flex-col text-left group cursor-default"
+                                    >
+                                        <h3 className="font-instrument text-3xl md:text-4xl font-bold tracking-tighter leading-none mb-1">
+                                            {b.title}
+                                        </h3>
+                                        <div className="flex flex-col font-mono text-[11px] tracking-widest uppercase opacity-40 group-hover:opacity-100 transition-opacity">
+                                            <span>{b.category}</span>
+                                            <span className="mt-[-2px]">{b.subCategory}</span>
+                                            <span className="mt-1 normal-case tracking-normal font-sans italic opacity-80">{b.desc}</span>
+                                        </div>
+                                    </motion.div>
+                                ))}
+                            </div>
+                        </div>
+                    </motion.section>
+                )}
+
+                {/* STEP 7 - CLEAN PRICING ONLY */}
+                {step === 7 && (
+                    <motion.section
+                        key="s7"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="absolute inset-0 flex flex-col items-center justify-center p-4 md:p-8"
+                    >
+                        <div
+                            className="absolute inset-0 pointer-events-none z-0"
+                            style={{
+                                backgroundImage: `
+                                    linear-gradient(to right, rgba(0,0,0,0.1) 1px, transparent 1px),
+                                    linear-gradient(to bottom, rgba(0,0,0,0.1) 1px, transparent 1px)
+                                `,
+                                backgroundSize: '20px 20px',
+                                maskImage: 'radial-gradient(circle at center, black 40%, transparent 95%)',
+                                WebkitMaskImage: 'radial-gradient(circle at center, black 40%, transparent 95%)'
+                            }}
+                        />
+
+                        <div className="text-center mb-10 relative z-10 uppercase">
+                            <h3 className="font-instrument text-6xl md:text-8xl font-medium tracking-tight mb-2">
+                                Ytterbium sky
+                            </h3>
+                            <p className="font-instrument text-xl italic text-[#8a8a8a]">
+                                Secure your architectural reset.
+                            </p>
+                        </div>
+
+                        <div className="w-full max-w-2xl bg-white/80 backdrop-blur-xl border-[1.5px] border-black rounded-[60px] relative flex h-48 md:h-64 overflow-hidden mb-12 z-10 shadow-xl">
+                            <div className="absolute inset-0 flex justify-center pointer-events-none z-20">
+                                <svg width="80" height="100%" viewBox="0 0 80 200" preserveAspectRatio="none" className="h-full stroke-black stroke-[1] fill-none">
+                                    <path d="M50 0 C30 60, 50 140, 30 200" />
+                                </svg>
+                            </div>
+
+                            <button onClick={onComplete} className="flex-1 flex flex-col items-center justify-center group hover:bg-black transition-all duration-500 relative z-10">
+                                <span className="font-mono text-[10px] tracking-[0.4em] text-black/40 group-hover:text-white/60 mb-2 uppercase">Annual</span>
+                                <div className="flex items-baseline group-hover:text-white">
+                                    <span className="font-instrument text-5xl md:text-7xl font-bold">$12</span>
+                                    <span className="font-instrument text-lg md:text-xl italic ml-1 opacity-60">/year</span>
+                                </div>
+                            </button>
+
+                            <button onClick={onComplete} className="flex-1 flex flex-col items-center justify-center group hover:bg-black transition-all duration-500 relative z-10">
+                                <span className="font-mono text-[10px] tracking-[0.4em] text-black/40 group-hover:text-white/60 mb-2 uppercase">Monthly</span>
+                                <div className="flex items-baseline group-hover:text-white">
+                                    <span className="font-instrument text-5xl md:text-7xl font-bold">$12</span>
+                                    <span className="font-instrument text-lg md:text-xl italic ml-1 opacity-60">/month</span>
+                                </div>
+                            </button>
+                        </div>
+                    </motion.section>
+                )}
+            </AnimatePresence>
+
+            {step < 7 && (
+                <div className="fixed bottom-12 left-1/2 -translate-x-1/2 z-[60]">
+                    <motion.button onClick={nextStep} className="w-12 h-12 rounded-full bg-[#1a1a1a] text-[#F9F7F2] flex items-center justify-center hover:scale-110 active:scale-90 transition-all">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M12 5v14M19 12l-7 7-7-7" /></svg>
+                    </motion.button>
                 </div>
-            </section>
+            )}
         </div>
     );
 };
-

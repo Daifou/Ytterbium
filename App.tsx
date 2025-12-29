@@ -72,6 +72,7 @@ const App: React.FC = () => {
 
   // State: Track the user's Focus Intensity (default 5)
   const [focusIntensity, setFocusIntensity] = useState(5);
+  const isFocusMode = mode === AppMode.FOCUS;
 
   // Supabase state
   const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -316,30 +317,33 @@ const App: React.FC = () => {
     const timerRect = timerRefDiv.current.getBoundingClientRect();
     const vaultRect = vaultRef.current.getBoundingClientRect();
 
-    // Function to calculate relative coordinates (adjusting for the SCALE_FACTOR)
-    const relativeX = (rect: DOMRect) => (rect.left - wrapperRect.left) / SCALE_FACTOR;
-    const relativeY = (rect: DOMRect) => (rect.top - wrapperRect.top) / SCALE_FACTOR;
+    // Determine current scale used in CSS
+    const currentScale = typeof window !== 'undefined' && window.innerWidth < 768 ? 1 : SCALE_FACTOR;
 
-    const getWidth = (rect: DOMRect) => rect.width / SCALE_FACTOR;
-    const getHeight = (rect: DOMRect) => rect.height / SCALE_FACTOR;
+    // Function to calculate relative coordinates (adjusting for the dynamic scale)
+    const relativeX = (rect: DOMRect) => (rect.left - wrapperRect.left) / currentScale;
+    const relativeY = (rect: DOMRect) => (rect.top - wrapperRect.top) / currentScale;
 
-    // Path 1: Tasks (Right side) → Timer (Left side)
-    const startX1 = relativeX(tasksRect) + getWidth(tasksRect) - 2;
-    const startY1 = relativeY(tasksRect) + getHeight(tasksRect) / 3 - 30;
-    const endX1 = relativeX(timerRect);
-    const endY1 = relativeY(timerRect) + getHeight(timerRect) / 3;
+    const getWidth = (rect: DOMRect) => rect.width / currentScale;
+    const getHeight = (rect: DOMRect) => rect.height / currentScale;
 
-    const controlOffset1 = 40;
+    // Path 1: Tasks (Right Center) → Timer (Left Center)
+    const startX1 = relativeX(tasksRect) + getWidth(tasksRect) - 4;
+    const startY1 = relativeY(tasksRect) + getHeight(tasksRect) / 2;
+    const endX1 = relativeX(timerRect) + 4;
+    const endY1 = relativeY(timerRect) + getHeight(timerRect) / 2;
+
+    const controlOffset1 = 60;
     const path1String = `M ${startX1} ${startY1} C ${startX1 + controlOffset1} ${startY1} ${endX1 - controlOffset1} ${endY1} ${endX1} ${endY1}`;
     setPath1(path1String);
 
-    // Path 2: Timer (Right side) → Vault (Left side)
+    // Path 2: Timer (Right Center) → Vault (Left Center)
     const startX2 = relativeX(timerRect) + getWidth(timerRect) - 4;
     const startY2 = relativeY(timerRect) + getHeight(timerRect) / 2;
-    const endX2 = relativeX(vaultRef.current.getBoundingClientRect());
-    const endY2 = relativeY(vaultRef.current.getBoundingClientRect()) + getHeight(vaultRef.current.getBoundingClientRect()) / 2;
+    const endX2 = relativeX(vaultRect) + 4;
+    const endY2 = relativeY(vaultRect) + getHeight(vaultRect) / 2;
 
-    const controlOffset2 = 40;
+    const controlOffset2 = 60;
     const path2String = `M ${startX2} ${startY2} C ${startX2 + controlOffset2} ${startY2} ${endX2 - controlOffset2} ${endY2} ${endX2} ${endY2}`;
     setPath2(path2String);
 
@@ -524,7 +528,7 @@ const App: React.FC = () => {
       cancelAnimationFrame(animationFrameId);
       resizeObserver.disconnect();
     };
-  }, [updatePaths, mode, tasks, hasEntered]);
+  }, [updatePaths, mode, tasks, hasEntered, showJourney, isFocusMode]);
 
   // Load user tasks on mount and subscribe to changes
   useEffect(() => {
@@ -632,7 +636,7 @@ const App: React.FC = () => {
   const path2End = getPathCoords(path2, 'end');
 
   // Pre-calculate focus mode boolean for usage in the layout below
-  const isFocusMode = mode === AppMode.FOCUS;
+  // (Moved higher to avoid use-before-define)
 
 
   return (
@@ -723,9 +727,9 @@ const App: React.FC = () => {
                   <defs>
                     {/* High visibility gradient */}
                     <linearGradient id="connection-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                      <stop offset="0%" stopColor="#818cf8" stopOpacity="0.6" />
-                      <stop offset="50%" stopColor="#c7d2fe" stopOpacity="0.9" />
-                      <stop offset="100%" stopColor="#818cf8" stopOpacity="0.6" />
+                      <stop offset="0%" stopColor="#818cf8" stopOpacity="0.2" />
+                      <stop offset="50%" stopColor="#c7d2fe" stopOpacity="0.4" />
+                      <stop offset="100%" stopColor="#818cf8" stopOpacity="0.2" />
                     </linearGradient>
 
                     {/* Subtle Glow */}
@@ -740,17 +744,15 @@ const App: React.FC = () => {
                     {/* Perfect Geometric Arrow */}
                     <marker
                       id="arrow-head"
-                      markerWidth="6"
-                      markerHeight="6"
-                      refX="5"
-                      refY="3"
+                      markerWidth="4"
+                      markerHeight="4"
+                      refX="3.5"
+                      refY="2"
                       orient="auto"
-                      markerUnits="userSpaceOnUse"
                     >
                       <path
-                        d="M0,0 L6,3 L0,6"
+                        d="M0,0 L4,2 L0,4 Z"
                         fill="#c7d2fe"
-                        fillOpacity="1"
                       />
                     </marker>
                   </defs>
@@ -762,8 +764,8 @@ const App: React.FC = () => {
                         d={path1}
                         fill="none"
                         stroke="url(#connection-gradient)"
-                        strokeWidth="2"
-                        strokeDasharray="6 6"
+                        strokeWidth="1.5"
+                        strokeDasharray="8 8"
                         strokeLinecap="round"
                         strokeLinejoin="round"
                         markerEnd="url(#arrow-head)"
@@ -778,8 +780,6 @@ const App: React.FC = () => {
                           calcMode="linear"
                         />
                       </path>
-
-                      {/* Animated dot - Smaller and cleaner */}
                       <circle r="1.5" fill="#e0e7ff" fillOpacity="0.8">
                         <animateMotion
                           dur="4s"
@@ -798,8 +798,8 @@ const App: React.FC = () => {
                         d={path2}
                         fill="none"
                         stroke="url(#connection-gradient)"
-                        strokeWidth="2"
-                        strokeDasharray="6 6"
+                        strokeWidth="1.5"
+                        strokeDasharray="8 8"
                         strokeLinecap="round"
                         strokeLinejoin="round"
                         markerEnd="url(#arrow-head)"
@@ -815,8 +815,6 @@ const App: React.FC = () => {
                           begin="1s"
                         />
                       </path>
-
-                      {/* Animated dot */}
                       <circle r="1.5" fill="#e0e7ff" fillOpacity="0.8">
                         <animateMotion
                           dur="4s"
@@ -827,37 +825,6 @@ const App: React.FC = () => {
                         />
                       </circle>
                     </g>
-                  )}
-
-                  {/* Connection Points - Higher visibility */}
-                  {path1Start.x > 0 && (
-                    <circle
-                      cx={path1Start.x}
-                      cy={path1Start.y}
-                      r="3"
-                      fill="#c7d2fe"
-                      className="transition-all duration-300 opacity-100"
-                    />
-                  )}
-
-                  {path1End.x > 0 && path2Start.x > 0 && (
-                    <circle
-                      cx={path1End.x}
-                      cy={path1End.y}
-                      r="3"
-                      fill="#c7d2fe"
-                      className="transition-all duration-300 opacity-100"
-                    />
-                  )}
-
-                  {path2End.x > 0 && (
-                    <circle
-                      cx={path2End.x}
-                      cy={path2End.y}
-                      r="3"
-                      fill="#c7d2fe"
-                      className="transition-all duration-300 opacity-100"
-                    />
                   )}
                 </svg>
 
@@ -961,7 +928,7 @@ const App: React.FC = () => {
           </MotionDiv>
         </AnimatePresence>
       </main>
-    </div>
+    </div >
   );
 };
 
