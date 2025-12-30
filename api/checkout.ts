@@ -28,12 +28,20 @@ export default async function handler(req: Request) {
         const userId = url.searchParams.get("user_id");
 
         if (!userId) {
-            console.warn("[POLAR] Checkout attempted without user_id.");
+            console.warn("[POLAR] Checkout attempted without user_id. Params:", url.search);
             return new Response(
-                JSON.stringify({ error: "Unauthorized", message: "User identity required." }),
+                JSON.stringify({
+                    error: "Unauthorized",
+                    message: "User identity required.",
+                    diagnostics: {
+                        url: req.url,
+                        params: Array.from(url.searchParams.entries())
+                    }
+                }),
                 { status: 400, headers: { "Content-Type": "application/json" } }
             );
         }
+
 
         const polar = new Polar({ accessToken });
 
@@ -59,12 +67,13 @@ export default async function handler(req: Request) {
         }
 
         const checkout = await polar.checkouts.create({
-            productId: productId,
+            products: [productId],
             successUrl: successUrl,
             customerMetadata: {
                 supabase_user_id: userId,
             },
         });
+
 
         console.log(`[POLAR] Checkout created successfully for user ${userId}: ${checkout.url}`);
 

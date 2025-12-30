@@ -198,15 +198,20 @@ const PricingStep: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
     const [isAuthenticating, setIsAuthenticating] = useState(false);
 
     const handlePurchase = async () => {
+        console.log("[JOURNEY] Initiating purchase check...");
         const { data: { user } } = await supabase.auth.getUser();
 
         if (!user) {
+            console.warn("[JOURNEY] No user found. Triggering auth requirement.");
             setIsAuthenticating(true);
             return;
         }
 
-        window.location.href = `/api/checkout?user_id=${user.id}`;
+        console.log(`[JOURNEY] User found: ${user.id}. Redirecting to checkout...`);
+        const checkoutUrl = `/api/checkout?user_id=${encodeURIComponent(user.id)}`;
+        window.location.href = checkoutUrl;
     };
+
 
     if (loading) return <div className="flex items-center justify-center h-full font-mono">CALIBRATING...</div>;
 
