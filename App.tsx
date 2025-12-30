@@ -646,9 +646,14 @@ const App: React.FC = () => {
       <AnimatePresence>
         {showJourney && (
           <div className="fixed inset-0 z-[2000] bg-white">
-            <ImmersiveJourney onComplete={() => setShowJourney(false)} onAuthRequired={() => setIsAuthModalOpen(true)} />
+            <ImmersiveJourney
+              onComplete={() => setShowJourney(false)}
+              onAuthRequired={() => setIsAuthModalOpen(true)}
+              currentUser={currentUser}
+            />
           </div>
         )}
+
       </AnimatePresence>
 
       {/* Background System and Sidebar */}

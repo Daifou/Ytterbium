@@ -7,9 +7,11 @@ import { supabase } from '../services/supabase';
 interface ImmersiveJourneyProps {
     onComplete: () => void;
     onAuthRequired: () => void;
+    currentUser: User | null;
 }
 
-export const ImmersiveJourney: React.FC<ImmersiveJourneyProps> = ({ onComplete, onAuthRequired }) => {
+export const ImmersiveJourney: React.FC<ImmersiveJourneyProps> = ({ onComplete, onAuthRequired, currentUser }) => {
+
 
     const [step, setStep] = useState(0);
 
@@ -180,7 +182,8 @@ export const ImmersiveJourney: React.FC<ImmersiveJourneyProps> = ({ onComplete, 
                 )}
 
                 {/* STEP 7 - CLEAN PRICING ONLY */}
-                {step === 7 && <PricingStep onComplete={onComplete} onAuthRequired={onAuthRequired} />}
+                {step === 7 && <PricingStep onComplete={onComplete} onAuthRequired={onAuthRequired} currentUser={currentUser} />}
+
 
 
             </AnimatePresence>
@@ -196,34 +199,39 @@ export const ImmersiveJourney: React.FC<ImmersiveJourneyProps> = ({ onComplete, 
     );
 };
 
-const PricingStep: React.FC<{ onComplete: () => void; onAuthRequired: () => void }> = ({ onComplete, onAuthRequired }) => {
+const PricingStep: React.FC<{ onComplete: () => void; onAuthRequired: () => void; currentUser: User | null }> = ({ onComplete, onAuthRequired, currentUser }) => {
     const { isPremium, loading } = useSubscription();
     const [isAuthenticating, setIsAuthenticating] = useState(false);
 
+    // Watchdog: If user authenticates while we were in an "isAuthenticating" state,
+    // trigger the checkout redirect automatically.
     useEffect(() => {
-        const checkUser = async () => {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (user) setIsAuthenticating(false);
-        };
-        checkUser();
-    }, []);
+        if (currentUser && isAuthenticating) {
+            console.log(`[JOURNEY] Auto-redirecting user ${currentUser.id} to checkout...`);
+            setIsAuthenticating(false);
+            const checkoutUrl = `/api/checkout?user_id=${encodeURIComponent(currentUser.id)}`;
+            window.location.href = checkoutUrl;
+        }
+    }, [currentUser, isAuthenticating]);
 
     const handlePurchase = async () => {
+
 
         console.log("[JOURNEY] Initiating purchase check...");
         const { data: { user } } = await supabase.auth.getUser();
 
-        if (!user) {
+        if (!currentUser) {
             console.warn("[JOURNEY] No user found. Triggering auth requirement.");
             setIsAuthenticating(true);
             onAuthRequired(); // Trigger the global auth modal
             return;
         }
 
-        console.log(`[JOURNEY] User found: ${user.id}. Redirecting to checkout...`);
-        const checkoutUrl = `/api/checkout?user_id=${encodeURIComponent(user.id)}`;
+        console.log(`[JOURNEY] User found: ${currentUser.id}. Redirecting to checkout...`);
+        const checkoutUrl = `/api/checkout?user_id=${encodeURIComponent(currentUser.id)}`;
         window.location.href = checkoutUrl;
     };
+
 
 
 
