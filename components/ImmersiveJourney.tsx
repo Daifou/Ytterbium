@@ -1,7 +1,9 @@
+```
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useSubscription } from '../hooks/useSubscription';
 import { supabase } from '../services/supabase';
+import { User } from '@supabase/supabase-js';
+import { useSubscription } from '../hooks/useSubscription';
 
 
 interface ImmersiveJourneyProps {
@@ -125,7 +127,7 @@ export const ImmersiveJourney: React.FC<ImmersiveJourneyProps> = ({ onComplete, 
                             </div>
                             <div className="flex-1 overflow-y-auto pr-4 custom-scrollbar">
                                 {protocols.map((row, i) => (
-                                    <div key={i} className={`grid grid-cols-12 py-7 border-b border-black items-center group transition-all duration-300 cursor-crosshair ${row.color}`}>
+                                    <div key={i} className={`grid grid - cols - 12 py - 7 border - b border - black items - center group transition - all duration - 300 cursor - crosshair ${ row.color } `}>
                                         <div className="col-span-2 font-mono text-sm tracking-tighter pl-2 flex items-center gap-2">
                                             <span className="text-[8px]">■</span> {row.label}
                                         </div>
@@ -207,9 +209,9 @@ const PricingStep: React.FC<{ onComplete: () => void; onAuthRequired: () => void
     // trigger the checkout redirect automatically.
     useEffect(() => {
         if (currentUser && isAuthenticating) {
-            console.log(`[JOURNEY] Auto-redirecting user ${currentUser.id} to checkout...`);
+            console.log(`[JOURNEY] Auto - redirecting user ${ currentUser.id } to checkout...`);
             setIsAuthenticating(false);
-            const checkoutUrl = `/api/checkout?user_id=${encodeURIComponent(currentUser.id)}`;
+            const checkoutUrl = `/ api / checkout ? user_id = ${ encodeURIComponent(currentUser.id) } `;
             window.location.href = checkoutUrl;
         }
     }, [currentUser, isAuthenticating]);
@@ -227,8 +229,8 @@ const PricingStep: React.FC<{ onComplete: () => void; onAuthRequired: () => void
             return;
         }
 
-        console.log(`[JOURNEY] User found: ${currentUser.id}. Redirecting to checkout...`);
-        const checkoutUrl = `/api/checkout?user_id=${encodeURIComponent(currentUser.id)}`;
+        console.log(`[JOURNEY] User found: ${ currentUser.id }. Redirecting to checkout...`);
+        const checkoutUrl = `/ api / checkout ? user_id = ${ encodeURIComponent(currentUser.id) } `;
         window.location.href = checkoutUrl;
     };
 
@@ -260,9 +262,9 @@ const PricingStep: React.FC<{ onComplete: () => void; onAuthRequired: () => void
                 className="absolute inset-0 pointer-events-none z-0"
                 style={{
                     backgroundImage: `
-                        linear-gradient(to right, rgba(0,0,0,0.1) 1px, transparent 1px),
-                        linear-gradient(to bottom, rgba(0,0,0,0.1) 1px, transparent 1px)
-                    `,
+linear - gradient(to right, rgba(0, 0, 0, 0.1) 1px, transparent 1px),
+    linear - gradient(to bottom, rgba(0, 0, 0, 0.1) 1px, transparent 1px)
+        `,
                     backgroundSize: '20px 20px',
                     maskImage: 'radial-gradient(circle at center, black 40%, transparent 95%)',
                     WebkitMaskImage: 'radial-gradient(circle at center, black 40%, transparent 95%)'
