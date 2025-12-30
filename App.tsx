@@ -626,9 +626,7 @@ const App: React.FC = () => {
     }} />;
   }
 
-  if (showJourney) {
-    return <ImmersiveJourney onComplete={() => setShowJourney(false)} onAuthRequired={() => setIsAuthModalOpen(true)} />;
-  }
+
 
 
   const path1Start = getPathCoords(path1, 'start');
@@ -644,6 +642,15 @@ const App: React.FC = () => {
     <div
       className={`h-screen bg-transparent text-gray-200 selection:bg-primary/30 relative overflow-hidden flex flex-col ${alienMode ? 'font-alien' : 'font-sans'}`}
     >
+      {/* Immersive Journey Overlay */}
+      <AnimatePresence>
+        {showJourney && (
+          <div className="fixed inset-0 z-[2000] bg-white">
+            <ImmersiveJourney onComplete={() => setShowJourney(false)} onAuthRequired={() => setIsAuthModalOpen(true)} />
+          </div>
+        )}
+      </AnimatePresence>
+
       {/* Background System and Sidebar */}
       <Background />
       <CosmicParticles />
