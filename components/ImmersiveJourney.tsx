@@ -211,7 +211,10 @@ export const ImmersiveJourney: React.FC<ImmersiveJourneyProps> = ({ onComplete }
                                 </svg>
                             </div>
 
-                            <button onClick={onComplete} className="flex-1 flex flex-col items-center justify-center group hover:bg-black transition-all duration-500 relative z-10">
+                            <button
+                                onClick={() => window.location.href = '/api/checkout'}
+                                className="flex-1 flex flex-col items-center justify-center group hover:bg-black transition-all duration-500 relative z-10"
+                            >
                                 <span className="font-mono text-[10px] tracking-[0.4em] text-black/40 group-hover:text-white/60 mb-2 uppercase">Annual</span>
                                 <div className="flex items-baseline group-hover:text-white">
                                     <span className="font-instrument text-5xl md:text-7xl font-bold">$12</span>
@@ -219,13 +222,18 @@ export const ImmersiveJourney: React.FC<ImmersiveJourneyProps> = ({ onComplete }
                                 </div>
                             </button>
 
-                            <button onClick={onComplete} className="flex-1 flex flex-col items-center justify-center group hover:bg-black transition-all duration-500 relative z-10">
+                            <button
+                                onClick={() => window.location.href = '/api/checkout'}
+                                className="flex-1 flex flex-col items-center justify-center group hover:bg-black transition-all duration-500 relative z-10"
+                            >
                                 <span className="font-mono text-[10px] tracking-[0.4em] text-black/40 group-hover:text-white/60 mb-2 uppercase">Monthly</span>
                                 <div className="flex items-baseline group-hover:text-white">
-                                    <span className="font-instrument text-5xl md:text-7xl font-bold">$12</span>
+                                    <span className="font-instrument text-5xl md:text-7xl font-bold">$5</span>
                                     <span className="font-instrument text-lg md:text-xl italic ml-1 opacity-60">/month</span>
                                 </div>
                             </button>
+
+
                         </div>
                     </motion.section>
                 )}
