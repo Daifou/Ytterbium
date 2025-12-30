@@ -204,22 +204,22 @@ export const ImmersiveJourney: React.FC<ImmersiveJourneyProps> = ({ onComplete, 
 const PricingStep: React.FC<{ onComplete: () => void; onAuthRequired: () => void; currentUser: User | null }> = ({ onComplete, onAuthRequired, currentUser }) => {
     const { isPremium, loading } = useSubscription();
     const [isAuthenticating, setIsAuthenticating] = useState(false);
+    const [selectedPlan, setSelectedPlan] = useState<'monthly' | 'annual' | null>(null);
 
     // Watchdog: If user authenticates while we were in an "isAuthenticating" state,
     // trigger the checkout redirect automatically.
     useEffect(() => {
-        if (currentUser && isAuthenticating) {
-            console.log(`[JOURNEY] Auto - redirecting user ${currentUser.id} to checkout...`);
+        if (currentUser && isAuthenticating && selectedPlan) {
+            console.log(`[JOURNEY] Auto-redirecting user ${currentUser.id} to ${selectedPlan} checkout...`);
             setIsAuthenticating(false);
-            const checkoutUrl = `/api/checkout?user_id=${encodeURIComponent(currentUser.id)}`;
+            const checkoutUrl = `/api/checkout?user_id=${encodeURIComponent(currentUser.id)}&plan=${selectedPlan}`;
             window.location.href = checkoutUrl;
         }
-    }, [currentUser, isAuthenticating]);
+    }, [currentUser, isAuthenticating, selectedPlan]);
 
-    const handlePurchase = async () => {
-
-
-        console.log("[JOURNEY] Initiating purchase check...");
+    const handlePurchase = async (plan: 'monthly' | 'annual') => {
+        console.log(`[JOURNEY] Initiating ${plan} purchase check...`);
+        setSelectedPlan(plan);
         const { data: { user } } = await supabase.auth.getUser();
 
         if (!currentUser) {
@@ -229,10 +229,12 @@ const PricingStep: React.FC<{ onComplete: () => void; onAuthRequired: () => void
             return;
         }
 
-        console.log(`[JOURNEY] User found: ${currentUser.id}. Redirecting to checkout...`);
-        const checkoutUrl = `/api/checkout?user_id=${encodeURIComponent(currentUser.id)}`;
+        console.log(`[JOURNEY] User found: ${currentUser.id}. Redirecting to ${plan} checkout...`);
+        const checkoutUrl = `/api/checkout?user_id=${encodeURIComponent(currentUser.id)}&plan=${plan}`;
         window.location.href = checkoutUrl;
     };
+
+
 
 
 
@@ -288,7 +290,7 @@ linear - gradient(to right, rgba(0, 0, 0, 0.1) 1px, transparent 1px),
                 </div>
 
                 <button
-                    onClick={handlePurchase}
+                    onClick={() => handlePurchase('annual')}
                     className="flex-1 flex flex-col items-center justify-center group hover:bg-black transition-all duration-500 relative z-10"
                 >
                     <span className="font-mono text-[10px] tracking-[0.4em] text-black/40 group-hover:text-white/60 mb-2 uppercase">Annual</span>
@@ -299,7 +301,7 @@ linear - gradient(to right, rgba(0, 0, 0, 0.1) 1px, transparent 1px),
                 </button>
 
                 <button
-                    onClick={handlePurchase}
+                    onClick={() => handlePurchase('monthly')}
                     className="flex-1 flex flex-col items-center justify-center group hover:bg-black transition-all duration-500 relative z-10"
                 >
                     <span className="font-mono text-[10px] tracking-[0.4em] text-black/40 group-hover:text-white/60 mb-2 uppercase">Monthly</span>
@@ -308,6 +310,7 @@ linear - gradient(to right, rgba(0, 0, 0, 0.1) 1px, transparent 1px),
                         <span className="font-instrument text-lg md:text-xl italic ml-1 opacity-60">/month</span>
                     </div>
                 </button>
+
             </div>
 
             {isAuthenticating && (
