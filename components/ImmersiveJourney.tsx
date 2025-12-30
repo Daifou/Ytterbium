@@ -211,7 +211,7 @@ const PricingStep: React.FC<{ onComplete: () => void; onAuthRequired: () => void
         if (currentUser && isAuthenticating) {
             console.log(`[JOURNEY] Auto - redirecting user ${currentUser.id} to checkout...`);
             setIsAuthenticating(false);
-            const checkoutUrl = `/ api / checkout ? user_id = ${encodeURIComponent(currentUser.id)} `;
+            const checkoutUrl = `/api/checkout?user_id=${encodeURIComponent(currentUser.id)}`;
             window.location.href = checkoutUrl;
         }
     }, [currentUser, isAuthenticating]);
@@ -230,7 +230,7 @@ const PricingStep: React.FC<{ onComplete: () => void; onAuthRequired: () => void
         }
 
         console.log(`[JOURNEY] User found: ${currentUser.id}. Redirecting to checkout...`);
-        const checkoutUrl = `/ api / checkout ? user_id = ${encodeURIComponent(currentUser.id)} `;
+        const checkoutUrl = `/api/checkout?user_id=${encodeURIComponent(currentUser.id)}`;
         window.location.href = checkoutUrl;
     };
 
