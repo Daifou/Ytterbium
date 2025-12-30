@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useSubscription } from '../hooks/useSubscription';
+import { supabase } from '../services/supabase';
+
 
 interface ImmersiveJourneyProps {
     onComplete: () => void;
@@ -175,68 +178,8 @@ export const ImmersiveJourney: React.FC<ImmersiveJourneyProps> = ({ onComplete }
                 )}
 
                 {/* STEP 7 - CLEAN PRICING ONLY */}
-                {step === 7 && (
-                    <motion.section
-                        key="s7"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        className="absolute inset-0 flex flex-col items-center justify-center p-4 md:p-8"
-                    >
-                        <div
-                            className="absolute inset-0 pointer-events-none z-0"
-                            style={{
-                                backgroundImage: `
-                                    linear-gradient(to right, rgba(0,0,0,0.1) 1px, transparent 1px),
-                                    linear-gradient(to bottom, rgba(0,0,0,0.1) 1px, transparent 1px)
-                                `,
-                                backgroundSize: '20px 20px',
-                                maskImage: 'radial-gradient(circle at center, black 40%, transparent 95%)',
-                                WebkitMaskImage: 'radial-gradient(circle at center, black 40%, transparent 95%)'
-                            }}
-                        />
+                {step === 7 && <PricingStep onComplete={onComplete} />}
 
-                        <div className="text-center mb-10 relative z-10 uppercase">
-                            <h3 className="font-instrument text-6xl md:text-8xl font-medium tracking-tight mb-2">
-                                Ytterbium sky
-                            </h3>
-                            <p className="font-instrument text-xl italic text-[#8a8a8a]">
-                                Secure your architectural reset.
-                            </p>
-                        </div>
-
-                        <div className="w-full max-w-2xl bg-white/80 backdrop-blur-xl border-[1.5px] border-black rounded-[60px] relative flex h-48 md:h-64 overflow-hidden mb-12 z-10 shadow-xl">
-                            <div className="absolute inset-0 flex justify-center pointer-events-none z-20">
-                                <svg width="80" height="100%" viewBox="0 0 80 200" preserveAspectRatio="none" className="h-full stroke-black stroke-[1] fill-none">
-                                    <path d="M50 0 C30 60, 50 140, 30 200" />
-                                </svg>
-                            </div>
-
-                            <button
-                                onClick={() => window.location.href = '/api/checkout'}
-                                className="flex-1 flex flex-col items-center justify-center group hover:bg-black transition-all duration-500 relative z-10"
-                            >
-                                <span className="font-mono text-[10px] tracking-[0.4em] text-black/40 group-hover:text-white/60 mb-2 uppercase">Annual</span>
-                                <div className="flex items-baseline group-hover:text-white">
-                                    <span className="font-instrument text-5xl md:text-7xl font-bold">$12</span>
-                                    <span className="font-instrument text-lg md:text-xl italic ml-1 opacity-60">/year</span>
-                                </div>
-                            </button>
-
-                            <button
-                                onClick={() => window.location.href = '/api/checkout'}
-                                className="flex-1 flex flex-col items-center justify-center group hover:bg-black transition-all duration-500 relative z-10"
-                            >
-                                <span className="font-mono text-[10px] tracking-[0.4em] text-black/40 group-hover:text-white/60 mb-2 uppercase">Monthly</span>
-                                <div className="flex items-baseline group-hover:text-white">
-                                    <span className="font-instrument text-5xl md:text-7xl font-bold">$5</span>
-                                    <span className="font-instrument text-lg md:text-xl italic ml-1 opacity-60">/month</span>
-                                </div>
-                            </button>
-
-
-                        </div>
-                    </motion.section>
-                )}
             </AnimatePresence>
 
             {step < 7 && (
@@ -247,5 +190,102 @@ export const ImmersiveJourney: React.FC<ImmersiveJourneyProps> = ({ onComplete }
                 </div>
             )}
         </div>
+    );
+};
+
+const PricingStep: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
+    const { isPremium, loading } = useSubscription();
+    const [isAuthenticating, setIsAuthenticating] = useState(false);
+
+    const handlePurchase = async () => {
+        const { data: { user } } = await supabase.auth.getUser();
+
+        if (!user) {
+            setIsAuthenticating(true);
+            return;
+        }
+
+        window.location.href = `/api/checkout?user_id=${user.id}`;
+    };
+
+    if (loading) return <div className="flex items-center justify-center h-full font-mono">CALIBRATING...</div>;
+
+    if (isPremium) {
+        return (
+            <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center">
+                <h3 className="font-instrument text-6xl mb-8">Access Granted.</h3>
+                <p className="font-instrument text-xl text-[#8a8a8a] mb-12">Your profile is already synced with the Ytterbium protocol.</p>
+                <button onClick={onComplete} className="px-12 py-4 bg-black text-white rounded-full font-mono text-sm tracking-widest uppercase hover:scale-105 transition-transform">
+                    Enter System
+                </button>
+            </motion.section>
+        );
+    }
+
+    return (
+        <motion.section
+            key="s7"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="absolute inset-0 flex flex-col items-center justify-center p-4 md:p-8"
+        >
+            <div
+                className="absolute inset-0 pointer-events-none z-0"
+                style={{
+                    backgroundImage: `
+                        linear-gradient(to right, rgba(0,0,0,0.1) 1px, transparent 1px),
+                        linear-gradient(to bottom, rgba(0,0,0,0.1) 1px, transparent 1px)
+                    `,
+                    backgroundSize: '20px 20px',
+                    maskImage: 'radial-gradient(circle at center, black 40%, transparent 95%)',
+                    WebkitMaskImage: 'radial-gradient(circle at center, black 40%, transparent 95%)'
+                }}
+            />
+
+            <div className="text-center mb-10 relative z-10 uppercase">
+                <h3 className="font-instrument text-6xl md:text-8xl font-medium tracking-tight mb-2">
+                    Ytterbium sky
+                </h3>
+                <p className="font-instrument text-xl italic text-[#8a8a8a]">
+                    Secure your architectural reset.
+                </p>
+            </div>
+
+            <div className="w-full max-w-2xl bg-white/80 backdrop-blur-xl border-[1.5px] border-black rounded-[60px] relative flex h-48 md:h-64 overflow-hidden mb-12 z-10 shadow-xl">
+                <div className="absolute inset-0 flex justify-center pointer-events-none z-20">
+                    <svg width="80" height="100%" viewBox="0 0 80 200" preserveAspectRatio="none" className="h-full stroke-black stroke-[1] fill-none">
+                        <path d="M50 0 C30 60, 50 140, 30 200" />
+                    </svg>
+                </div>
+
+                <button
+                    onClick={handlePurchase}
+                    className="flex-1 flex flex-col items-center justify-center group hover:bg-black transition-all duration-500 relative z-10"
+                >
+                    <span className="font-mono text-[10px] tracking-[0.4em] text-black/40 group-hover:text-white/60 mb-2 uppercase">Annual</span>
+                    <div className="flex items-baseline group-hover:text-white">
+                        <span className="font-instrument text-5xl md:text-7xl font-bold">$12</span>
+                        <span className="font-instrument text-lg md:text-xl italic ml-1 opacity-60">/year</span>
+                    </div>
+                </button>
+
+                <button
+                    onClick={handlePurchase}
+                    className="flex-1 flex flex-col items-center justify-center group hover:bg-black transition-all duration-500 relative z-10"
+                >
+                    <span className="font-mono text-[10px] tracking-[0.4em] text-black/40 group-hover:text-white/60 mb-2 uppercase">Monthly</span>
+                    <div className="flex items-baseline group-hover:text-white">
+                        <span className="font-instrument text-5xl md:text-7xl font-bold">$5</span>
+                        <span className="font-instrument text-lg md:text-xl italic ml-1 opacity-60">/month</span>
+                    </div>
+                </button>
+            </div>
+
+            {isAuthenticating && (
+                <div className="relative z-20 font-mono text-xs text-red-500 animate-pulse">
+                    AUTHENTICATION REQUIRED TO SECURE PROTOCOL
+                </div>
+            )}
+        </motion.section>
     );
 };
