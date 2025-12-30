@@ -43,7 +43,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
     return (
         <AnimatePresence>
             {isOpen && (
-                <div className="fixed inset-0 z-[1000] flex items-center justify-center p-6">
+                <div className="fixed inset-0 z-[3000] flex items-center justify-center p-6">
                     {/* Backdrop */}
                     <motion.div
                         initial={{ opacity: 0 }}
