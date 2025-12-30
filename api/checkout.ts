@@ -53,18 +53,39 @@ export default async function handler(req: Request) {
         let productId = process.env.POLAR_PRODUCT_ID;
 
         if (!productId) {
+            console.log("[POLAR] POLAR_PRODUCT_ID not set, attempting to list products...");
+            const organizationId = process.env.POLAR_ORGANIZATION_ID;
+
+            if (!organizationId) {
+                return new Response(
+                    JSON.stringify({
+                        error: "Configuration Missing",
+                        message: "Neither POLAR_PRODUCT_ID nor POLAR_ORGANIZATION_ID is set in environment variables."
+                    }),
+                    { status: 500, headers: { "Content-Type": "application/json" } }
+                );
+            }
+
             const products = await polar.products.list({
-                organizationId: "FIXME_OR_SET_ENV" // You can find this in your Polar dashboard
+                organizationId: organizationId
             });
 
             if (products.result.items.length > 0) {
                 productId = products.result.items[0].id;
+                console.log(`[POLAR] Found product through organization: ${productId}`);
             }
         }
 
         if (!productId) {
-            throw new Error("No active product found in Polar account.");
+            return new Response(
+                JSON.stringify({
+                    error: "Product Not Found",
+                    message: "Could not find a valid Polar product ID. Please set POLAR_PRODUCT_ID."
+                }),
+                { status: 404, headers: { "Content-Type": "application/json" } }
+            );
         }
+
 
         const checkout = await polar.checkouts.create({
             products: [productId],
