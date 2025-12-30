@@ -627,8 +627,9 @@ const App: React.FC = () => {
   }
 
   if (showJourney) {
-    return <ImmersiveJourney onComplete={() => setShowJourney(false)} />;
+    return <ImmersiveJourney onComplete={() => setShowJourney(false)} onAuthRequired={() => setIsAuthModalOpen(true)} />;
   }
+
 
   const path1Start = getPathCoords(path1, 'start');
   const path1End = getPathCoords(path1, 'end');

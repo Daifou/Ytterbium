@@ -6,9 +6,11 @@ import { supabase } from '../services/supabase';
 
 interface ImmersiveJourneyProps {
     onComplete: () => void;
+    onAuthRequired: () => void;
 }
 
-export const ImmersiveJourney: React.FC<ImmersiveJourneyProps> = ({ onComplete }) => {
+export const ImmersiveJourney: React.FC<ImmersiveJourneyProps> = ({ onComplete, onAuthRequired }) => {
+
     const [step, setStep] = useState(0);
 
     useEffect(() => {
@@ -178,7 +180,8 @@ export const ImmersiveJourney: React.FC<ImmersiveJourneyProps> = ({ onComplete }
                 )}
 
                 {/* STEP 7 - CLEAN PRICING ONLY */}
-                {step === 7 && <PricingStep onComplete={onComplete} />}
+                {step === 7 && <PricingStep onComplete={onComplete} onAuthRequired={onAuthRequired} />}
+
 
             </AnimatePresence>
 
@@ -193,17 +196,27 @@ export const ImmersiveJourney: React.FC<ImmersiveJourneyProps> = ({ onComplete }
     );
 };
 
-const PricingStep: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
+const PricingStep: React.FC<{ onComplete: () => void; onAuthRequired: () => void }> = ({ onComplete, onAuthRequired }) => {
     const { isPremium, loading } = useSubscription();
     const [isAuthenticating, setIsAuthenticating] = useState(false);
 
+    useEffect(() => {
+        const checkUser = async () => {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) setIsAuthenticating(false);
+        };
+        checkUser();
+    }, []);
+
     const handlePurchase = async () => {
+
         console.log("[JOURNEY] Initiating purchase check...");
         const { data: { user } } = await supabase.auth.getUser();
 
         if (!user) {
             console.warn("[JOURNEY] No user found. Triggering auth requirement.");
             setIsAuthenticating(true);
+            onAuthRequired(); // Trigger the global auth modal
             return;
         }
 
@@ -211,6 +224,7 @@ const PricingStep: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
         const checkoutUrl = `/api/checkout?user_id=${encodeURIComponent(user.id)}`;
         window.location.href = checkoutUrl;
     };
+
 
 
     if (loading) return <div className="flex items-center justify-center h-full font-mono">CALIBRATING...</div>;
@@ -287,10 +301,19 @@ const PricingStep: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
             </div>
 
             {isAuthenticating && (
-                <div className="relative z-20 font-mono text-xs text-red-500 animate-pulse">
-                    AUTHENTICATION REQUIRED TO SECURE PROTOCOL
+                <div className="relative z-20 mt-4 flex flex-col items-center gap-4">
+                    <div className="font-mono text-xs text-red-500 animate-pulse">
+                        AUTHENTICATION REQUIRED TO SECURE PROTOCOL
+                    </div>
+                    <button
+                        onClick={onAuthRequired}
+                        className="px-6 py-2 border border-black rounded-full font-mono text-[10px] uppercase tracking-widest hover:bg-black hover:text-white transition-all"
+                    >
+                        Sign In / Create Account
+                    </button>
                 </div>
             )}
         </motion.section>
     );
 };
+

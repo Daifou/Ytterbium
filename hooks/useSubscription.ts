@@ -17,6 +17,8 @@ export function useSubscription() {
     const [error, setError] = useState<PostgrestError | null>(null);
 
     useEffect(() => {
+        let authSubscription: any;
+
         async function fetchSubscription() {
             try {
                 const { data: { user } } = await supabase.auth.getUser();
@@ -47,6 +49,12 @@ export function useSubscription() {
 
         fetchSubscription();
 
+        // Listen for auth state changes to re-fetch
+        const { data: { subscription: authListener } } = supabase.auth.onAuthStateChange(() => {
+            fetchSubscription();
+        });
+        authSubscription = authListener;
+
         // Subscribe to changes for Real-time Resilience
         const subscriptionChannel = supabase
             .channel('polar_sync_changes')
@@ -58,9 +66,11 @@ export function useSubscription() {
             .subscribe();
 
         return () => {
+            if (authSubscription) authSubscription.unsubscribe();
             supabase.removeChannel(subscriptionChannel);
         };
     }, []);
+
 
     return {
         subscription,
