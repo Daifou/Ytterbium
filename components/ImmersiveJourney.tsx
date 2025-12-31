@@ -46,9 +46,9 @@ export const ImmersiveJourney: React.FC<ImmersiveJourneyProps> = ({ onComplete, 
     ];
 
     return (
-        <div className="relative w-full h-screen bg-[#F9F7F2] text-[#1a1a1a] overflow-hidden selection:bg-[#2F4F4F] font-sans">
+        <div className={`relative w-full h-screen ${step === 7 ? 'bg-white' : 'bg-[#F9F7F2]'} text-[#1a1a1a] overflow-hidden selection:bg-[#2F4F4F] font-sans transition-colors duration-1000`}>
             {/* Grain Overlay */}
-            <div className="fixed inset-0 pointer-events-none z-50 opacity-[0.05] mix-blend-multiply"
+            <div className={`fixed inset-0 pointer-events-none z-50 mix-blend-multiply transition-opacity duration-1000 ${step === 7 ? 'opacity-0' : 'opacity-[0.05]'}`}
                 style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }}
             />
 
@@ -203,47 +203,63 @@ export const ImmersiveJourney: React.FC<ImmersiveJourneyProps> = ({ onComplete, 
 
 const PricingStep: React.FC<{ onComplete: () => void; onAuthRequired: () => void; currentUser: User | null }> = ({ onComplete, onAuthRequired, currentUser }) => {
     const { isPremium, loading } = useSubscription();
-    const [isAuthenticating, setIsAuthenticating] = useState(false);
     const [selectedPlan, setSelectedPlan] = useState<'monthly' | 'annual' | null>(null);
+    const [showError, setShowError] = useState(false);
 
-    // Watchdog: If user authenticates while we were in an "isAuthenticating" state,
-    // trigger the checkout redirect automatically.
     useEffect(() => {
-        if (currentUser && isAuthenticating && selectedPlan) {
-            console.log(`[JOURNEY] Auto-redirecting user ${currentUser.id} to ${selectedPlan} checkout...`);
-            setIsAuthenticating(false);
+        // If we have a user and they selected a plan previously (persisted), we might want to trigger checkout
+        // But this is likely handled in App.tsx or we handle it here if they are still on this screen
+        if (currentUser && selectedPlan) {
             const checkoutUrl = `/api/checkout?user_id=${encodeURIComponent(currentUser.id)}&plan=${selectedPlan}`;
             window.location.href = checkoutUrl;
         }
-    }, [currentUser, isAuthenticating, selectedPlan]);
+    }, [currentUser, selectedPlan]);
 
-    const handlePurchase = async (plan: 'monthly' | 'annual') => {
-        console.log(`[JOURNEY] Initiating ${plan} purchase check...`);
+    const handlePlanSelect = (plan: 'monthly' | 'annual') => {
+        console.log("Saving plan to localStorage:", plan);
         setSelectedPlan(plan);
-        const { data: { user } } = await supabase.auth.getUser();
+        setShowError(false);
+        localStorage.setItem('pending_plan', plan);
 
-        if (!currentUser) {
-            console.warn("[JOURNEY] No user found. Triggering auth requirement.");
-            setIsAuthenticating(true);
-            onAuthRequired(); // Trigger the global auth modal
+        // If already logged in, go to checkout immediately
+        if (currentUser) {
+            console.log("User already logged in, redirecting to checkout");
+            const checkoutUrl = `/api/checkout?user_id=${encodeURIComponent(currentUser.id)}&plan=${plan}`;
+            window.location.href = checkoutUrl;
+        }
+    };
+
+    const handleGoogleSignUp = async () => {
+        if (!selectedPlan) {
+            setShowError(true);
+            // Shake effect or toast could go here
             return;
         }
 
-        console.log(`[JOURNEY] User found: ${currentUser.id}. Redirecting to ${plan} checkout...`);
-        const checkoutUrl = `/api/checkout?user_id=${encodeURIComponent(currentUser.id)}&plan=${plan}`;
-        window.location.href = checkoutUrl;
+        const { error } = await supabase.auth.signInWithOAuth({
+            provider: 'google',
+            options: { redirectTo: window.location.origin }
+        });
+        if (error) console.error("Google Auth Error:", error);
     };
 
+    const handleLogin = async () => {
+        // Login doesn't necessarily require a plan selection, but if they are here, maybe they want to sync?
+        // Prompt says "new user... choose plan... sign up". 
+        // Returning paid user shouldn't be here (Immersive Journey is skipped).
+        // Returning free user might be here.
+        const { error } = await supabase.auth.signInWithOAuth({
+            provider: 'google',
+            options: { redirectTo: window.location.origin }
+        });
+        if (error) console.error("Google Auth Error:", error);
+    };
 
-
-
-
-
-    if (loading) return <div className="flex items-center justify-center h-full font-mono">CALIBRATING...</div>;
+    if (loading) return <div className="flex items-center justify-center h-full font-mono text-black">CALIBRATING...</div>;
 
     if (isPremium) {
         return (
-            <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center">
+            <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center bg-white text-black">
                 <h3 className="font-instrument text-6xl mb-8">Access Granted.</h3>
                 <p className="font-instrument text-xl text-[#8a8a8a] mb-12">Your profile is already synced with the Ytterbium protocol.</p>
                 <button onClick={onComplete} className="px-12 py-4 bg-black text-white rounded-full font-mono text-sm tracking-widest uppercase hover:scale-105 transition-transform">
@@ -258,75 +274,100 @@ const PricingStep: React.FC<{ onComplete: () => void; onAuthRequired: () => void
             key="s7"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="absolute inset-0 flex flex-col items-center justify-center p-4 md:p-8"
+            className="absolute inset-0 flex flex-col md:flex-row bg-white text-black overflow-hidden"
         >
-            <div
-                className="absolute inset-0 pointer-events-none z-0"
-                style={{
-                    backgroundImage: `
-linear - gradient(to right, rgba(0, 0, 0, 0.1) 1px, transparent 1px),
-    linear - gradient(to bottom, rgba(0, 0, 0, 0.1) 1px, transparent 1px)
-        `,
-                    backgroundSize: '20px 20px',
-                    maskImage: 'radial-gradient(circle at center, black 40%, transparent 95%)',
-                    WebkitMaskImage: 'radial-gradient(circle at center, black 40%, transparent 95%)'
-                }}
-            />
+            {/* Left Side: Pricing */}
+            <div className="flex-1 flex flex-col justify-center items-center p-12 lg:p-24 border-b md:border-b-0 md:border-r border-black/5 bg-[#FDFDFD]">
+                <div className="w-full max-w-md space-y-12">
+                    <div className="space-y-4">
+                        <span className="font-mono text-[10px] tracking-[0.4em] text-black/40 uppercase">Economic selection</span>
+                        <h3 className="font-instrument text-5xl md:text-6xl font-medium tracking-tight">Choose your <br /> resonance.</h3>
+                    </div>
 
-            <div className="text-center mb-10 relative z-10 uppercase">
-                <h3 className="font-instrument text-6xl md:text-8xl font-medium tracking-tight mb-2">
-                    Ytterbium sky
-                </h3>
-                <p className="font-instrument text-xl italic text-[#8a8a8a]">
-                    Secure your architectural reset.
-                </p>
+                    <div className="space-y-6">
+                        {/* Annual Plan */}
+                        <button
+                            onClick={() => handlePlanSelect('annual')}
+                            className={`w-full p-8 border ${selectedPlan === 'annual' ? 'border-black bg-black text-white' : 'border-black/10 hover:bg-black hover:text-white'} rounded-[32px] flex flex-col gap-1 group transition-all duration-500 text-left relative overflow-hidden`}
+                        >
+                            <span className={`font-mono text-[10px] tracking-[0.3em] uppercase ${selectedPlan === 'annual' ? 'opacity-60' : 'opacity-40 group-hover:opacity-60'}`}>Elite / Annual</span>
+                            <div className="flex items-baseline justify-between">
+                                <span className="font-instrument text-4xl font-bold">$12</span>
+                                <span className={`font-mono text-[11px] ${selectedPlan === 'annual' ? 'opacity-60' : 'opacity-40 group-hover:opacity-60'} italic`}>/ 12 MONTHS</span>
+                            </div>
+                            <div className={`mt-4 flex items-center gap-2 font-mono text-[10px] tracking-widest ${selectedPlan === 'annual' ? 'opacity-100' : 'opacity-40 group-hover:opacity-100'} transition-opacity`}>
+                                <span>■ SECURE PROTOCOL</span>
+                            </div>
+                        </button>
+
+                        {/* Monthly Plan */}
+                        <button
+                            onClick={() => handlePlanSelect('monthly')}
+                            className={`w-full p-8 border ${selectedPlan === 'monthly' ? 'border-black bg-black text-white' : 'border-black/10 hover:bg-black hover:text-white'} rounded-[32px] flex flex-col gap-1 group transition-all duration-500 text-left`}
+                        >
+                            <span className={`font-mono text-[10px] tracking-[0.3em] uppercase ${selectedPlan === 'monthly' ? 'opacity-60' : 'opacity-40 group-hover:opacity-60'}`}>Base / Monthly</span>
+                            <div className="flex items-baseline justify-between">
+                                <span className="font-instrument text-4xl font-bold">$5</span>
+                                <span className={`font-mono text-[11px] ${selectedPlan === 'monthly' ? 'opacity-60' : 'opacity-40 group-hover:opacity-60'} italic`}>/ MONTHLY</span>
+                            </div>
+                            <div className={`mt-4 flex items-center gap-2 font-mono text-[10px] tracking-widest ${selectedPlan === 'monthly' ? 'opacity-100' : 'opacity-40 group-hover:opacity-100'} transition-opacity`}>
+                                <span>□ STANDARD GAIN</span>
+                            </div>
+                        </button>
+                    </div>
+
+                    <p className={`font-instrument text-sm ${showError ? 'text-red-500' : 'text-[#8a8a8a]'} italic transition-colors duration-300`}>
+                        {showError ? "Choose the plan first." : "Select a plan to synchronize your neural architecture."}
+                    </p>
+                </div>
             </div>
 
-            <div className="w-full max-w-2xl bg-white/80 backdrop-blur-xl border-[1.5px] border-black rounded-[60px] relative flex h-48 md:h-64 overflow-hidden mb-12 z-10 shadow-xl">
-                <div className="absolute inset-0 flex justify-center pointer-events-none z-20">
-                    <svg width="80" height="100%" viewBox="0 0 80 200" preserveAspectRatio="none" className="h-full stroke-black stroke-[1] fill-none">
-                        <path d="M50 0 C30 60, 50 140, 30 200" />
-                    </svg>
+            {/* Right Side: Auth (Matching Screenshot) */}
+            <div className="flex-1 flex flex-col justify-center items-center p-12 lg:p-24 bg-white">
+                <div className="w-full max-w-[360px] flex flex-col items-center text-center">
+                    <h2 className="font-instrument text-5xl font-medium tracking-tight mb-2">Ytterbium</h2>
+                    <p className="font-instrument text-lg text-[#8a8a8a] mb-16 italic">Automate your health.</p>
+
+                    <div className="w-full space-y-4">
+                        {/* Google Sign Up */}
+                        <button
+                            onClick={handleGoogleSignUp}
+                            className="w-full h-[58px] bg-black text-white rounded-full flex items-center justify-center gap-3 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300"
+                        >
+                            <svg className="w-5 h-5" viewBox="0 0 24 24">
+                                <path fill="currentColor" d="M12.545,11.071L12,11.071L12,12.929L15.636,12.929C15.111,15.111 13.555,16.555 12,16.555C9.485,16.555 7.445,14.515 7.445,12C7.445,9.485 9.485,7.445 12,7.445C13.2,7.445 14.155,7.889 14.777,8.555L16.222,7.111C15.155,6.111 13.666,5.555 12,5.555C8.445,5.555 8.445,8.445 12,12C5.555,15.555 8.445,18.445 12,18.445C16.889,18.445 20,15.111 20,12C20,11.111 19.889,10.222 19.666,9.445L12,9.445L12,11.071L12.545,11.071Z" />
+                            </svg>
+                            <span className="font-bold text-[15px]">Sign up</span>
+                        </button>
+
+                        <div className="flex items-center py-2">
+                            <div className="flex-1 h-[1px] bg-black/5" />
+                            <span className="px-4 font-mono text-[10px] text-black/40">or</span>
+                            <div className="flex-1 h-[1px] bg-black/5" />
+                        </div>
+
+                        {/* Log In */}
+                        <button
+                            onClick={handleLogin}
+                            className="w-full h-[58px] border border-black/10 text-black rounded-full flex items-center justify-center font-bold text-[15px] hover:bg-black/5 hover:border-black transition-all duration-300"
+                        >
+                            Log in
+                        </button>
+                    </div>
+
+                    {/* Legal Footer */}
+                    <div className="mt-12 text-[10px] text-black/40 leading-relaxed font-sans">
+                        By signing up you agree to our<br />
+                        <button className="underline hover:text-black">Privacy Policy</button> and <button className="underline hover:text-black">Terms of Service</button>.
+                    </div>
+
+                    <div className="mt-auto pt-24">
+                        <p className="font-instrument text-sm text-black/40 italic">
+                            by <span className="underline cursor-pointer hover:text-black transition-colors">The General Intelligence Company</span>
+                        </p>
+                    </div>
                 </div>
-
-                <button
-                    onClick={() => handlePurchase('annual')}
-                    className="flex-1 flex flex-col items-center justify-center group hover:bg-black transition-all duration-500 relative z-10"
-                >
-                    <span className="font-mono text-[10px] tracking-[0.4em] text-black/40 group-hover:text-white/60 mb-2 uppercase">Annual</span>
-                    <div className="flex items-baseline group-hover:text-white">
-                        <span className="font-instrument text-5xl md:text-7xl font-bold">$12</span>
-                        <span className="font-instrument text-lg md:text-xl italic ml-1 opacity-60">/year</span>
-                    </div>
-                </button>
-
-                <button
-                    onClick={() => handlePurchase('monthly')}
-                    className="flex-1 flex flex-col items-center justify-center group hover:bg-black transition-all duration-500 relative z-10"
-                >
-                    <span className="font-mono text-[10px] tracking-[0.4em] text-black/40 group-hover:text-white/60 mb-2 uppercase">Monthly</span>
-                    <div className="flex items-baseline group-hover:text-white">
-                        <span className="font-instrument text-5xl md:text-7xl font-bold">$5</span>
-                        <span className="font-instrument text-lg md:text-xl italic ml-1 opacity-60">/month</span>
-                    </div>
-                </button>
-
             </div>
-
-            {isAuthenticating && (
-                <div className="relative z-20 mt-4 flex flex-col items-center gap-4">
-                    <div className="font-mono text-xs text-red-500 animate-pulse">
-                        AUTHENTICATION REQUIRED TO SECURE PROTOCOL
-                    </div>
-                    <button
-                        onClick={onAuthRequired}
-                        className="px-6 py-2 border border-black rounded-full font-mono text-[10px] uppercase tracking-widest hover:bg-black hover:text-white transition-all"
-                    >
-                        Sign In / Create Account
-                    </button>
-                </div>
-            )}
         </motion.section>
     );
 };
-

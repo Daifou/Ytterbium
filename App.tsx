@@ -20,6 +20,7 @@ import { databaseService } from './services/databaseService';
 import { AuthModal } from './components/AuthModal';
 import { ImmersiveJourney } from './components/ImmersiveJourney';
 import type { User } from '@supabase/supabase-js';
+import { useSubscription } from './hooks/useSubscription';
 
 const DEFAULT_DURATION = 25 * 60; // 25 min default
 const SCALE_FACTOR = 1.05; // Matches the transform: scale(1.05) in the JSX
@@ -80,6 +81,9 @@ const App: React.FC = () => {
   const [isAuthLoading, setIsAuthLoading] = useState(true);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
+  // Subscription Hook
+  const { isPremium } = useSubscription();
+
   const [tasks, setTasks] = useState<Task[]>([]);
   const [alienMode, setAlienMode] = useState(false);
 
@@ -120,7 +124,16 @@ const App: React.FC = () => {
         const user = await authService.getUser();
         if (user) {
           setCurrentUser(user);
-          setHasEntered(true); // Auto-enter if already logged in
+          // RETURNING USER LOGIC: 
+          // Do NOT auto setHasEntered(true). We want them to see the Landing Page to type their task.
+          // BUT, check if they are in the middle of a checkout flow.
+          const pendingPlan = localStorage.getItem('pending_plan');
+          if (pendingPlan) {
+            // Redirect to checkout if they just signed up and intend to pay
+            const checkoutUrl = `/api/checkout?user_id=${encodeURIComponent(user.id)}&plan=${pendingPlan}`;
+            window.location.href = checkoutUrl;
+            return;
+          }
 
           // Check for ongoing session
           const activeSession = await databaseService.getCurrentSession(user.id);
@@ -134,6 +147,12 @@ const App: React.FC = () => {
             if (activeSession.type === 'RELAX') setMode(AppMode.RELAX);
 
             setInsight(`Welcome back. Resuming ${activeSession.type.toLowerCase()} session.`);
+            // If they have an ACTIVE session, maybe they SHOULD bypass the landing page?
+            // "when he enters ... type his task" implies STARTING a session.
+            // If session is already RUNNING, skipping landing page makes sense.
+            if (activeSession.status === 'RUNNING') {
+              setHasEntered(true);
+            }
           }
         } else {
           // GHOST RESTORATION: Check if there's a ghost session to restore
@@ -155,12 +174,37 @@ const App: React.FC = () => {
 
     // Listen for auth changes globally
     const subscription = authService.onAuthStateChange(async (user) => {
-      setCurrentUser(user);
+      console.log("[App] Auth State Changed. User:", user?.email);
+
+      // Only trigger updates if the user actually CHANGED
+      // This prevents re-triggering logic on initial load which relies on initAuth
+      setCurrentUser(prevUser => {
+        if (prevUser?.id === user?.id) return prevUser;
+        return user;
+      });
+
       if (!user) {
         setHasEntered(false);
         setCurrentSessionId(null);
         setTasks([]);
       } else {
+        // CHECK FOR PENDING PLAN REDIRECT (Race Condition Fix)
+        const pendingPlan = localStorage.getItem('pending_plan');
+        console.log("[App] Pending Plan Check:", pendingPlan);
+
+        if (pendingPlan) {
+          const msg = `[DEBUG] Redirecting to checkout for plan: ${pendingPlan}`;
+          console.log(msg);
+          // alert(msg); // Uncomment to force pause if needed
+
+          // Redirect to checkout if they just signed up and intend to pay
+          const checkoutUrl = `/api/checkout?user_id=${encodeURIComponent(user.id)}&plan=${pendingPlan}`;
+          // Clear it to avoid loops, though redirect unloads page anyway
+          localStorage.removeItem('pending_plan');
+          window.location.href = checkoutUrl;
+          return;
+        }
+
         // HANDSHAKE: If a user just logged in and we have a ghost session, claim it
         const ghostSessionId = localStorage.getItem(GHOST_SESSION_KEY);
         if (ghostSessionId) {
@@ -172,6 +216,7 @@ const App: React.FC = () => {
         }
       }
     });
+
 
     return () => {
       subscription.unsubscribe();
@@ -599,7 +644,7 @@ const App: React.FC = () => {
     return <LandingPage onEnter={(data: any) => {
       // Start Ethereal 475Hz drone on first real interaction
       setHasEntered(true);
-      setShowJourney(true);
+      setShowJourney(!isPremium);
       if (data) {
         // Set current user from auth
         if (data.user) {

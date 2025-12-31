@@ -149,6 +149,23 @@ class AuthService {
             return { error: err as AuthError };
         }
     }
+
+    /**
+     * Sign in with Google
+     */
+    async signInWithGoogle(): Promise<{ error: AuthError | null }> {
+        try {
+            const { error } = await supabase.auth.signInWithOAuth({
+                provider: 'google',
+                options: {
+                    redirectTo: window.location.origin
+                }
+            });
+            return { error };
+        } catch (err) {
+            return { error: err as AuthError };
+        }
+    }
 }
 
 export const authService = new AuthService();
