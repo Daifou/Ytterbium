@@ -156,14 +156,21 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
                                 className="relative z-10 w-full max-w-3xl px-6"
                             >
                                 {/* Headline */}
-                                <motion.h1
+                                <motion.div
                                     initial={{ opacity: 0, y: 10 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: 0.2 }}
-                                    className="text-2xl md:text-3xl font-medium text-center text-zinc-50 mb-6 tracking-tight"
+                                    className="text-center mb-10"
                                 >
-                                    What do you want to focus on?
-                                </motion.h1>
+                                    <h1 className="flex flex-col gap-3">
+                                        <span className="text-3xl md:text-5xl font-black text-zinc-50 tracking-tight uppercase font-sans">
+                                            A neural and physical guard.
+                                        </span>
+                                        <span className="block text-base md:text-lg text-zinc-400 max-w-xl mx-auto leading-relaxed font-light tracking-[0.02em] font-sans opacity-90">
+                                            For your eyes, posture, and cognitive health. Detect burnout and calibrate your biology to work smarter.
+                                        </span>
+                                    </h1>
+                                </motion.div>
 
                                 {/* Input Container */}
                                 <div className="relative group">
@@ -378,9 +385,9 @@ const ResultView: React.FC<ResultViewProps> = ({ task, result, onStartSession, s
                     {/* User Message */}
                     <div className="flex flex-col items-end space-y-2">
                         <div className="bg-zinc-800/50 px-4 py-3 rounded-sm max-w-[90%] border border-zinc-700/50">
-                            <p className="text-zinc-200 text-sm leading-relaxed">{task}</p>
+                            <p className="text-zinc-200 text-sm leading-relaxed font-sans">{task}</p>
                         </div>
-                        <span className="text-[10px] text-zinc-600 uppercase tracking-widest px-1">You</span>
+                        <span className="text-[10px] text-zinc-600 uppercase tracking-[0.2em] font-bold px-1 font-sans">You</span>
                     </div>
 
                     {/* AI Message */}
@@ -393,14 +400,14 @@ const ResultView: React.FC<ResultViewProps> = ({ task, result, onStartSession, s
                                     <circle cx="14" cy="14" r="3" fill="currentColor" />
                                 </svg>
                             </div>
-                            <span className="text-[10px] text-zinc-500 uppercase tracking-widest">Ytterbium</span>
+                            <span className="text-[10px] text-zinc-500 uppercase tracking-[0.2em] font-bold font-sans">Ytterbium</span>
                         </div>
                         <div className="space-y-4 max-w-[95%]">
-                            <p className="text-zinc-400 text-sm leading-relaxed font-normal">
-                                I've analyzed your focus request. Based on the cognitive load required for <span className="text-zinc-200">"{task}"</span>, I've calibrated a specialized environment.
+                            <p className="text-zinc-400 text-sm leading-relaxed font-light font-sans">
+                                I've analyzed your focus request. Based on the cognitive load required for <span className="text-zinc-200 font-medium">"{task}"</span>, I've calibrated a specialized environment.
                             </p>
-                            <p className="text-zinc-400 text-sm leading-relaxed font-normal">
-                                {result.focusMode} mode is best suited for this. {result.insight.replace(/^"|"$/g, '')}
+                            <p className="text-zinc-400 text-sm leading-relaxed font-light font-sans">
+                                <span className="text-zinc-200 font-medium">{result.focusMode}</span> mode is best suited for this. {result.insight.replace(/^"|"$/g, '')}
                             </p>
                         </div>
                     </div>
@@ -409,7 +416,7 @@ const ResultView: React.FC<ResultViewProps> = ({ task, result, onStartSession, s
                 <div className="p-4 border-t border-zinc-800 bg-[#0d0d0e]">
                     <div className="relative group">
                         <div className="bg-zinc-900 border border-zinc-800 rounded-none px-4 py-3 flex items-center justify-between opacity-50 cursor-not-allowed">
-                            <span className="text-zinc-500 text-sm">Ask Ytterbium...</span>
+                            <span className="text-zinc-500 text-sm font-sans font-light tracking-wide">Ask Ytterbium...</span>
                             <div className="flex items-center gap-2">
                                 <div className="p-1 rounded-lg bg-zinc-800 text-zinc-600">
                                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -462,8 +469,8 @@ const ResultView: React.FC<ResultViewProps> = ({ task, result, onStartSession, s
                                     )}
                                 </div>
                                 <div className="text-center px-8">
-                                    <div className="text-[10px] text-zinc-500 uppercase tracking-[0.3em] mb-1 font-bold">Recommended State</div>
-                                    <div className="text-2xl font-black text-white tracking-tight">{result.focusMode}</div>
+                                    <div className="text-[10px] text-zinc-500 uppercase tracking-[0.3em] mb-1 font-bold font-sans">Recommended State</div>
+                                    <div className="text-3xl font-black text-white tracking-tight font-sans">{result.focusMode}</div>
                                 </div>
                             </div>
                         </div>
@@ -471,8 +478,8 @@ const ResultView: React.FC<ResultViewProps> = ({ task, result, onStartSession, s
                         <div className="p-8 bg-[#121214] space-y-6">
                             <div className="space-y-4">
                                 <div className="space-y-1">
-                                    <h3 className="text-lg font-bold text-zinc-100 tracking-tight">Ytterbium Environment</h3>
-                                    <p className="text-sm text-zinc-500 leading-relaxed font-normal">
+                                    <h3 className="text-lg font-bold text-zinc-100 tracking-tight font-sans">Ytterbium Environment</h3>
+                                    <p className="text-sm text-zinc-500 leading-relaxed font-light font-sans">
                                         Calibrated for {result.intensity}/10 intensity across {result.suggestedSessions} scheduled sprints.
                                     </p>
                                 </div>
@@ -492,7 +499,7 @@ const ResultView: React.FC<ResultViewProps> = ({ task, result, onStartSession, s
                                 whileHover={{ scale: 1.02 }}
                                 whileTap={{ scale: 0.98 }}
                                 onClick={onStartSession}
-                                className={`w-full py-4 rounded-sm font-black text-[11px] uppercase tracking-[0.2em] shadow-lg transition-all duration-300 ${showLock
+                                className={`w-full py-4 rounded-sm font-black text-[11px] uppercase tracking-[0.2em] font-sans shadow-lg transition-all duration-300 ${showLock
                                     ? 'bg-zinc-900 text-zinc-600 cursor-not-allowed border border-zinc-800'
                                     : 'bg-zinc-50 text-zinc-950 hover:bg-white hover:shadow-[0_0_20px_rgba(99,102,241,0.3)] border border-zinc-800'
                                     }`}
