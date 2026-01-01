@@ -18,7 +18,6 @@ import { AIOptimizedIndicator } from './components/AIOptimizedIndicator';
 import { authService } from './services/authService';
 import { databaseService } from './services/databaseService';
 import { AuthModal } from './components/AuthModal';
-import { ImmersiveJourney } from './components/ImmersiveJourney';
 import type { User } from '@supabase/supabase-js';
 import { useSubscription } from './hooks/useSubscription';
 
@@ -65,7 +64,6 @@ const INTENSITY_TIME_CAPS: Record<number, number> = {
 
 const App: React.FC = () => {
   const [hasEntered, setHasEntered] = useState(false);
-  const [showJourney, setShowJourney] = useState(false);
   const [mode, setMode] = useState<AppMode>(AppMode.FOCUS);
   const [status, setStatus] = useState<SessionStatus>(SessionStatus.IDLE);
   const [duration, setDuration] = useState(DEFAULT_DURATION);
@@ -81,8 +79,10 @@ const App: React.FC = () => {
   const [isAuthLoading, setIsAuthLoading] = useState(true);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
+
   // Subscription Hook
   const { isPremium } = useSubscription();
+  // const isPremium = false; // DEBUG: Hardcoded to false
 
   const [tasks, setTasks] = useState<Task[]>([]);
   const [alienMode, setAlienMode] = useState(false);
@@ -96,6 +96,18 @@ const App: React.FC = () => {
   const tasksRef = useRef<HTMLDivElement>(null);
   const timerRefDiv = useRef<HTMLDivElement>(null);
   const vaultRef = useRef<HTMLDivElement>(null);
+
+  // [NEW] Mobile detection state
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // CRITICAL: Main scaled content area reference - SVG parent
   const layoutWrapperRef = useRef<HTMLDivElement>(null);
@@ -119,53 +131,72 @@ const App: React.FC = () => {
   // --- 4. AUTH & SESSION INITIALIZATION ---
   useEffect(() => {
     const initAuth = async () => {
+      console.log("[App] initAuth starting...");
       setIsAuthLoading(true);
       try {
         const user = await authService.getUser();
+        console.log("[App] initAuth found user:", user?.email || 'none');
+
         if (user) {
           setCurrentUser(user);
-          // RETURNING USER LOGIC: 
-          // Do NOT auto setHasEntered(true). We want them to see the Landing Page to type their task.
-          // BUT, check if they are in the middle of a checkout flow.
           const pendingPlan = localStorage.getItem('pending_plan');
           if (pendingPlan) {
-            // Redirect to checkout if they just signed up and intend to pay
+            console.log("[App] initAuth: Redirecting to checkout for plan:", pendingPlan);
             const checkoutUrl = `/api/checkout?user_id=${encodeURIComponent(user.id)}&plan=${pendingPlan}`;
             window.location.href = checkoutUrl;
             return;
           }
 
-          // Check for ongoing session
+          console.log("[App] initAuth: Bypassing landing page (hasEntered = true)");
+          setHasEntered(true);
+
           const activeSession = await databaseService.getCurrentSession(user.id);
           if (activeSession) {
+            console.log("[App] initAuth: Restoring active session:", activeSession.id);
             setCurrentSessionId(activeSession.id);
             setStatus(activeSession.status as SessionStatus);
             setElapsed(activeSession.elapsed_seconds);
             setFocusIntensity(activeSession.focus_intensity);
 
-            // Set mode based on session type if needed
             if (activeSession.type === 'RELAX') setMode(AppMode.RELAX);
-
             setInsight(`Welcome back. Resuming ${activeSession.type.toLowerCase()} session.`);
-            // If they have an ACTIVE session, maybe they SHOULD bypass the landing page?
-            // "when he enters ... type his task" implies STARTING a session.
-            // If session is already RUNNING, skipping landing page makes sense.
-            if (activeSession.status === 'RUNNING') {
-              setHasEntered(true);
+          }
+
+          // [NEW] Check for pending session immediately after confirming user
+          const pendingSession = localStorage.getItem('pending_session');
+          if (pendingSession) {
+            console.log("[App] initAuth: Detected pending session. Triggering restoration...");
+            try {
+              const sessionData = JSON.parse(pendingSession);
+              localStorage.removeItem('pending_session');
+
+              setInsight("Restoring your environment...");
+              handleIntensityChange(sessionData.intensity);
+              setInsight(sessionData.insight);
+
+              await addTask(sessionData.task, user.id);
+
+              setTimeout(() => {
+                handleStart(user.id);
+              }, 800);
+            } catch (e) {
+              console.error("[App] initAuth: Restoration failed", e);
             }
           }
         } else {
-          // GHOST RESTORATION: Check if there's a ghost session to restore
+          console.log("[App] initAuth: No user found.");
           const ghostSessionId = localStorage.getItem(GHOST_SESSION_KEY);
           if (ghostSessionId) {
+            console.log("[App] initAuth: Restoring ghost session:", ghostSessionId);
             setCurrentSessionId(ghostSessionId);
             setHasEntered(true);
             setInsight('Quantum session active. (Ghost Mode)');
           }
         }
       } catch (err) {
-        console.error('Initialization error:', err);
+        console.error('[App] initAuth error:', err);
       } finally {
+        console.log("[App] initAuth complete. isAuthLoading -> false");
         setIsAuthLoading(false);
       }
     };
@@ -184,10 +215,32 @@ const App: React.FC = () => {
       });
 
       if (!user) {
+        console.log("[App] onAuthStateChange: User is NULL. resetting state.");
         setHasEntered(false);
         setCurrentSessionId(null);
         setTasks([]);
       } else {
+        console.log("[App] onAuthStateChange: User found:", user.email, "setting hasEntered = true");
+        setHasEntered(true);
+
+        // [NEW] Also check for pending session here in case initAuth was too early
+        const pendingSession = localStorage.getItem('pending_session');
+        if (pendingSession) {
+          console.log("[App] onAuthStateChange: Detected pending session. Restoring...");
+          try {
+            const sessionData = JSON.parse(pendingSession);
+            localStorage.removeItem('pending_session');
+            handleIntensityChange(sessionData.intensity);
+            setInsight(sessionData.insight);
+            addTask(sessionData.task, user.id);
+            setTimeout(() => {
+              handleStart(user.id);
+            }, 800);
+          } catch (e) {
+            console.error("[App] onAuthStateChange: Restoration failed", e);
+          }
+        }
+
         // CHECK FOR PENDING PLAN REDIRECT (Race Condition Fix)
         const pendingPlan = localStorage.getItem('pending_plan');
         console.log("[App] Pending Plan Check:", pendingPlan);
@@ -396,9 +449,10 @@ const App: React.FC = () => {
 
 
   // Handler functions
-  const handleStart = async () => {
-    // [FIX] If the session was finished (Limit Reached), clicking "NEW SESSION" should reset to IDLE
-    // so the user can re-configure settings (Intensity) before starting again.
+  const handleStart = useCallback(async (overrideUserId?: string) => {
+    console.log("[App] handleStart invoked. overrideUserId:", overrideUserId);
+    const effectiveUserId = overrideUserId || currentUser?.id || null;
+
     if (elapsed >= duration) {
       setElapsed(0);
       setCurrentMetrics(null);
@@ -407,32 +461,30 @@ const App: React.FC = () => {
       return;
     }
 
-    // Reset metrics on start to get a fresh baseline
     setCurrentMetrics(null);
     setStatus(SessionStatus.RUNNING);
     setInsight('AI optimizing focus...');
 
-    // Create session in database
     if (!currentSessionId) {
-      const sessionId = await databaseService.createSession(currentUser?.id || null, {
+      console.log("[App] Creating fresh session for user:", effectiveUserId);
+      const sessionId = await databaseService.createSession(effectiveUserId, {
         duration_seconds: duration,
         type: 'FOCUS',
         focus_intensity: focusIntensity,
       });
       if (sessionId) {
         setCurrentSessionId(sessionId);
-        // If it's a ghost session, save ID to localStorage
-        if (!currentUser) {
+        if (!effectiveUserId) {
           localStorage.setItem(GHOST_SESSION_KEY, sessionId);
         }
       }
     } else {
-      // Update existing session to RUNNING
+      console.log("[App] Resuming existing session:", currentSessionId);
       await databaseService.updateSession(currentSessionId, {
         status: 'RUNNING',
       });
     }
-  };
+  }, [currentUser, duration, focusIntensity, currentSessionId, elapsed]);
   const handlePause = async () => {
     // AUTH WALL: Intercept pause if not logged in
     if (!currentUser) {
@@ -474,6 +526,11 @@ const App: React.FC = () => {
         if (barsEarned > 0) {
           await databaseService.incrementTotalReserve(currentUser.id, barsEarned);
           await refreshVaultStats();
+
+          // Increment free sessions usage if not premium
+          if (!isPremium && sessionElapsed > 600) {
+            await databaseService.incrementFreeSessionsUsed(currentUser.id);
+          }
         }
       }
 
@@ -511,16 +568,17 @@ const App: React.FC = () => {
     }
   };
 
-  const addTask = async (title: string) => {
-    if (!currentUser) {
-      // Local-only mode
+  const addTask = useCallback(async (title: string, overrideUserId?: string) => {
+    console.log("[App] addTask invoked. Title:", title, "overrideUserId:", overrideUserId);
+    const effectiveUserId = overrideUserId || currentUser?.id || null;
+
+    if (!effectiveUserId) {
       const newTask = { id: Date.now().toString(), title, completed: false, priority: 'medium' as const };
       setTasks(prev => [...prev, newTask]);
       return;
     }
 
-    // Create in database
-    const dbTask = await databaseService.createTask(currentUser?.id || null, {
+    const dbTask = await databaseService.createTask(effectiveUserId, {
       title,
       priority: 'medium',
       session_id: currentSessionId || undefined,
@@ -530,9 +588,10 @@ const App: React.FC = () => {
       const newTask = databaseService.dbTaskToTask(dbTask);
       setTasks(prev => [...prev, newTask]);
     }
-  };
+  }, [currentUser, currentSessionId]);
 
   // Layout observer (Preserved)
+  // Layout observer
   useEffect(() => {
     if (!layoutWrapperRef.current) return;
 
@@ -553,11 +612,12 @@ const App: React.FC = () => {
       updatePaths();
     };
 
+    window.addEventListener('resize', handleResize);
+
     const resizeObserver = new ResizeObserver(() => {
       requestAnimationFrame(updatePaths);
     });
 
-    window.addEventListener('resize', handleResize);
     // Observe the main wrapper that defines the coordinate system
     if (layoutWrapperRef.current) {
       resizeObserver.observe(layoutWrapperRef.current);
@@ -573,7 +633,7 @@ const App: React.FC = () => {
       cancelAnimationFrame(animationFrameId);
       resizeObserver.disconnect();
     };
-  }, [updatePaths, mode, tasks, hasEntered, showJourney, isFocusMode]);
+  }, [updatePaths, mode, tasks, hasEntered, isFocusMode]);
 
   // Load user tasks on mount and subscribe to changes
   useEffect(() => {
@@ -640,13 +700,28 @@ const App: React.FC = () => {
     }
   }, [currentSessionId, status, elapsed]);
 
+  // The pending session restoration is now handled directly in initAuth and onAuthStateChange
+  // to prevent race conditions where hasEntered is set to true before this effect can run.
+  useEffect(() => {
+    // Primary restoration logic moved to initAuth and onAuthStateChange
+  }, [currentUser, hasEntered]);
+
+  if (isAuthLoading) {
+    return (
+      <div className="min-h-screen bg-[#09090b] flex flex-col items-center justify-center space-y-4">
+        <div className="w-12 h-12 border-2 border-indigo-500/20 border-t-indigo-500 rounded-full animate-spin" />
+        <p className="text-[10px] text-zinc-500 uppercase tracking-[0.2em] animate-pulse">Synchronizing auth state...</p>
+      </div>
+    );
+  }
+
   if (!hasEntered) {
     return <LandingPage onEnter={(data: any) => {
-      // Start Ethereal 475Hz drone on first real interaction
       setHasEntered(true);
-      setShowJourney(!isPremium);
       if (data) {
-        // Set current user from auth
+        const userId = data.user?.id || currentUser?.id;
+
+        // Set current user if provided
         if (data.user) {
           setCurrentUser(data.user);
         }
@@ -655,18 +730,17 @@ const App: React.FC = () => {
         handleIntensityChange(data.intensity);
         setInsight(data.insight);
 
-        // Add the analyzed task
-        addTask(data.task);
+        // Add the analyzed task with forced user ID to avoid state lag
+        addTask(data.task, userId);
 
-        // Auto-start Timer with "Beauty Shot" delay
+        // Auto-start Timer
         setElapsed(0);
         setCurrentMetrics(null);
-        setStatus(SessionStatus.IDLE); // Explicitly show IDLE state first
+        setStatus(SessionStatus.IDLE);
 
-        // Delay start by 2 seconds to showcase the UI
         setTimeout(() => {
-          handleStart();
-        }, 2000);
+          handleStart(userId);
+        }, 1200);
       }
     }} />;
   }
@@ -687,19 +761,7 @@ const App: React.FC = () => {
     <div
       className={`h-screen bg-transparent text-gray-200 selection:bg-primary/30 relative overflow-hidden flex flex-col ${alienMode ? 'font-alien' : 'font-sans'}`}
     >
-      {/* Immersive Journey Overlay */}
-      <AnimatePresence>
-        {showJourney && (
-          <div className="fixed inset-0 z-[2000] bg-white">
-            <ImmersiveJourney
-              onComplete={() => setShowJourney(false)}
-              onAuthRequired={() => setIsAuthModalOpen(true)}
-              currentUser={currentUser}
-            />
-          </div>
-        )}
 
-      </AnimatePresence>
 
       {/* Background System and Sidebar */}
       <Background />
@@ -886,55 +948,57 @@ const App: React.FC = () => {
                   )}
                 </svg>
 
+                {/* Main Dashboard Stacking Container */}
+                <div className="flex flex-col md:flex-row items-center justify-center gap-12 md:gap-0 pt-20 md:pt-0">
+                  {/* 1. Left Column: Contextual Tasks */}
+                  <div ref={tasksRef} className={`w-full max-w-[24rem] min-h-[13rem] relative z-20 transition-opacity duration-700 ${isFocusMode ? 'opacity-100 animate-in slide-in-from-left-8 fade-in' : 'opacity-0'}`}>
+                    {/* Only render TaskList content when in Focus mode */}
+                    {isFocusMode ? (
+                      <TaskList tasks={tasks} onToggle={toggleTask} onAdd={addTask} />
+                    ) : (
+                      <div className="h-full w-full" /> // Placeholder to maintain ref size/position
+                    )}
+                  </div>
 
-                {/* 1. Left Column: Contextual Tasks - RENDERED ALWAYS */}
-                <div ref={tasksRef} className={`w-full max-w-[24rem] min-h-[13rem] mt-24 md:mt-24 relative z-20 transition-opacity duration-700 ${isFocusMode ? 'opacity-100 animate-in slide-in-from-left-8 fade-in' : 'opacity-0'}`}>
-                  {/* Only render TaskList content when in Focus mode */}
-                  {isFocusMode ? (
-                    <TaskList tasks={tasks} onToggle={toggleTask} onAdd={addTask} />
-                  ) : (
-                    <div className="h-full w-full" /> // Placeholder to maintain ref size/position
-                  )}
-                </div>
+                  {/* Connector 1 Placeholder - HIDDEN ON MOBILE */}
+                  {!isMobile && <div className="w-[32rem] relative z-0 pointer-events-none" />}
 
-                {/* Connector 1 Placeholder */}
-                <div className="w-[32rem] relative z-0 pointer-events-none" />
+                  {/* 2. Center Column: AI Optimized - RENDERED ALWAYS */}
+                  <div ref={timerRefDiv} className={`w-full max-w-[24rem] h-[15rem] relative z-30 transition-opacity duration-1000 ${isFocusMode ? 'opacity-100 animate-in zoom-in-95 fade-in' : 'opacity-0'} md:-ml-32`}>
+                    {/* Only render FocusTimer content when in Focus mode */}
+                    {isFocusMode ? (
+                      <FocusTimer
+                        status={status}
+                        elapsedSeconds={elapsed}
+                        durationSeconds={duration}
+                        fatigueScore={currentMetrics?.fatigueScore || 0}
+                        onStart={handleStart}
+                        onPause={handlePause}
+                        onReset={handleReset}
+                        onIntensityChange={handleIntensityChange}
+                        currentInsight={insight}
+                      />
+                    ) : (
+                      <div className="h-full w-full" /> // Placeholder to maintain ref size/position
+                    )}
+                  </div>
 
-                {/* 2. Center Column: AI Optimized - RENDERED ALWAYS */}
-                <div ref={timerRefDiv} className={`w-full max-w-[24rem] h-[15rem] relative z-30 transition-opacity duration-1000 ${isFocusMode ? 'opacity-100 animate-in zoom-in-95 fade-in' : 'opacity-0'}`}>
-                  {/* Only render FocusTimer content when in Focus mode */}
-                  {isFocusMode ? (
-                    <FocusTimer
-                      status={status}
-                      elapsedSeconds={elapsed}
-                      durationSeconds={duration}
-                      fatigueScore={currentMetrics?.fatigueScore || 0}
-                      onStart={handleStart}
-                      onPause={handlePause}
-                      onReset={handleReset}
-                      onIntensityChange={handleIntensityChange}
-                      currentInsight={insight}
-                    />
-                  ) : (
-                    <div className="h-full w-full" /> // Placeholder to maintain ref size/position
-                  )}
-                </div>
+                  {/* Connector 2 Placeholder - HIDDEN ON MOBILE */}
+                  {!isMobile && <div className="w-[32rem] relative z-0 pointer-events-none" />}
 
-                {/* Connector 2 Placeholder */}
-                <div className="w-[32rem] relative z-0 pointer-events-none" />
-
-                {/* 3. Right Column: Gold Vault - RENDERED ALWAYS */}
-                <div ref={vaultRef} className={`w-full max-w-[24rem] h-[9.25rem] mt-0 md:mt-24 relative z-20 transition-opacity duration-700 ${isFocusMode ? 'opacity-100 animate-in slide-in-from-right-8 fade-in' : 'opacity-0'}`}>
-                  {/* Only render GoldVault content when in Focus mode */}
-                  {isFocusMode ? (
-                    <GoldVault
-                      progress={(elapsed / duration) * 100}
-                      barsToday={barsToday}
-                      totalBars={totalBars}
-                    />
-                  ) : (
-                    <div className="h-full w-full" /> // Placeholder to maintain ref size/position
-                  )}
+                  {/* 3. Right Column: Gold Vault - RENDERED ALWAYS */}
+                  <div ref={vaultRef} className={`w-full max-w-[24rem] h-[9.25rem] mt-0 md:mt-24 relative z-20 transition-opacity duration-700 ${isFocusMode ? 'opacity-100 animate-in slide-in-from-right-8 fade-in' : 'opacity-0'} md:-ml-32`}>
+                    {/* Only render GoldVault content when in Focus mode */}
+                    {isFocusMode ? (
+                      <GoldVault
+                        progress={(elapsed / duration) * 100}
+                        barsToday={barsToday}
+                        totalBars={totalBars}
+                      />
+                    ) : (
+                      <div className="h-full w-full" /> // Placeholder to maintain ref size/position
+                    )}
+                  </div>
                 </div>
               </div>
             </div>

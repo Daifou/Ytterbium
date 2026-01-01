@@ -91,6 +91,32 @@ class DatabaseService {
         }
     }
 
+    async incrementFreeSessionsUsed(userId: string): Promise<boolean> {
+        try {
+            // Get current count
+            const { data: profile, error: getError } = await supabase
+                .from('profiles')
+                .select('free_sessions_used')
+                .eq('id', userId)
+                .single();
+
+            if (getError) return false;
+
+            const current = (profile as any)?.free_sessions_used || 0;
+
+            // Increment
+            const { error: updateError } = await supabase
+                .from('profiles')
+                .update({ free_sessions_used: current + 1 })
+                .eq('id', userId);
+
+            return !updateError;
+        } catch (err) {
+            console.error('Increment free sessions error:', err);
+            return false;
+        }
+    }
+
     // ==================== SESSION OPERATIONS ====================
 
     async createSession(

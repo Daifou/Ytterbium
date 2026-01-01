@@ -10,15 +10,49 @@ if (!supabaseAnonKey) {
     console.error('VITE_SUPABASE_ANON_KEY is not set. Please create a .env.local file with your Supabase credentials.');
 }
 
-// Create Supabase client
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-    auth: {
-        persistSession: true,
-        autoRefreshToken: true,
-        detectSessionInUrl: true,
-        storage: window.localStorage,
-    },
-});
+// Create Supabase client or fallback
+let client;
+
+if (supabaseUrl && supabaseAnonKey) {
+    client = createClient(supabaseUrl, supabaseAnonKey, {
+        auth: {
+            persistSession: true,
+            autoRefreshToken: true,
+            detectSessionInUrl: true,
+            storage: window.localStorage,
+        },
+    });
+} else {
+    console.warn('Supabase credentials missing. App running in offline/mock mode.');
+    // Mock client to prevent crash on load
+    client = {
+        auth: {
+            getUser: async () => ({ data: { user: null }, error: null }),
+            onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => { } } } }),
+            getSession: async () => ({ data: { session: null }, error: null }),
+            signOut: async () => ({ error: null }),
+            signInWithOAuth: async (options: any) => {
+                console.warn('Supabase Mock: signInWithOAuth called with', options);
+                alert('Supabase is in Mock Mode. Google Sign-In is disabled. Please check your .env.local file.');
+                return { error: null };
+            },
+        },
+        from: () => ({
+            select: () => ({
+                eq: () => ({
+                    single: async () => ({ data: null, error: null }),
+                    maybeSingle: async () => ({ data: null, error: null })
+                })
+            }),
+            update: () => ({ eq: () => ({ select: () => ({ single: async () => ({ data: null, error: null }) }) }) }),
+            insert: () => ({ select: () => ({ single: async () => ({ data: null, error: null }) }) }),
+        }),
+        channel: () => ({ on: () => ({ subscribe: () => { } }) }),
+        removeChannel: () => { },
+    } as any;
+}
+
+export const supabase = client;
 
 // Database types for TypeScript
 export interface Database {

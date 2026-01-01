@@ -1,610 +1,604 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ollamaService } from '../services/ollamaService';
-import { authService } from '../services/authService';
+import { supabase } from '../services/supabase';
+import { databaseService } from '../services/databaseService';
 import type { User } from '@supabase/supabase-js';
+import { Header } from './Header';
+import { PricingModal } from './PricingModal';
+import { authService } from '../services/authService';
+import { useSubscription } from '../hooks/useSubscription';
 
-// --- DESIGN TOKENS ---
-const COLORS = {
-    electricBlue: "#2A5EE8",
-    deepMoss: "#2D3A30",
-    white: "#ffffff",
-    borderWidth: "6px"
-};
+interface LandingPageProps {
+    onEnter: (data: any) => void;
+}
 
-// --- COMPONENT: ANIMATED CLOUDS ---
-const Cloud = ({ delay = 0, duration = 40, top = '10%', scale = 1 }) => (
-    <motion.div
-        initial={{ x: '-40vw', opacity: 0 }}
-        animate={{
-            x: '110vw',
-            opacity: [0, 0.5, 0.5, 0]
-        }}
-        transition={{
-            duration: duration,
-            repeat: Infinity,
-            delay: delay,
-            ease: "linear"
-        }}
-        className="absolute pointer-events-none"
-        style={{ top, transform: `scale(${scale})`, zIndex: 5 }}
-    >
-        <div className="relative">
-            <div className="w-96 h-24 bg-white/40 blur-[50px] rounded-full" />
-            <div className="absolute -top-8 left-16 w-48 h-24 bg-white/30 blur-[40px] rounded-full" />
-            <div className="absolute top-4 left-40 w-56 h-20 bg-white/20 blur-[35px] rounded-full" />
-        </div>
-    </motion.div>
-);
-
-// --- COMPONENT: THE PIXEL CLONE MEADOW ---
-const EnvironmentalBackground = React.memo(() => (
-    <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none bg-[#E8EDF5]">
-        {/* 1. Sky Gradient */}
-        <div
-            className="absolute inset-0 h-full w-full z-0"
-            style={{
-                background: `linear-gradient(to bottom, #2A5EE8 0%, #5C85EE 30%, #A5BFF0 60%, #E8EDF5 100%)`
-            }}
-        />
-
-        {/* 2. Cloud Layer */}
-        <Cloud top="10%" delay={0} duration={80} scale={1.2} />
-        <Cloud top="25%" delay={25} duration={60} scale={0.9} />
-        <Cloud top="5%" delay={45} duration={100} scale={1.5} />
-
-        {/* 3. Soft Volumetric Haze */}
-        <div className="absolute top-[10%] left-[5%] w-[500px] h-[150px] bg-white/20 blur-[100px] rounded-full z-[6]" />
-
-        {/* 4. The Meadow */}
-        <div
-            className="absolute bottom-0 w-full h-[35vh] z-10"
-            style={{
-                backgroundColor: COLORS.deepMoss,
-                backgroundImage: `
-                    linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, transparent 100%),
-                    repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(0,0,0,0.05) 2px, rgba(0,0,0,0.05) 4px)
-                `,
-                clipPath: 'polygon(0% 15%, 5% 10%, 12% 18%, 18% 8%, 25% 15%, 32% 10%, 40% 18%, 48% 12%, 55% 16%, 62% 8%, 70% 15%, 78% 11%, 85% 19%, 92% 10%, 100% 16%, 100% 100%, 0% 100%)'
-            }}
-        />
-
-        {/* Shadow Depth for Grass */}
-        <div
-            className="absolute bottom-0 w-full h-[25vh] opacity-20 z-[11]"
-            style={{
-                background: `linear-gradient(to top, #000, transparent)`,
-                maskImage: 'repeating-linear-gradient(90deg, black 0px, black 1px, transparent 1px, transparent 4px)',
-            }}
-        />
-
-        {/* 5. Floating Particles */}
-        {[...Array(18)].map((_, i) => (
-            <motion.div
-                key={i}
-                initial={{ y: "110vh", x: `${Math.random() * 100}vw`, opacity: 0 }}
-                animate={{
-                    y: "-10vh",
-                    opacity: [0, 0.4, 0],
-                    x: `${(Math.random() * 100) + (Math.sin(i) * 8)}vw`
-                }}
-                transition={{
-                    duration: 20 + Math.random() * 20,
-                    repeat: Infinity,
-                    ease: "linear",
-                    delay: Math.random() * 15
-                }}
-                className="absolute w-[2px] h-[2px] bg-white/40 z-20"
-            />
-        ))}
-
-        {/* 6. MASTER PIXEL GRAIN */}
-        <div className="absolute inset-0 opacity-[0.4] mix-blend-overlay z-[100]">
-            <svg className="w-full h-full">
-                <filter id="ultraPixelGrain">
-                    <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" stitchTiles="stitch" />
-                    <feColorMatrix type="saturate" values="0" />
-                    <feComponentTransfer>
-                        <feFuncR type="linear" slope="1.5" intercept="-0.2" />
-                        <feFuncG type="linear" slope="1.5" intercept="-0.2" />
-                        <feFuncB type="linear" slope="1.5" intercept="-0.2" />
-                    </feComponentTransfer>
-                </filter>
-                <rect width="100%" height="100%" filter="url(#ultraPixelGrain)" />
-            </svg>
-        </div>
-    </div>
-));
-
-// --- AUTH FORM COMPONENT ---
-const AuthForm = ({ onAuthSuccess }: { onAuthSuccess: (user: User) => void }) => {
-    const [mode, setMode] = useState<'signin' | 'signup'>('signin');
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [fullName, setFullName] = useState('');
-    const [error, setError] = useState('');
-    const [loading, setLoading] = useState(false);
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setError('');
-        setLoading(true);
-
-        try {
-            if (mode === 'signup') {
-                const { user, error: authError } = await authService.signUp(email, password, fullName);
-                if (authError) throw authError;
-                if (user) onAuthSuccess(user);
-            } else {
-                const { user, error: authError } = await authService.signIn(email, password);
-                if (authError) throw authError;
-                if (user) onAuthSuccess(user);
-            }
-        } catch (err: any) {
-            setError(err.message || 'Authentication failed');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    return (
-        <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="relative overflow-hidden backdrop-blur-[50px] bg-white/70 border border-white/50 rounded-[40px] p-10 md:p-12 shadow-[0_40px_100px_-20px_rgba(0,0,0,0.15)] max-w-md w-full"
-        >
-            {/* Inner Rim Light Detail */}
-            <div className="absolute inset-0 rounded-[40px] pointer-events-none border border-white/60 shadow-[inset_0_1px_1px_rgba(255,255,255,1)]" />
-
-            <div className="mb-8 text-center">
-                <span className="text-[10px] font-black tracking-[0.4em] text-blue-600/40 uppercase">
-                    {mode === 'signin' ? 'Welcome Back' : 'Create Account'}
-                </span>
-                <h2 className="text-4xl font-black tracking-tighter text-blue-600 mt-2" style={{ fontFamily: "'EB Garamond', serif" }}>
-                    Ytterbium
-                </h2>
-            </div>
-
-            <form onSubmit={handleSubmit} className="space-y-4">
-                {mode === 'signup' && (
-                    <div>
-                        <input
-                            type="text"
-                            value={fullName}
-                            onChange={(e) => setFullName(e.target.value)}
-                            placeholder="Full Name"
-                            className="w-full px-4 py-3 bg-white/50 border border-white/60 rounded-xl outline-none focus:border-blue-400 transition-colors text-gray-800 placeholder:text-gray-400"
-                        />
-                    </div>
-                )}
-
-                <div>
-                    <input
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder="Email"
-                        required
-                        className="w-full px-4 py-3 bg-white/50 border border-white/60 rounded-xl outline-none focus:border-blue-400 transition-colors text-gray-800 placeholder:text-gray-400"
-                    />
-                </div>
-
-                <div>
-                    <input
-                        type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        placeholder="Password"
-                        required
-                        minLength={6}
-                        className="w-full px-4 py-3 bg-white/50 border border-white/60 rounded-xl outline-none focus:border-blue-400 transition-colors text-gray-800 placeholder:text-gray-400"
-                    />
-                </div>
-
-                {error && (
-                    <motion.div
-                        initial={{ opacity: 0, y: -10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="text-red-600 text-sm text-center bg-red-50/50 py-2 rounded-lg"
-                    >
-                        {error}
-                    </motion.div>
-                )}
-
-                <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    type="submit"
-                    disabled={loading}
-                    className="relative w-full py-4 bg-blue-600 rounded-2xl text-white font-bold shadow-lg shadow-blue-500/30 overflow-hidden disabled:opacity-50"
-                >
-                    <span className="relative z-10 text-[9px] uppercase tracking-[0.5em] pl-[0.5em]">
-                        {loading ? 'Processing...' : mode === 'signin' ? 'Sign In' : 'Sign Up'}
-                    </span>
-                    {!loading && (
-                        <motion.div
-                            animate={{ x: ['-100%', '200%'] }}
-                            transition={{ repeat: Infinity, duration: 3, ease: "linear" }}
-                            className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
-                        />
-                    )}
-                </motion.button>
-            </form>
-
-            <div className="mt-6 text-center">
-                <button
-                    onClick={() => setMode(mode === 'signin' ? 'signup' : 'signin')}
-                    className="text-sm text-blue-600/70 hover:text-blue-600 transition-colors"
-                >
-                    {mode === 'signin' ? "Don't have an account? Sign up" : 'Already have an account? Sign in'}
-                </button>
-            </div>
-
-            {/* Outer Soft Glow */}
-            <div className="absolute -inset-10 bg-blue-400/10 blur-[100px] -z-10 rounded-full" />
-        </motion.div>
-    );
-};
-
-const PLACEHOLDERS = [
-    "What needs focus?",
-    "Define your primary objective.",
-    "What task are you working on?",
-    "What shall we accomplish?",
-    "Enter your focus target."
-];
-
-const ANALYSIS_MESSAGES = [
-    "Connecting to Ytterbium Core...",
-    "Analyzing task semantics...",
-    "Calibrating neural intensity...",
-    "Mapping focus trajectories...",
-    "Optimizing cognitive load..."
-];
-
-const TopLeftInputBar = ({ status, onSubmit }: { status: 'IDLE' | 'THINKING', onSubmit: (task: string) => void }) => {
-    const [localTask, setLocalTask] = useState('');
-    const [currentPlaceholder, setCurrentPlaceholder] = useState("");
-    const [placeholderIndex, setPlaceholderIndex] = useState(0);
-    const [isTyping, setIsTyping] = useState(true);
-    const [analysisMsgIndex, setAnalysisMsgIndex] = useState(0);
-
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        if (localTask.trim()) onSubmit(localTask);
-    };
-
-    // --- ANALYSIS MESSAGE CYCLING ---
-    useEffect(() => {
-        if (status !== 'THINKING') return;
-        const interval = setInterval(() => {
-            setAnalysisMsgIndex(prev => (prev + 1) % ANALYSIS_MESSAGES.length);
-        }, 2000);
-        return () => clearInterval(interval);
-    }, [status]);
-
-    // --- TYPEWRITER LOGIC ---
-    useEffect(() => {
-        let timer: NodeJS.Timeout;
-        const fullText = PLACEHOLDERS[placeholderIndex];
-
-        if (isTyping) {
-            if (currentPlaceholder.length < fullText.length) {
-                timer = setTimeout(() => {
-                    setCurrentPlaceholder(fullText.slice(0, currentPlaceholder.length + 1));
-                }, 70); // Typing speed
-            } else {
-                timer = setTimeout(() => setIsTyping(false), 3000); // Wait at end
-            }
-        } else {
-            if (currentPlaceholder.length > 0) {
-                timer = setTimeout(() => {
-                    setCurrentPlaceholder(currentPlaceholder.slice(0, -1));
-                }, 30); // Deleting speed
-            } else {
-                setPlaceholderIndex((prev) => (prev + 1) % PLACEHOLDERS.length);
-                setIsTyping(true);
-            }
-        }
-
-        return () => clearTimeout(timer);
-    }, [currentPlaceholder, isTyping, placeholderIndex]);
-
-    return (
-        <motion.div
-            initial={{ x: -100, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            className="fixed top-12 left-12 z-[150] w-full max-w-xl px-4"
-        >
-            <div className="bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/50 overflow-hidden">
-                <div className="px-4 py-2 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
-                    <span className="text-[9px] font-black tracking-widest uppercase opacity-40">
-                        {status === 'THINKING' ? ANALYSIS_MESSAGES[analysisMsgIndex] : "Project // Focus"}
-                    </span>
-                    <div className="flex gap-1">
-                        <div className={`w-1.5 h-1.5 rounded-full ${status === 'THINKING' ? 'bg-blue-600 animate-ping' : 'bg-blue-200'}`} />
-                        <div className={`w-1.5 h-1.5 rounded-full ${status === 'THINKING' ? 'bg-blue-400 animate-pulse' : 'bg-blue-400'}`} />
-                    </div>
-                </div>
-                <form onSubmit={handleSubmit} className="p-6 relative">
-                    <input
-                        type="text"
-                        value={localTask}
-                        onChange={(e) => setLocalTask(e.target.value)}
-                        disabled={status === 'THINKING'}
-                        placeholder={currentPlaceholder}
-                        className="w-full bg-transparent text-3xl font-bold tracking-tighter outline-none border-none placeholder:text-gray-300 text-black leading-none"
-                        autoComplete="off"
-                        autoFocus
-                    />
-
-                    {status === 'THINKING' && (
-                        <motion.div
-                            className="absolute bottom-0 left-0 h-1"
-                            style={{ backgroundColor: COLORS.electricBlue }}
-                            initial={{ width: 0 }}
-                            animate={{ width: '100%' }}
-                            transition={{ duration: 1.5, repeat: Infinity }}
-                        />
-                    )}
-                </form>
-            </div>
-        </motion.div>
-    );
-};
-
-const LandingPage: React.FC<{ onEnter: (data: any) => void }> = ({ onEnter }) => {
-    const [authState, setAuthState] = useState<'checking' | 'unauthenticated' | 'authenticated'>('checking');
-    const [currentUser, setCurrentUser] = useState<User | null>(null);
-    const [finalTask, setFinalTask] = useState('');
-    const [status, setStatus] = useState<'IDLE' | 'THINKING' | 'READY'>('IDLE');
+const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
+    const [stage, setStage] = useState<'hero' | 'analyzing' | 'result'>('hero');
+    const [task, setTask] = useState('');
     const [analysisResult, setAnalysisResult] = useState<any>(null);
-    const [showAuth, setShowAuth] = useState(false);
+    const [showAuthModal, setShowAuthModal] = useState(false);
+    const [showPricingModal, setShowPricingModal] = useState(false);
+    const [currentUser, setCurrentUser] = useState<User | null>(null);
+    const [freeSessionsUsed, setFreeSessionsUsed] = useState(0);
+    const { isPremium } = useSubscription(); // Use existing hook
+    // const isPremium = false;
+    const chatInputRef = useRef<HTMLInputElement>(null);
 
-
-
-    // Check for existing session on mount
+    // Check for existing user & usage stats
     useEffect(() => {
-        const checkAuth = async () => {
-            const user = await authService.getUser();
+        const checkUser = async () => {
+            const { data: { user } } = await supabase.auth.getUser();
+            setCurrentUser(user);
+
             if (user) {
-                setCurrentUser(user);
-                setAuthState('authenticated');
-            } else {
-                setAuthState('unauthenticated');
+                const profile = await databaseService.getProfile(user.id);
+                if (profile) {
+                    setFreeSessionsUsed((profile as any).free_sessions_used || 0);
+                }
             }
         };
-
-        checkAuth();
-
-        // Listen for auth changes
-        const subscription = authService.onAuthStateChange((user) => {
-            setCurrentUser(user);
-            setAuthState(user ? 'authenticated' : 'unauthenticated');
-        });
-
-        return () => {
-            subscription.unsubscribe();
-        };
+        checkUser();
     }, []);
 
-    const handleAuthSuccess = (user: User) => {
-        setCurrentUser(user);
-        setAuthState('authenticated');
+    const scrollToInput = () => {
+        chatInputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        setTimeout(() => chatInputRef.current?.focus(), 600);
     };
 
-    const handleInitialSubmit = async (task: string) => {
-        setFinalTask(task);
-        setStatus('THINKING');
+    const handleGetStarted = () => {
+        scrollToInput();
+    };
+
+    const handleLogin = async () => {
+        console.log("[LandingPage] Initiating Google login...");
+        const { error } = await authService.signInWithGoogle();
+        if (error) console.error('[LandingPage] Login error:', error);
+    };
+
+    const handleTaskSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!task.trim()) return;
+
+        setStage('analyzing');
 
         try {
-            // Call AI service to analyze and classify the task
             const aiResult = await ollamaService.analyzeTask(task);
-
             setAnalysisResult({
                 intensity: aiResult.suggestedIntensity,
                 insight: aiResult.explanation,
                 type: aiResult.taskType,
-                focusMode: aiResult.focusMode
+                focusMode: aiResult.focusMode,
+                suggestedSessions: Math.ceil(aiResult.suggestedIntensity / 3.33),
             });
-            setStatus('READY');
+            setStage('result');
         } catch (error) {
-            console.error('AI Classification Error:', error);
-            // Fallback to balanced focus if AI fails
+            console.error('AI analysis failed:', error);
             setAnalysisResult({
                 intensity: 6,
-                insight: "AI analysis unavailable. Using balanced focus mode.",
-                type: "Standard Task",
-                focusMode: "Balanced Focus"
+                insight: 'Balanced focus recommended for this task.',
+                type: 'Standard Task',
+                focusMode: 'Balanced Focus',
+                suggestedSessions: 2,
             });
-            setStatus('READY');
+            setStage('result');
+        }
+    };
+
+    const handleStartSession = async () => {
+        // 1. Check Limits (The Wall)
+        if (currentUser && !isPremium && freeSessionsUsed >= 3) {
+            setShowPricingModal(true);
+            return;
+        }
+
+        if (currentUser) {
+            // User is logged in, proceed to app
+            onEnter({
+                task,
+                intensity: analysisResult.intensity,
+                insight: analysisResult.insight,
+                focusMode: analysisResult.focusMode,
+                user: currentUser,
+            });
+        } else {
+            // Save session data to localStorage
+            localStorage.setItem('pending_session', JSON.stringify({
+                task,
+                intensity: analysisResult.intensity,
+                insight: analysisResult.insight,
+                focusMode: analysisResult.focusMode,
+            }));
+
+            // Show auth modal
+            setShowAuthModal(true);
+        }
+    };
+
+    const handleGoogleSignUp = async () => {
+        try {
+            console.log("[LandingPage] Engaging authService.signInWithGoogle...");
+            const { error } = await authService.signInWithGoogle();
+
+            if (error) {
+                console.error('[LandingPage] OAuth Error:', error);
+                alert(`Authentication stalled: ${error.message}\n\nPlease verify your Supabase keys in .env.local.`);
+            }
+        } catch (err: any) {
+            console.error('[LandingPage] Critical Auth Failure:', err);
+            alert(`Critical System Error: ${err.message || 'Unknown failure'}`);
         }
     };
 
     return (
-        <div className="min-h-screen relative font-sans selection:bg-blue-600 selection:text-white overflow-hidden">
-            <div
-                className="fixed inset-0 z-[200] pointer-events-none border-white"
-                style={{ borderStyle: 'solid', borderWidth: COLORS.borderWidth }}
+        <div className="min-h-screen bg-black text-white relative overflow-hidden">
+            {/* Background Elements */}
+            <div className="fixed inset-0 bg-[#09090b]" />
+
+            {/* Header */}
+            <Header
+                onGetStartedClick={handleGetStarted}
+                onLoginClick={handleLogin}
+                isDashboard={stage !== 'hero'}
             />
 
-            <EnvironmentalBackground />
-
-            <AnimatePresence>
-                {status !== 'IDLE' && (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-[15] backdrop-blur-3xl bg-white/5"
-                        transition={{ duration: 0.8 }}
-                    />
-                )}
-            </AnimatePresence>
-
-            <AnimatePresence>
-                {status !== 'READY' && (
-                    <TopLeftInputBar status={status as 'IDLE' | 'THINKING'} onSubmit={handleInitialSubmit} />
-                )}
-            </AnimatePresence>
-
-            {/* --- MAIN CONTENT AREA --- */}
-            <main className="relative z-20 min-h-screen flex items-center justify-center p-6 pb-24 md:pb-6">
+            {/* Main Content */}
+            <div className="relative z-10 min-h-screen flex items-center justify-center px-6 pt-12">
                 <AnimatePresence mode="wait">
-                    {/* Loading State */}
-                    {authState === 'checking' && (
-                        <motion.div
-                            key="loading"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            className="text-white text-xl"
-                        >
-                            Loading...
-                        </motion.div>
-                    )}
-
-                    {/* Auth form removed for Ghost Session flow - Focus Input is now the primary entry point */}
-
-                    {/* Analysis Result (Now works for both auth and ghost) */}
-                    {status === 'READY' && analysisResult && (
-                        <motion.div
-                            key="ready"
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-                            className="relative"
-                        >
-                            {/* Precision Glass Card - "Contextual Tasks" Inspired Layout */}
-                            <div
-                                className="relative overflow-hidden backdrop-blur-[40px] border border-white/40 rounded-[24px] w-full max-w-[380px] text-left shadow-[0_40px_100px_-20px_rgba(0,0,0,0.1)]"
-                                style={{
-                                    background: `rgba(255, 255, 255, 0.7)`,
-                                }}
+                    {/* Hero Section - Centered Input */}
+                    <AnimatePresence>
+                        {stage === 'hero' && (
+                            <motion.div
+                                initial={{ opacity: 0, scale: 1.02, filter: 'blur(8px)' }}
+                                animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
+                                exit={{ opacity: 0, scale: 0.98, filter: 'blur(8px)' }}
+                                transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                                className="relative z-10 w-full max-w-3xl px-6"
                             >
-                                {/* 1. Header Bar */}
-                                <div className="px-6 py-4 border-b border-black/[0.05] bg-black/[0.02] flex justify-between items-center">
-                                    <div className="flex items-center gap-2">
-                                        <div className="w-1.5 h-1.5 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.6)] animate-pulse" />
-                                        <span className="text-[10px] font-black tracking-[0.2em] text-slate-400 uppercase">System State</span>
-                                    </div>
-                                    <div className="flex items-center gap-3">
-                                        <div className="flex gap-1.5">
-                                            <div className="w-1 h-1 rounded-full bg-black/10" />
-                                            <div className="w-1 h-1 rounded-full bg-black/10" />
-                                        </div>
-                                        <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-full bg-blue-50 text-blue-500 border border-blue-100/50 uppercase tracking-tighter">
-                                            {analysisResult.source || 'AI Core'}
-                                        </span>
+                                {/* Headline */}
+                                <motion.h1
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.2 }}
+                                    className="text-2xl md:text-3xl font-medium text-center text-zinc-50 mb-6 tracking-tight"
+                                >
+                                    What do you want to focus on?
+                                </motion.h1>
+
+                                {/* Input Container */}
+                                <div className="relative group">
+                                    <div className="relative bg-[#18181b] border border-zinc-800 rounded-2xl md:rounded-[36px] overflow-hidden shadow-2xl">
+                                        <form
+                                            onSubmit={(e) => {
+                                                e.preventDefault();
+                                                handleTaskSubmit(e);
+                                            }}
+                                            className="flex flex-col"
+                                        >
+                                            <textarea
+                                                ref={chatInputRef}
+                                                value={task}
+                                                onChange={(e) => setTask(e.target.value)}
+                                                onKeyDown={(e) => {
+                                                    if (e.key === 'Enter' && !e.shiftKey) {
+                                                        e.preventDefault();
+                                                        handleTaskSubmit(e);
+                                                    }
+                                                }}
+                                                placeholder="Ask Ytterbium to analyze a task..."
+                                                className="w-full bg-transparent text-white placeholder-zinc-500 text-sm md:text-base px-6 pt-4 pb-14 focus:outline-none resize-none min-h-[80px] leading-relaxed"
+                                                style={{ caretColor: '#818cf8' }}
+                                                autoFocus
+                                            />
+
+                                            {/* Input Footer / Actions */}
+                                            <div className="absolute bottom-3 right-3 flex items-center justify-end">
+
+                                                {/* Submit Button */}
+                                                <button
+                                                    type="submit"
+                                                    disabled={!task.trim()}
+                                                    className={`p-1.5 rounded-full transition-all duration-300 ${task.trim()
+                                                        ? 'bg-zinc-50 text-zinc-950 translate-x-0 opacity-100 shadow-[0_0_20px_rgba(250,250,250,0.1)]'
+                                                        : 'bg-zinc-900/50 text-zinc-600 translate-x-0 opacity-50 cursor-not-allowed border border-zinc-800'
+                                                        }`}
+                                                >
+                                                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                        </form>
                                     </div>
                                 </div>
 
-                                {/* 2. Body Content */}
-                                <div className="p-8 space-y-8">
-                                    {/* Title & Description */}
-                                    <div className="space-y-3">
-                                        <motion.h2
-                                            initial={{ opacity: 0, x: -10 }}
-                                            animate={{ opacity: 1, x: 0 }}
-                                            transition={{ delay: 0.3 }}
-                                            className="text-2xl font-black tracking-tight text-slate-800 leading-none"
-                                        >
-                                            Focus: {analysisResult.focusMode.split(' ')[0]}
-                                        </motion.h2>
-
-                                        <motion.p
-                                            initial={{ opacity: 0, x: -10 }}
-                                            animate={{ opacity: 1, x: 0 }}
-                                            transition={{ delay: 0.4 }}
-                                            className="text-[14px] text-slate-500 font-medium leading-relaxed max-w-[90%]"
-                                        >
-                                            {analysisResult.focusMode === "Balanced Focus"
-                                                ? "Designed for sustained clarity, not strain."
-                                                : analysisResult.insight.replace(/^"|"$/g, '')}
-                                        </motion.p>
-                                    </div>
-
-                                    {/* Focus Intensity Bar */}
-                                    <motion.div
-                                        initial={{ opacity: 0, y: 10 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        transition={{ delay: 0.5 }}
-                                        className="space-y-3"
-                                    >
-                                        <div className="relative h-2 w-full bg-black/[0.05] rounded-full overflow-hidden">
-                                            <div
-                                                className="absolute inset-0 opacity-80"
-                                                style={{
-                                                    background: 'linear-gradient(to right, #ff9b9b 0%, #ffdf91 40%, #a8e6cf 70%, #81c784 100%)'
-                                                }}
-                                            />
-                                            <motion.div
-                                                initial={{ left: '0%' }}
-                                                animate={{ left: `${((analysisResult.intensity - 1) / 9) * 100}%` }}
-                                                transition={{ duration: 1.5, delay: 0.8, ease: "circOut" }}
-                                                className="absolute top-0 bottom-0 w-[2px] bg-black/80 z-10"
-                                            />
-                                        </div>
-                                        <div className="flex justify-between items-center">
-                                            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Calibration: {analysisResult.intensity}/10</span>
-                                            <div className="flex gap-4">
-                                                <span className="text-[9px] font-bold text-slate-300 uppercase">Calm</span>
-                                                <span className="text-[9px] font-bold text-slate-300 uppercase">Peak</span>
-                                            </div>
-                                        </div>
-                                    </motion.div>
-
-                                    {/* Shopify Button */}
-                                    <div className="pt-2">
+                                {/* Suggestion Chips (Secondary Button Style) */}
+                                <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+                                    {['Deep Work Session', 'Study for Exam', 'Debug Code'].map((suggestion, i) => (
                                         <motion.button
+                                            key={suggestion}
                                             initial={{ opacity: 0, y: 10 }}
                                             animate={{ opacity: 1, y: 0 }}
-                                            transition={{ delay: 0.6 }}
-                                            whileHover={{ scale: 1.02 }}
-                                            whileTap={{ scale: 0.98 }}
-                                            onClick={() => onEnter({ ...analysisResult, task: finalTask, user: currentUser })}
-                                            className="relative w-full h-[48px] bg-gradient-to-b from-[#2d2d2d] via-[#1a1a1a] to-[#000000] border border-black/50 rounded-[12px] text-white font-bold shadow-lg overflow-hidden group"
+                                            transition={{ delay: 0.4 + (i * 0.1) }}
+                                            onClick={() => setTask(suggestion)}
+                                            className="px-4 py-2 rounded-full border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 text-xs md:text-sm text-zinc-400 hover:text-zinc-50 transition-all duration-200"
                                         >
-                                            <span className="relative z-10 text-[13px] tracking-tight">Begin Session</span>
-                                            <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                            {suggestion}
                                         </motion.button>
-                                    </div>
+                                    ))}
+                                </div>
+
+                            </motion.div>
+                        )}
+
+                        {stage === 'analyzing' && (
+                            <AnalyzingState key="analyzing" />
+                        )}
+
+                        {stage === 'result' && analysisResult && (
+                            <ResultView
+                                key="result"
+                                task={task}
+                                result={analysisResult}
+                                onStartSession={handleStartSession}
+                                showLock={currentUser ? (!isPremium && freeSessionsUsed >= 3) : false}
+                            />
+                        )}
+                    </AnimatePresence>
+                </AnimatePresence>
+            </div>
+
+            {/* Auth Modal */}
+            <AnimatePresence>
+                {showAuthModal && (
+                    <AuthModal onClose={() => setShowAuthModal(false)} onSignUp={handleGoogleSignUp} />
+                )}
+            </AnimatePresence>
+
+            {/* Pricing Modal */}
+            <PricingModal isOpen={showPricingModal} onClose={() => setShowPricingModal(false)} />
+        </div >
+    );
+};
+
+// Analyzing State with Skeleton Loader
+const AnalyzingState: React.FC = () => {
+    const [messageIndex, setMessageIndex] = useState(0);
+    const messages = [
+        'Analyzing cognitive load...',
+        'Calibrating task intensity...',
+        'Optimizing session flow...',
+    ];
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setMessageIndex((prev) => (prev + 1) % messages.length);
+        }, 1200);
+        return () => clearInterval(interval);
+    }, []);
+
+    return (
+        <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="w-full max-w-6xl h-[80vh] flex flex-col md:flex-row gap-0 overflow-hidden rounded-sm border border-zinc-800 bg-[#09090b] shadow-2xl"
+        >
+            {/* Left Sidebar - Chat Style (30%) */}
+            <div className="w-full md:w-[35%] flex flex-col border-r border-zinc-900 relative bg-[#0d0d0e]">
+                {/* Chat History Area */}
+                <div className="flex-1 p-6 space-y-8">
+                    {/* User Message Skeleton */}
+                    <div className="flex flex-col items-end space-y-2">
+                        <div className="bg-zinc-800/30 px-4 py-3 rounded-sm w-3/4 border border-zinc-700/30">
+                            <div className="h-4 bg-zinc-700/50 rounded-sm w-full animate-pulse" />
+                        </div>
+                    </div>
+
+                    {/* AI Message Skeleton */}
+                    <div className="flex flex-col items-start space-y-2">
+                        <div className="flex items-center gap-2 mb-1">
+                            <div className="w-5 h-5 flex items-center justify-center text-indigo-500">
+                                <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
+                                    <circle cx="14" cy="14" r="12" stroke="currentColor" strokeWidth="1.5" opacity="0.6" />
+                                    <circle cx="14" cy="14" r="6" fill="currentColor" opacity="0.9" />
+                                    <circle cx="14" cy="14" r="3" fill="currentColor" />
+                                </svg>
+                            </div>
+                            <span className="text-[10px] text-zinc-500 uppercase tracking-widest">Thinking...</span>
+                        </div>
+                        <div className="space-y-3 w-full">
+                            <div className="h-4 bg-zinc-800/50 rounded-md w-[80%] animate-pulse" />
+                            <div className="h-4 bg-zinc-800/50 rounded-md w-[60%] animate-pulse" />
+                            <div className="pt-2 flex items-center gap-2">
+                                <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-bounce" style={{ animationDelay: '0ms' }} />
+                                <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-bounce" style={{ animationDelay: '200ms' }} />
+                                <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-bounce" style={{ animationDelay: '400ms' }} />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="p-4 border-t border-zinc-800 bg-[#0d0d0e]">
+                    <div className="bg-zinc-900/50 border border-zinc-800/50 rounded-none px-4 py-3 opacity-30 select-none">
+                        <span className="text-zinc-600 text-sm">Ask Ytterbium...</span>
+                    </div>
+                </div>
+            </div>
+
+            {/* Right Main Content (65%) - Stacked Card Skeleton */}
+            <div className="flex-1 flex flex-col items-center justify-center p-12 pb-24 relative bg-[#09090b]">
+                {/* Status Pill */}
+                <div className="absolute top-8 flex items-center gap-2 px-4 py-1.5 rounded-full bg-zinc-900 border border-zinc-800 shadow-sm">
+                    <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse shadow-[0_0_8px_rgba(99,102,241,0.8)]" />
+                    <span className="text-[11px] font-medium text-zinc-400 uppercase tracking-widest">{messages[messageIndex]}</span>
+                </div>
+
+                {/* Stacked Card Skeleton Effect */}
+                <div className="relative w-full max-w-[340px] aspect-[4/5] flex flex-col items-center justify-center opacity-50">
+                    <div className="absolute top-[-10px] w-[95%] aspect-[4/5] bg-zinc-900/40 border border-zinc-800/50 rounded-sm -z-10" />
+                    <div className="w-full h-full rounded-sm border border-zinc-800 bg-[#121214] flex flex-col overflow-hidden">
+                        <div className="flex-1 bg-[#0a0a0b] flex items-center justify-center relative overflow-hidden">
+                            {/* Technical Grid Overlay */}
+                            <div className="absolute inset-0 opacity-[0.05]" style={{ backgroundImage: 'linear-gradient(zinc-800 1px, transparent 1px), linear-gradient(90deg, zinc-800 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
+                            <div className="w-16 h-16 rounded-full bg-zinc-900/50 border border-zinc-800 flex items-center justify-center animate-pulse z-10">
+                                <div className="w-8 h-8 rounded-full border-2 border-indigo-500/20 border-t-indigo-500 animate-spin" />
+                            </div>
+                        </div>
+                        <div className="p-8 space-y-4">
+                            <div className="h-4 bg-zinc-800/50 rounded-sm w-3/4 animate-pulse" />
+                            <div className="h-4 bg-zinc-800/50 rounded-sm w-1/2 animate-pulse" />
+                            <div className="pt-4 h-12 bg-zinc-800/30 rounded-sm w-full animate-pulse" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </motion.div>
+    );
+};
+
+// Result View Component
+interface ResultViewProps {
+    task: string;
+    result: any;
+    onStartSession: () => void;
+    showLock?: boolean;
+}
+
+const ResultView: React.FC<ResultViewProps> = ({ task, result, onStartSession, showLock }) => {
+    return (
+        <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="w-full max-w-6xl md:h-[80vh] flex flex-col md:flex-row gap-0 overflow-hidden md:rounded-sm border-0 md:border border-zinc-800 bg-[#09090b] shadow-2xl"
+        >
+            {/* Left Sidebar - Chat Style (30%) */}
+            <div className="w-full md:w-[35%] flex flex-col border-b md:border-b-0 md:border-r border-zinc-900 relative bg-[#0d0d0e] max-h-[35vh] md:max-h-none">
+                {/* Chat History Area */}
+                <div className="flex-1 p-4 md:p-6 overflow-y-auto space-y-6 md:space-y-8">
+                    {/* User Message */}
+                    <div className="flex flex-col items-end space-y-2">
+                        <div className="bg-zinc-800/50 px-4 py-3 rounded-sm max-w-[90%] border border-zinc-700/50">
+                            <p className="text-zinc-200 text-sm leading-relaxed">{task}</p>
+                        </div>
+                        <span className="text-[10px] text-zinc-600 uppercase tracking-widest px-1">You</span>
+                    </div>
+
+                    {/* AI Message */}
+                    <div className="flex flex-col items-start space-y-2">
+                        <div className="flex items-center gap-2 mb-1">
+                            <div className="w-5 h-5 flex items-center justify-center text-indigo-500">
+                                <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
+                                    <circle cx="14" cy="14" r="12" stroke="currentColor" strokeWidth="1.5" opacity="0.6" />
+                                    <circle cx="14" cy="14" r="6" fill="currentColor" opacity="0.9" />
+                                    <circle cx="14" cy="14" r="3" fill="currentColor" />
+                                </svg>
+                            </div>
+                            <span className="text-[10px] text-zinc-500 uppercase tracking-widest">Ytterbium</span>
+                        </div>
+                        <div className="space-y-4 max-w-[95%]">
+                            <p className="text-zinc-400 text-sm leading-relaxed font-normal">
+                                I've analyzed your focus request. Based on the cognitive load required for <span className="text-zinc-200">"{task}"</span>, I've calibrated a specialized environment.
+                            </p>
+                            <p className="text-zinc-400 text-sm leading-relaxed font-normal">
+                                {result.focusMode} mode is best suited for this. {result.insight.replace(/^"|"$/g, '')}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="p-4 border-t border-zinc-800 bg-[#0d0d0e]">
+                    <div className="relative group">
+                        <div className="bg-zinc-900 border border-zinc-800 rounded-none px-4 py-3 flex items-center justify-between opacity-50 cursor-not-allowed">
+                            <span className="text-zinc-500 text-sm">Ask Ytterbium...</span>
+                            <div className="flex items-center gap-2">
+                                <div className="p-1 rounded-lg bg-zinc-800 text-zinc-600">
+                                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                                    </svg>
+                                </div>
+                                <div className="p-1 rounded-lg bg-zinc-700 text-zinc-900">
+                                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Right Main Content (65%) - Stacked Card Design */}
+            <div className="flex-1 flex flex-col items-center justify-center p-6 md:p-12 pb-20 md:pb-24 relative bg-[#09090b] overflow-y-auto">
+
+
+                {/* Stacked Card Effect */}
+                <div className="relative w-full max-w-[300px] md:max-w-[340px] aspect-[4/5] flex flex-col items-center justify-center my-8 md:my-0">
+                    {/* Backward Layers */}
+                    <div className="absolute top-[-10px] w-[95%] aspect-[4/5] bg-zinc-900/40 border border-zinc-800/50 rounded-sm -z-10" />
+                    <div className="absolute top-[-20px] w-[90%] aspect-[4/5] bg-zinc-900/20 border border-zinc-800/30 rounded-sm -z-20" />
+
+                    {/* Main Card */}
+                    <motion.div
+                        initial={{ scale: 0.95, y: 20 }}
+                        animate={{ scale: 1, y: 0 }}
+                        className="w-full h-full rounded-sm border border-zinc-800 bg-[#121214] overflow-hidden shadow-2xl flex flex-col"
+                    >
+                        {/* Card Upper: Placeholder/Visual Area */}
+                        <div className="flex-1 bg-[#0a0a0b] relative group overflow-hidden">
+                            {/* Technical Grid Overlay */}
+                            <div className="absolute inset-0 opacity-[0.05]" style={{ backgroundImage: 'linear-gradient(zinc-800 1px, transparent 1px), linear-gradient(90deg, zinc-800 1px, transparent 1px)', backgroundSize: '15px 15px' }} />
+                            <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[#121214]/80" />
+                            {/* Focus Mode Icon/Graphics Overlay */}
+                            <div className="absolute inset-0 flex flex-col items-center justify-center space-y-6">
+                                <div className="w-20 h-20 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center group-hover:scale-110 transition-transform duration-500 shadow-inner">
+                                    {showLock ? (
+                                        <svg className="w-8 h-8 text-zinc-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                        </svg>
+                                    ) : (
+                                        <svg className="w-8 h-8 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                        </svg>
+                                    )}
+                                </div>
+                                <div className="text-center px-8">
+                                    <div className="text-[10px] text-zinc-500 uppercase tracking-[0.3em] mb-1 font-bold">Recommended State</div>
+                                    <div className="text-2xl font-black text-white tracking-tight">{result.focusMode}</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="p-8 bg-[#121214] space-y-6">
+                            <div className="space-y-4">
+                                <div className="space-y-1">
+                                    <h3 className="text-lg font-bold text-zinc-100 tracking-tight">Ytterbium Environment</h3>
+                                    <p className="text-sm text-zinc-500 leading-relaxed font-normal">
+                                        Calibrated for {result.intensity}/10 intensity across {result.suggestedSessions} scheduled sprints.
+                                    </p>
+                                </div>
+                                {/* Intensity Progress Bar */}
+                                <div className="w-full h-[1px] bg-zinc-800 rounded-full overflow-hidden">
+                                    <motion.div
+                                        initial={{ width: 0 }}
+                                        animate={{ width: `${result.intensity * 10}%` }}
+                                        transition={{ duration: 1, delay: 0.5, ease: "easeOut" }}
+                                        className="h-full bg-indigo-500/40"
+                                    />
                                 </div>
                             </div>
 
-                            {/* Outer Deep Glow */}
-                            <div className="absolute -inset-20 bg-blue-500/5 blur-[120px] -z-10 rounded-full" />
-                        </motion.div>
-                    )}
-                </AnimatePresence>
-            </main>
-
-            {/* 5. Footer Branding (RESTORED) */}
-            <motion.div
-                className="fixed bottom-24 right-0 left-0 md:bottom-12 md:right-12 text-center md:text-right z-[150] pointer-events-none text-white px-6"
-                animate={{
-                    filter: authState !== 'unauthenticated' && status !== 'IDLE' ? 'blur(10px)' : 'blur(0px)',
-                    opacity: authState !== 'unauthenticated' && status !== 'IDLE' ? 0.4 : 1
-                }}
-                transition={{ duration: 0.8 }}
-            >
-                <div className="flex flex-col items-center md:items-end">
-                    <h2
-                        className="text-[28px] md:text-[34px] tracking-tighter uppercase leading-[0.85] flex flex-col items-center md:items-end"
-                        style={{ fontFamily: "'EB Garamond', serif" }}
-                    >
-                        <span className="opacity-90">WHERE BIOLOGY</span>
-                        <span className="opacity-90">MEETS</span>
-                        <div className="flex items-center md:items-end gap-3 translate-y-[-1px]">
-                            <div className="text-[7px] md:text-[8px] font-sans font-bold tracking-[0.2em] leading-tight opacity-50 mb-1">
-                                ©2025<br />YTTERBIUM
-                            </div>
-                            <span className="text-[28px] md:text-[34px] text-white">DEEP FOCUS.</span>
+                            {/* Action Button */}
+                            <motion.button
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                                onClick={onStartSession}
+                                className={`w-full py-4 rounded-sm font-black text-[11px] uppercase tracking-[0.2em] shadow-lg transition-all duration-300 ${showLock
+                                    ? 'bg-zinc-900 text-zinc-600 cursor-not-allowed border border-zinc-800'
+                                    : 'bg-zinc-50 text-zinc-950 hover:bg-white hover:shadow-[0_0_20px_rgba(99,102,241,0.3)] border border-zinc-800'
+                                    }`}
+                            >
+                                {showLock ? (
+                                    <span className="flex items-center justify-center gap-2">
+                                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                        </svg>
+                                        Limit Reached
+                                    </span>
+                                ) : "Initiate Environment"}
+                            </motion.button>
                         </div>
-                    </h2>
+                    </motion.div>
+                </div>
+            </div>
+        </motion.div>
+    );
+};
+
+// Auth Modal Component
+interface AuthModalProps {
+    onClose: () => void;
+    onSignUp: () => void;
+}
+
+const AuthModal: React.FC<AuthModalProps> = ({ onClose, onSignUp }) => {
+    return (
+        <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+            className="fixed inset-0 z-[500] flex items-center justify-center p-6 bg-black/80 backdrop-blur-md"
+        >
+            <motion.div
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                exit={{ y: 20, opacity: 0 }}
+                onClick={(e) => e.stopPropagation()}
+                className="max-w-[400px] w-full p-6 md:p-10 rounded-sm bg-[#09090b] border border-zinc-800 relative shadow-2xl"
+            >
+                {/* Close Button hit-box (44x44px) */}
+                <button
+                    onClick={onClose}
+                    className="absolute top-2 right-2 w-11 h-11 flex items-center justify-center text-zinc-500 hover:text-white transition-colors group"
+                >
+                    <svg className="w-5 h-5 transition-transform group-hover:scale-110" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+
+                <div className="space-y-8">
+                    {/* Top Left Logo Identity */}
+                    <div className="flex justify-start">
+                        <div className="w-10 h-10 flex items-center justify-center text-indigo-500">
+                            <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
+                                <circle cx="14" cy="14" r="12" stroke="currentColor" strokeWidth="1.5" opacity="0.6" />
+                                <circle cx="14" cy="14" r="6" fill="currentColor" opacity="0.9" />
+                                <circle cx="14" cy="14" r="3" fill="currentColor" />
+                            </svg>
+                        </div>
+                    </div>
+
+                    <div className="space-y-1">
+                        <h3 className="text-xl md:text-[28px] font-bold text-zinc-50 tracking-tight leading-none uppercase">Start Building.</h3>
+                        <p className="text-xl md:text-[28px] font-bold text-zinc-800 leading-none uppercase">Create free account</p>
+                    </div>
+
+                    <div className="pt-4 space-y-4">
+                        {/* Google Sign In Button - Hybrid Style */}
+                        <button
+                            type="button"
+                            onClick={() => {
+                                console.log("[AuthModal] Primary Action: Continue with Google");
+                                onSignUp();
+                            }}
+                            className="w-full h-[52px] px-4 rounded-sm bg-zinc-50 text-zinc-950 font-black text-[11px] uppercase tracking-[0.2em] flex items-center justify-center gap-3 hover:bg-white transition-all relative z-50 group shadow-[0_0_20px_rgba(255,255,255,0.05)] cursor-pointer"
+                        >
+                            <svg className="w-4 h-4" viewBox="0 0 24 24">
+                                <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                                <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                                <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+                                <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+                            </svg>
+                            Continue with Google
+
+                            {/* Muted Indigo Badge Style */}
+                            <div className="absolute -top-2 -right-2 px-2 py-0.5 bg-indigo-500/10 border border-indigo-500/20 rounded-sm shadow-sm backdrop-blur-sm pointer-events-none">
+                                <span className="text-[9px] font-bold text-indigo-400 uppercase tracking-wider">Last used</span>
+                            </div>
+                        </button>
+                    </div>
+
+                    <div className="space-y-4 pt-4">
+                        <p className="text-[10px] text-zinc-500 leading-relaxed font-medium uppercase tracking-widest">
+                            By continuing, you agree to the <a href="#" className="text-zinc-400 hover:text-zinc-200 transition-colors underline underline-offset-4 decoration-zinc-800">Terms of Service</a> and <a href="#" className="text-zinc-400 hover:text-zinc-200 transition-colors underline underline-offset-4 decoration-zinc-800">Privacy Policy</a>.
+                        </p>
+                        <div className="pt-2 border-t border-zinc-900">
+                            <p className="text-[9px] text-zinc-600 uppercase tracking-[0.2em]">Standard security protocols active</p>
+                        </div>
+                    </div>
                 </div>
             </motion.div>
-        </div>
+        </motion.div>
     );
 };
 
