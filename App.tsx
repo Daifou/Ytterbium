@@ -864,7 +864,7 @@ const App: React.FC = () => {
               {/* Scaled Layout Wrapper - SVG Parent */}
               <div
                 ref={layoutWrapperRef}
-                className="flex flex-col md:flex-row justify-start items-center md:items-start w-full max-w-[1600px] px-4 md:-ml-32 relative"
+                className="flex flex-col md:flex-row justify-start items-center md:items-start w-full max-w-[1600px] px-4 md:-ml-48 relative"
                 style={{
                   transform: typeof window !== 'undefined' && window.innerWidth < 768 ? 'none' : `scale(${SCALE_FACTOR})`,
                   transformOrigin: 'center',
@@ -997,7 +997,7 @@ const App: React.FC = () => {
                   </div>
 
                   {/* Connector 1 Placeholder - HIDDEN ON MOBILE */}
-                  {!isMobile && <div className="w-[32rem] relative z-0 pointer-events-none" />}
+                  {!isMobile && <div className="w-[12rem] relative z-0 pointer-events-none" />}
 
                   {/* 2. Center Column: AI Optimized - RENDERED ALWAYS */}
                   <div ref={timerRefDiv} className={`w-full max-w-[20rem] h-[15rem] relative z-30 transition-opacity duration-1000 ${isFocusMode ? 'opacity-100 animate-in zoom-in-95 fade-in' : 'opacity-0'} md:-ml-32`}>
@@ -1020,7 +1020,7 @@ const App: React.FC = () => {
                   </div>
 
                   {/* Connector 2 Placeholder - HIDDEN ON MOBILE */}
-                  {!isMobile && <div className="w-[32rem] relative z-0 pointer-events-none" />}
+                  {!isMobile && <div className="w-[12rem] relative z-0 pointer-events-none" />}
 
                   {/* 3. Right Column: Gold Vault - RENDERED ALWAYS */}
                   <div ref={vaultRef} className={`w-full max-w-[16rem] h-[9.25rem] mt-0 md:mt-24 relative z-20 transition-opacity duration-700 ${isFocusMode ? 'opacity-100 animate-in slide-in-from-right-8 fade-in' : 'opacity-0'} md:-ml-32`}>
