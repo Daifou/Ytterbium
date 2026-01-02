@@ -22,7 +22,7 @@ import type { User } from '@supabase/supabase-js';
 import { useSubscription } from './hooks/useSubscription';
 
 const DEFAULT_DURATION = 25 * 60; // 25 min default
-const SCALE_FACTOR = 1.0; // Reduced for professional compact look
+const SCALE_FACTOR = 1.05; // Restored to original scale as per request
 const GHOST_SESSION_KEY = 'ytterbium_ghost_session_id';
 
 const MotionDiv = motion.div as any;
@@ -985,9 +985,9 @@ const App: React.FC = () => {
 
                 {/* Main Dashboard Stacking Container */}
                 {/* Main Dashboard Stacking Container */}
-                <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-4 pt-20 md:pt-0">
+                <div className="flex flex-col md:flex-row items-center justify-center gap-12 md:gap-0 pt-20 md:pt-0">
                   {/* 1. Left Column: Contextual Tasks */}
-                  <div ref={tasksRef} className={`w-full max-w-[14rem] h-fit relative z-20 transition-opacity duration-700 ${isFocusMode ? 'opacity-100 animate-in slide-in-from-left-8 fade-in' : 'opacity-0'}`}>
+                  <div ref={tasksRef} className={`w-full max-w-[24rem] min-h-[13rem] relative z-20 transition-opacity duration-700 ${isFocusMode ? 'opacity-100 animate-in slide-in-from-left-8 fade-in' : 'opacity-0'}`}>
                     {/* Only render TaskList content when in Focus mode */}
                     {isFocusMode ? (
                       <TaskList tasks={tasks} onToggle={toggleTask} onAdd={addTask} />
@@ -997,10 +997,10 @@ const App: React.FC = () => {
                   </div>
 
                   {/* Connector 1 Placeholder - HIDDEN ON MOBILE */}
-                  {!isMobile && <div className="hidden" />}
+                  {!isMobile && <div className="w-[32rem] relative z-0 pointer-events-none" />}
 
                   {/* 2. Center Column: AI Optimized - RENDERED ALWAYS */}
-                  <div ref={timerRefDiv} className={`w-full max-w-[20rem] h-fit relative z-30 transition-opacity duration-1000 ${isFocusMode ? 'opacity-100 animate-in zoom-in-95 fade-in' : 'opacity-0'}`}>
+                  <div ref={timerRefDiv} className={`w-full max-w-[24rem] h-[15rem] relative z-30 transition-opacity duration-1000 ${isFocusMode ? 'opacity-100 animate-in zoom-in-95 fade-in' : 'opacity-0'} md:-ml-32`}>
                     {/* Only render FocusTimer content when in Focus mode */}
                     {isFocusMode ? (
                       <FocusTimer
@@ -1020,10 +1020,10 @@ const App: React.FC = () => {
                   </div>
 
                   {/* Connector 2 Placeholder - HIDDEN ON MOBILE */}
-                  {!isMobile && <div className="hidden" />}
+                  {!isMobile && <div className="w-[32rem] relative z-0 pointer-events-none" />}
 
                   {/* 3. Right Column: Gold Vault - RENDERED ALWAYS */}
-                  <div ref={vaultRef} className={`w-full max-w-[14rem] h-fit relative z-20 transition-opacity duration-700 ${isFocusMode ? 'opacity-100 animate-in slide-in-from-right-8 fade-in' : 'opacity-0'}`}>
+                  <div ref={vaultRef} className={`w-full max-w-[24rem] h-[9.25rem] mt-0 md:mt-24 relative z-20 transition-opacity duration-700 ${isFocusMode ? 'opacity-100 animate-in slide-in-from-right-8 fade-in' : 'opacity-0'} md:-ml-32`}>
                     {/* Only render GoldVault content when in Focus mode */}
                     {isFocusMode ? (
                       <GoldVault

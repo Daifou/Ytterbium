@@ -37,8 +37,7 @@ export const TaskList: React.FC<TaskListProps> = ({ tasks, onToggle, onAdd }) =>
   };
 
   return (
-    // Updated: tighter rounding, more compact max-width/height feel, and refined border
-    <div ref={containerRef} className="w-full h-full bg-zinc-950/20 backdrop-blur-xl border border-white/10 rounded-lg overflow-hidden shadow-2xl transition-all hover:shadow-[0_0_20px_-10px_rgba(99,102,241,0.3)] relative flex flex-col group/panel">
+    <div ref={containerRef} className="w-full h-full bg-zinc-900/40 backdrop-blur-md border border-white/5 rounded-2xl overflow-hidden shadow-2xl transition-all hover:shadow-[0_0_30px_-5px_rgba(0,0,0,0.5)] relative flex flex-col group/panel">
 
       {/* Energetic Link Layer - Abstract Neural Line */}
       <svg className="absolute top-0 left-4 w-4 h-full pointer-events-none z-0 opacity-30">
@@ -64,11 +63,10 @@ export const TaskList: React.FC<TaskListProps> = ({ tasks, onToggle, onAdd }) =>
         />
       </svg>
 
-      {/* Updated: Condensed Header with tracking-tighter */}
-      <div className="px-2.5 py-1 border-b border-white/[0.05] flex justify-between items-center bg-black/40 relative z-10 shrink-0">
-        <h3 className="text-[9px] font-bold uppercase tracking-widest text-zinc-500">Nodes</h3>
-        <button onClick={() => setIsAdding(true)} className="text-zinc-500 hover:text-white transition-colors">
-          <Plus className="w-2.5 h-2.5" />
+      <div className="px-3 py-1.5 border-b border-white/[0.03] flex justify-between items-center bg-zinc-900/90 relative z-10 shrink-0">
+        <h3 className="text-[11px] font-medium text-gray-400">Contextual Tasks</h3>
+        <button onClick={() => setIsAdding(true)} className="text-gray-500 hover:text-white transition-colors">
+          <Plus className="w-3.5 h-3.5" />
         </button>
       </div>
 
@@ -81,11 +79,10 @@ export const TaskList: React.FC<TaskListProps> = ({ tasks, onToggle, onAdd }) =>
                 initial={{ opacity: 0, x: -5 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, height: 0 }}
-                // Updated: py-0 and height limit for ultra-compact density
-                className="group flex items-center justify-between px-2 py-[2px] min-h-[24px] hover:bg-white/[0.03] transition-all duration-200 cursor-default border-l border-transparent hover:border-indigo-500/30"
+                className="group flex items-center justify-between px-3 py-2 hover:bg-white/5 transition-all duration-300 cursor-default border-l-2 border-transparent hover:border-white/10"
               >
-                <div className="flex items-center gap-2">
-                  <button onClick={(e) => handleTaskToggle(task.id, e)} className="text-zinc-600 hover:text-indigo-400 transition-colors relative">
+                <div className="flex items-center gap-3">
+                  <button onClick={(e) => handleTaskToggle(task.id, e)} className="text-gray-500 hover:text-indigo-400 transition-colors relative">
                     {/* Energy burst on check */}
                     {task.completed && (
                       <MotionDiv
@@ -96,17 +93,17 @@ export const TaskList: React.FC<TaskListProps> = ({ tasks, onToggle, onAdd }) =>
                       />
                     )}
                     {task.completed ? (
-                      <CheckCircle2 className="w-2.5 h-2.5 text-indigo-400" />
+                      <CheckCircle2 className="w-3.5 h-3.5 text-indigo-400" />
                     ) : (
-                      <Circle className="w-2.5 h-2.5 opacity-40" />
+                      <Circle className="w-3.5 h-3.5 opacity-50" />
                     )}
                   </button>
-                  <span className={`text-[10px] tracking-tight transition-colors ${task.completed ? 'text-zinc-600 line-through' : 'text-zinc-300 group-hover:text-white'}`}>
+                  <span className={`text-[11px] transition-colors ${task.completed ? 'text-gray-500 line-through' : 'text-gray-200 group-hover:text-white'}`}>
                     {task.title}
                   </span>
                 </div>
-                <button className="opacity-0 group-hover:opacity-100 text-zinc-700 hover:text-zinc-400 transition-opacity">
-                  <MoreHorizontal className="w-2.5 h-2.5" />
+                <button className="opacity-0 group-hover:opacity-100 text-gray-600 hover:text-gray-400 transition-opacity">
+                  <MoreHorizontal className="w-3.5 h-3.5" />
                 </button>
 
                 {/* Neural Connector to next task if both checked */}
@@ -127,20 +124,20 @@ export const TaskList: React.FC<TaskListProps> = ({ tasks, onToggle, onAdd }) =>
         </AnimatePresence>
 
         {tasks.length === 0 && !isAdding && (
-          <div className="px-2 py-4 text-center text-[8px] uppercase tracking-tighter text-zinc-700">
-            Empty Dataset
+          <div className="px-2 py-4 text-center text-[10px] text-gray-600">
+            No active tasks linked.
           </div>
         )}
 
         {isAdding && (
-          <form onSubmit={handleSubmit} className="px-2 py-1.5 bg-indigo-500/5">
+          <form onSubmit={handleSubmit} className="px-2 py-2">
             <input
               type="text"
               autoFocus
               value={newTaskTitle}
               onChange={(e) => setNewTaskTitle(e.target.value)}
-              placeholder="Initialize task..."
-              className="w-full bg-transparent text-[10px] text-indigo-200 placeholder-zinc-700 focus:outline-none font-mono"
+              placeholder="New objective..."
+              className="w-full bg-transparent text-[11px] text-gray-300 placeholder-gray-600 focus:outline-none font-sans"
               onBlur={() => !newTaskTitle && setIsAdding(false)}
             />
           </form>

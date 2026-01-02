@@ -127,14 +127,14 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({
       w-full h-full
       bg-gradient-to-br from-zinc-900/40 via-zinc-900/30 to-zinc-950/40
       backdrop-blur-xl
-      rounded-lg
+      rounded-2xl
       shadow-[0_0_0_1px_rgba(255,255,255,0.02),0_8px_32px_rgba(0,0,0,0.32),0_16px_60px_rgba(0,0,0,0.28)]
       hover:shadow-[0_0_0_1px_rgba(255,255,255,0.03),0_8px_40px_rgba(0,0,0,0.36),0_20px_80px_rgba(0,0,0,0.32)]
       relative flex flex-col
       transition-all duration-700 ease-in-out
 
       /* Standard border (reverts to this when not running) */
-      border ${(!isRunning && !isFinished) ? 'border-white/[0.1]' : 'border-transparent'}
+      border ${(!isRunning && !isFinished) ? 'border-white/[0.08]' : 'border-transparent'}
 
       /* [UPDATED] Spectral Edge Glow Pseudo-element */
       /* Adds a VERY subtle pulsing Emerald glow when the session is running */
@@ -169,16 +169,17 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({
       after:absolute after:inset-0 after:rounded-2xl after:bg-gradient-to-br after:from-transparent after:via-transparent after:to-white/[0.01] after:pointer-events-none
     `}>
 
-      {/* Header: Matches Nodes style */}
+      {/* Header: Title bar aesthetic */}
       <div className="
-        px-2.5 py-1 
-        border-b border-white/[0.05] 
+        px-3 py-1.5 
+        border-b border-white/[0.08] 
         flex justify-between items-center 
-        bg-black/40
+        bg-gradient-to-r from-white/[0.03] to-white/[0.01]
         relative z-10 shrink-0
         backdrop-blur-sm
+        after:absolute after:inset-0 after:rounded-t-2xl after:bg-gradient-to-b after:from-white/[0.04] after:to-transparent after:pointer-events-none
       ">
-        <h3 className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Timer</h3>
+        <h3 className="text-[11px] font-medium text-gray-400 tracking-wide">AI Focus Timer</h3>
 
         {/* Status badge */}
         <div className={`
@@ -197,12 +198,12 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({
       </div>
 
       {/* Main Content Area */}
-      <div className="p-2 space-y-2 flex-1 flex flex-col relative z-10">
+      <div className="p-4 space-y-4 flex-1 flex flex-col relative z-10">
 
         {/* Timer Display */}
         <div className="flex flex-col items-center justify-center">
           <div className={`
-            text-xl font-mono font-medium tracking-tighter tabular-nums
+            text-3xl font-mono font-medium tracking-tighter tabular-nums
             drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]
             ${isFinished ? 'text-amber-400' : 'text-white'}
           `}>
