@@ -10,36 +10,35 @@ interface GoldVaultProps {
 
 export const GoldVault: React.FC<GoldVaultProps> = ({ progress = 0, barsToday = 0, totalBars = 0 }) => {
     return (
-        // Updated: Added max-w-[240px] and mx-auto for a tighter, compact width
-        <div className="w-full max-w-[240px] mx-auto h-full bg-zinc-950/20 backdrop-blur-xl border border-white/10 rounded-lg overflow-hidden shadow-2xl transition-all hover:shadow-[0_0_20px_-10px_rgba(212,175,55,0.3)] relative flex flex-col group/panel">
+        <div className="w-full h-full bg-zinc-900/40 backdrop-blur-md border border-white/5 rounded-2xl overflow-hidden shadow-2xl transition-all hover:shadow-[0_0_30px_-5px_rgba(0,0,0,0.5)] relative flex flex-col group/panel">
 
-            {/* Header - Updated padding and typography */}
-            <div className="px-2.5 py-1 border-b border-white/[0.05] flex justify-between items-center bg-black/40 relative z-10 shrink-0">
-                <div className="flex items-center gap-1.5">
-                    <Pickaxe className="w-2.5 h-2.5 text-[#D4AF37]" />
-                    <h3 className="text-[9px] font-bold uppercase tracking-widest text-zinc-500">Vault_Res</h3>
+            {/* Header */}
+            <div className="px-3 py-1.5 border-b border-white/[0.03] flex justify-between items-center bg-zinc-900/90 relative z-10 shrink-0">
+                <div className="flex items-center gap-2">
+                    <Pickaxe className="w-3.5 h-3.5 text-[#D4AF37]" />
+                    <h3 className="text-[11px] font-medium text-gray-400">Gold Vault</h3>
                 </div>
-                <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[#D4AF37] bg-white/[0.02] border border-white/[0.05]">
-                    <span className="text-[7px] font-bold tracking-tighter uppercase">
-                        {progress >= 100 ? '● READY' : '● MINING'}
+                <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[#D4AF37] bg-white/[0.02] border border-white/[0.05] shadow-sm">
+                    <span className="text-[9px] font-bold tracking-widest uppercase">
+                        {progress >= 100 ? '● COMPLETE' : '● EXTRACTING'}
                     </span>
                 </div>
             </div>
 
-            {/* Content - Updated px-2.5 for a slimmer feel */}
+            {/* Content */}
             <div className="relative z-10 flex-1 overflow-y-auto custom-scrollbar">
                 {/* Progress Section */}
-                <div className="px-2.5 py-1.5 hover:bg-white/[0.02] transition-all">
+                <div className="px-3 py-1.5 hover:bg-white/5 transition-all">
                     <div className="flex items-center justify-between mb-1">
-                        <span className="text-[8px] text-zinc-500 uppercase tracking-tighter font-medium">Batch_Load</span>
-                        <span className="text-[9px] font-mono font-medium text-[#D4AF37]">{Math.round(progress)}%</span>
+                        <span className="text-[10px] text-gray-400 uppercase tracking-tighter">Batch Progress</span>
+                        <span className="text-[10px] font-medium text-[#D4AF37]">{Math.round(progress)}%</span>
                     </div>
-                    <div className="h-0.5 w-full bg-white/[0.05] rounded-full overflow-hidden shadow-[inset_0_1px_2px_rgba(0,0,0,0.5)]">
+                    <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
                         <motion.div
                             initial={{ width: 0 }}
                             animate={{ width: `${progress}%` }}
                             transition={{ duration: 0.5, ease: "easeOut" }}
-                            className="h-full shadow-[0_0_8px_rgba(212,175,55,0.4)]"
+                            className="h-full"
                             style={{
                                 background: 'linear-gradient(90deg, #8B735B 0%, #D4AF37 100%)'
                             }}
@@ -47,55 +46,55 @@ export const GoldVault: React.FC<GoldVaultProps> = ({ progress = 0, barsToday = 
                     </div>
                 </div>
 
-                {/* Today's Yield - Updated spacing and bar width */}
-                <div className="px-2.5 py-1.5 hover:bg-white/[0.02] transition-all">
+                {/* Today's Yield */}
+                <div className="px-3 py-1.5 hover:bg-white/5 transition-all">
                     <div className="flex items-center justify-between mb-1">
-                        <div className="flex items-center gap-1.5">
-                            <Layers className="w-2.5 h-2.5 text-zinc-600" />
-                            <span className="text-[8px] text-zinc-500 uppercase tracking-tighter font-medium">Daily_Ext</span>
+                        <div className="flex items-center gap-2">
+                            <Layers className="w-3.5 h-3.5 text-gray-500" />
+                            <span className="text-[10px] text-gray-400 uppercase tracking-tighter">Today's Yield</span>
                         </div>
-                        <span className="text-[9px] font-bold text-zinc-300 tabular-nums tracking-tight">{barsToday} Bars</span>
+                        <span className="text-[10px] font-bold text-white tabular-nums tracking-widest">{barsToday} Bars</span>
                     </div>
                     {barsToday > 0 ? (
-                        <div className="flex h-0.5 items-center gap-0.5 overflow-hidden rounded bg-white/[0.02]">
+                        <div className="flex h-1 items-center gap-0.5 overflow-hidden rounded bg-white/[0.02]">
                             {Array.from({ length: Math.min(8, barsToday) }).map((_, i) => (
                                 <motion.div
                                     key={i}
                                     initial={{ opacity: 0, scaleX: 0 }}
                                     animate={{ opacity: 1, scaleX: 1 }}
                                     transition={{ delay: i * 0.05, duration: 0.3 }}
-                                    className="h-full flex-1 rounded-[0.5px]"
+                                    className="h-full flex-1 rounded-[1px]"
                                     style={{
                                         background: 'linear-gradient(180deg, #D4AF37 0%, #8B735B 100%)'
                                     }}
                                 />
                             ))}
                             {barsToday > 8 && (
-                                <span className="ml-1 text-[7px] text-[#D4AF37] font-bold">+{barsToday - 8}</span>
+                                <span className="ml-1 text-[9px] text-[#D4AF37]">+{barsToday - 8}</span>
                             )}
                         </div>
                     ) : (
-                        <div className="h-0.5 w-full rounded bg-white/[0.02]" />
+                        <div className="h-1 w-full rounded bg-white/[0.02]" />
                     )}
                 </div>
 
-                {/* Total Reserve - Ultra compact footer row */}
-                <div className="px-2.5 py-1 mt-1 border-t border-white/[0.03] hover:bg-white/[0.02] transition-all">
+                {/* Total Reserve */}
+                <div className="px-2 py-0.5 hover:bg-white/5 transition-all">
                     <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-1.5">
-                            <Coins className="w-2.5 h-2.5 text-zinc-700" />
-                            <span className="text-[9px] text-zinc-500 font-medium tracking-tight">Reserve</span>
+                        <div className="flex items-center gap-2">
+                            <Coins className="w-3 h-3 text-gray-500" />
+                            <span className="text-[11px] text-gray-400">Total Reserve</span>
                         </div>
-                        <div className="flex items-center gap-1.5">
+                        <div className="flex items-center gap-2">
                             <div className="flex gap-0.5">
                                 {Array.from({ length: 4 }).map((_, i) => (
                                     <div
                                         key={i}
-                                        className={`h-0.5 w-0.5 rounded-full ${totalBars > i * 10 ? 'bg-[#D4AF37] shadow-[0_0_3px_#D4AF37]' : 'bg-white/10'}`}
+                                        className={`h-1 w-1 rounded-full ${totalBars > i * 10 ? 'bg-[#D4AF37] shadow-[0_0_4px_#D4AF37]' : 'bg-white/10'}`}
                                     />
                                 ))}
                             </div>
-                            <span className="text-[10px] font-mono font-bold text-zinc-400">{totalBars}</span>
+                            <span className="text-[11px] font-medium text-gray-200">{totalBars}</span>
                         </div>
                     </div>
                 </div>
