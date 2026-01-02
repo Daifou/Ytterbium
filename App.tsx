@@ -22,7 +22,7 @@ import type { User } from '@supabase/supabase-js';
 import { useSubscription } from './hooks/useSubscription';
 
 const DEFAULT_DURATION = 25 * 60; // 25 min default
-const SCALE_FACTOR = 1.05; // Matches the transform: scale(1.05) in the JSX
+const SCALE_FACTOR = 1.0; // Reduced for professional compact look
 const GHOST_SESSION_KEY = 'ytterbium_ghost_session_id';
 
 const MotionDiv = motion.div as any;
@@ -133,6 +133,17 @@ const App: React.FC = () => {
     const initAuth = async () => {
       console.log("[App] initAuth starting...");
       setIsAuthLoading(true);
+
+      // Check if this is an OAuth callback
+      const urlParams = new URLSearchParams(window.location.search);
+      const isOAuthCallback = urlParams.get('authenticated') === 'true';
+
+      // Clean up the URL if it's an OAuth callback
+      if (isOAuthCallback) {
+        console.log("[App] OAuth callback detected, cleaning URL...");
+        window.history.replaceState({}, '', window.location.pathname);
+      }
+
       try {
         const user = await authService.getUser();
         console.log("[App] initAuth found user:", user?.email || 'none');
@@ -147,7 +158,8 @@ const App: React.FC = () => {
             return;
           }
 
-          console.log("[App] initAuth: Bypassing landing page (hasEntered = true)");
+          // If this is an OAuth callback or user is already authenticated, bypass landing page
+          console.log("[App] initAuth: User authenticated, setting hasEntered = true");
           setHasEntered(true);
 
           const activeSession = await databaseService.getCurrentSession(user.id);
@@ -162,7 +174,7 @@ const App: React.FC = () => {
             setInsight(`Welcome back. Resuming ${activeSession.type.toLowerCase()} session.`);
           }
 
-          // [NEW] Check for pending session immediately after confirming user
+          // [CRITICAL] Check for pending session immediately after confirming user
           const pendingSession = localStorage.getItem('pending_session');
           if (pendingSession) {
             console.log("[App] initAuth: Detected pending session. Triggering restoration...");
@@ -571,21 +583,40 @@ const App: React.FC = () => {
   const addTask = useCallback(async (title: string, overrideUserId?: string) => {
     console.log("[App] addTask invoked. Title:", title, "overrideUserId:", overrideUserId);
     const effectiveUserId = overrideUserId || currentUser?.id || null;
+    console.log("[App] effectiveUserId:", effectiveUserId);
 
     if (!effectiveUserId) {
+      console.log("[App] No user ID, adding task to local state only");
       const newTask = { id: Date.now().toString(), title, completed: false, priority: 'medium' as const };
-      setTasks(prev => [...prev, newTask]);
+      setTasks(prev => {
+        console.log("[App] Previous tasks:", prev);
+        const updated = [...prev, newTask];
+        console.log("[App] Updated tasks:", updated);
+        return updated;
+      });
+      console.log("[App] Local task added");
       return;
     }
 
-    const dbTask = await databaseService.createTask(effectiveUserId, {
-      title,
-      priority: 'medium',
-      session_id: currentSessionId || undefined,
-    });
+    try {
+      console.log("[App] User ID exists, creating task in database...");
+      const dbTask = await databaseService.createTask(effectiveUserId, {
+        title,
+        priority: 'medium',
+        session_id: currentSessionId || undefined,
+      });
 
-    if (dbTask) {
-      const newTask = databaseService.dbTaskToTask(dbTask);
+      if (dbTask) {
+        const newTask = databaseService.dbTaskToTask(dbTask);
+        setTasks(prev => [...prev, newTask]);
+        console.log("[App] Database task added to state");
+      } else {
+        throw new Error("Database returned null");
+      }
+    } catch (e) {
+      console.error("[App] Failed to create task in database, falling back to local state:", e);
+      // FALLBACK: Add to local state anyway so user sees it
+      const newTask = { id: Date.now().toString(), title, completed: false, priority: 'medium' as const };
       setTasks(prev => [...prev, newTask]);
     }
   }, [currentUser, currentSessionId]);
@@ -716,7 +747,7 @@ const App: React.FC = () => {
   }
 
   if (!hasEntered) {
-    return <LandingPage onEnter={(data: any) => {
+    return <LandingPage onEnter={async (data: any) => {
       setHasEntered(true);
       if (data) {
         const userId = data.user?.id || currentUser?.id;
@@ -731,7 +762,11 @@ const App: React.FC = () => {
         setInsight(data.insight);
 
         // Add the analyzed task with forced user ID to avoid state lag
-        addTask(data.task, userId);
+        // AWAIT the task creation to ensure it's in state before rendering
+        await addTask(data.task, userId);
+
+        // Force a small delay to ensure state propagates
+        await new Promise(resolve => setTimeout(resolve, 100));
 
         // Auto-start Timer
         setElapsed(0);
@@ -949,9 +984,10 @@ const App: React.FC = () => {
                 </svg>
 
                 {/* Main Dashboard Stacking Container */}
-                <div className="flex flex-col md:flex-row items-center justify-center gap-12 md:gap-0 pt-20 md:pt-0">
+                {/* Main Dashboard Stacking Container */}
+                <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-4 pt-20 md:pt-0">
                   {/* 1. Left Column: Contextual Tasks */}
-                  <div ref={tasksRef} className={`w-full max-w-[24rem] min-h-[13rem] relative z-20 transition-opacity duration-700 ${isFocusMode ? 'opacity-100 animate-in slide-in-from-left-8 fade-in' : 'opacity-0'}`}>
+                  <div ref={tasksRef} className={`w-full max-w-[14rem] h-fit relative z-20 transition-opacity duration-700 ${isFocusMode ? 'opacity-100 animate-in slide-in-from-left-8 fade-in' : 'opacity-0'}`}>
                     {/* Only render TaskList content when in Focus mode */}
                     {isFocusMode ? (
                       <TaskList tasks={tasks} onToggle={toggleTask} onAdd={addTask} />
@@ -961,10 +997,10 @@ const App: React.FC = () => {
                   </div>
 
                   {/* Connector 1 Placeholder - HIDDEN ON MOBILE */}
-                  {!isMobile && <div className="w-[32rem] relative z-0 pointer-events-none" />}
+                  {!isMobile && <div className="hidden" />}
 
                   {/* 2. Center Column: AI Optimized - RENDERED ALWAYS */}
-                  <div ref={timerRefDiv} className={`w-full max-w-[24rem] h-[15rem] relative z-30 transition-opacity duration-1000 ${isFocusMode ? 'opacity-100 animate-in zoom-in-95 fade-in' : 'opacity-0'} md:-ml-32`}>
+                  <div ref={timerRefDiv} className={`w-full max-w-[20rem] h-fit relative z-30 transition-opacity duration-1000 ${isFocusMode ? 'opacity-100 animate-in zoom-in-95 fade-in' : 'opacity-0'}`}>
                     {/* Only render FocusTimer content when in Focus mode */}
                     {isFocusMode ? (
                       <FocusTimer
@@ -984,10 +1020,10 @@ const App: React.FC = () => {
                   </div>
 
                   {/* Connector 2 Placeholder - HIDDEN ON MOBILE */}
-                  {!isMobile && <div className="w-[32rem] relative z-0 pointer-events-none" />}
+                  {!isMobile && <div className="hidden" />}
 
                   {/* 3. Right Column: Gold Vault - RENDERED ALWAYS */}
-                  <div ref={vaultRef} className={`w-full max-w-[24rem] h-[9.25rem] mt-0 md:mt-24 relative z-20 transition-opacity duration-700 ${isFocusMode ? 'opacity-100 animate-in slide-in-from-right-8 fade-in' : 'opacity-0'} md:-ml-32`}>
+                  <div ref={vaultRef} className={`w-full max-w-[14rem] h-fit relative z-20 transition-opacity duration-700 ${isFocusMode ? 'opacity-100 animate-in slide-in-from-right-8 fade-in' : 'opacity-0'}`}>
                     {/* Only render GoldVault content when in Focus mode */}
                     {isFocusMode ? (
                       <GoldVault

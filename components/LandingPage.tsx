@@ -102,7 +102,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
                 user: currentUser,
             });
         } else {
-            // Save session data to localStorage
+            // Save session data to localStorage for restoration after auth
             localStorage.setItem('pending_session', JSON.stringify({
                 task,
                 intensity: analysisResult.intensity,
@@ -110,7 +110,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
                 focusMode: analysisResult.focusMode,
             }));
 
-            // Show auth modal
+            // Show auth modal (task will be restored after successful login)
             setShowAuthModal(true);
         }
     };

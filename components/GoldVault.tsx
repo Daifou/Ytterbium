@@ -8,20 +8,19 @@ interface GoldVaultProps {
     totalBars: number;
 }
 
-export const GoldVault: React.FC<GoldVaultProps> = ({ progress, barsToday, totalBars }) => {
+export const GoldVault: React.FC<GoldVaultProps> = ({ progress = 0, barsToday = 0, totalBars = 0 }) => {
     return (
-        <div className="w-full h-full bg-zinc-900/40 backdrop-blur-md border border-white/5 rounded-xl overflow-hidden shadow-2xl transition-all hover:shadow-[0_0_30px_-5px_rgba(0,0,0,0.5)] relative flex flex-col group/panel">
+        <div className="w-full h-full bg-zinc-950/20 backdrop-blur-xl border border-white/10 rounded-lg overflow-hidden shadow-2xl transition-all hover:shadow-[0_0_20px_-10px_rgba(212,175,55,0.3)] relative flex flex-col group/panel">
 
-            {/* Header */}
-            <div className="px-3 py-1.5 border-b border-white/[0.03] flex justify-between items-center bg-zinc-900/90 relative z-10 shrink-0">
+            {/* Header - Matches Nodes style */}
+            <div className="px-2.5 py-1 border-b border-white/[0.05] flex justify-between items-center bg-black/40 relative z-10 shrink-0">
                 <div className="flex items-center gap-2">
-                    <Pickaxe className="w-3 h-3 text-[#D4AF37]" />
-                    <h3 className="text-[11px] font-medium text-gray-400">Gold Vault</h3>
+                    <Pickaxe className="w-2.5 h-2.5 text-zinc-500" />
+                    <h3 className="text-[9px] font-bold uppercase tracking-widest text-zinc-500">Reserve</h3>
                 </div>
-                <div className="text-gray-500 transition-colors flex items-center gap-1 rounded-full border border-[#D4AF37]/10 bg-[#D4AF37]/5 px-2 py-0.5">
-                    <div className="h-1 w-1 rounded-full bg-[#D4AF37] shadow-[0_0_4px_#D4AF37]" />
-                    <span className="text-[9px] font-medium text-[#D4AF37] uppercase">
-                        {progress >= 100 ? 'COMPLETE' : 'EXTRACTING'}
+                <div className="flex items-center gap-1.5 px-1.5 py-0.25 rounded-md text-zinc-500 border border-white/[0.05] shadow-sm">
+                    <span className="text-[8px] font-bold tracking-widest uppercase">
+                        {progress >= 100 ? '● SYNCED' : '● EXTRACT'}
                     </span>
                 </div>
             </div>
@@ -29,10 +28,10 @@ export const GoldVault: React.FC<GoldVaultProps> = ({ progress, barsToday, total
             {/* Content */}
             <div className="relative z-10 flex-1 overflow-y-auto custom-scrollbar">
                 {/* Progress Section */}
-                <div className="px-2 py-1.5 hover:bg-white/5 transition-all">
-                    <div className="flex items-center justify-between mb-1">
-                        <span className="text-[11px] text-gray-400">Batch Progress</span>
-                        <span className="text-[11px] font-medium text-[#D4AF37]">{Math.round(progress)}%</span>
+                <div className="px-2 py-[2px] min-h-[24px] hover:bg-white/[0.03] transition-all">
+                    <div className="flex items-center justify-between">
+                        <span className="text-[9px] text-zinc-500 uppercase tracking-tighter">Progress</span>
+                        <span className="text-[10px] font-medium text-zinc-300">{Math.round(progress)}%</span>
                     </div>
                     <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
                         <motion.div
@@ -48,13 +47,13 @@ export const GoldVault: React.FC<GoldVaultProps> = ({ progress, barsToday, total
                 </div>
 
                 {/* Today's Yield */}
-                <div className="px-2 py-1.5 hover:bg-white/5 transition-all">
-                    <div className="flex items-center justify-between mb-1">
+                <div className="px-2 py-[2px] min-h-[24px] hover:bg-white/[0.03] transition-all">
+                    <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                            <Layers className="w-3 h-3 text-gray-500" />
-                            <span className="text-[11px] text-gray-400">Today's Yield</span>
+                            <Layers className="w-2.5 h-2.5 text-zinc-600" />
+                            <span className="text-[9px] text-zinc-500 uppercase tracking-tighter">Yield</span>
                         </div>
-                        <span className="text-[11px] font-medium text-gray-200">{barsToday} Bars</span>
+                        <span className="text-[10px] font-bold text-zinc-300 tabular-nums tracking-widest">{barsToday} Bars</span>
                     </div>
                     {barsToday > 0 ? (
                         <div className="flex h-1 items-center gap-0.5 overflow-hidden rounded bg-white/[0.02]">
@@ -80,7 +79,7 @@ export const GoldVault: React.FC<GoldVaultProps> = ({ progress, barsToday, total
                 </div>
 
                 {/* Total Reserve */}
-                <div className="px-2 py-1.5 hover:bg-white/5 transition-all">
+                <div className="px-2 py-0.5 hover:bg-white/5 transition-all">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                             <Coins className="w-3 h-3 text-gray-500" />
