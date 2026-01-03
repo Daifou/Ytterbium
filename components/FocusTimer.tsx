@@ -50,6 +50,7 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({
 
   // Sync sliderValue when currentIntensity changes from parent (e.g., AI classification)
   React.useEffect(() => {
+    console.log("[FocusTimer] Syncing intensity from prop:", currentIntensity);
     setSliderValue(currentIntensity);
   }, [currentIntensity]);
 

@@ -194,8 +194,9 @@ const App: React.FC = () => {
               // [FIX] Trigger countdown instead of starting immediately
               setPendingStartUserId(user.id);
               setTimeout(() => {
+                console.log("[App] initAuth Restoration: setting countdown = 3");
                 setCountdownRemaining(3);
-              }, 400);
+              }, 1000);
             } catch (e) {
               console.error("[App] initAuth: Restoration failed", e);
             }
@@ -254,8 +255,9 @@ const App: React.FC = () => {
             // [FIX] Trigger countdown instead of starting immediately
             setPendingStartUserId(user.id);
             setTimeout(() => {
+              console.log("[App] onAuthStateChange Restoration: setting countdown = 3");
               setCountdownRemaining(3);
-            }, 400);
+            }, 1000);
           } catch (e) {
             console.error("[App] onAuthStateChange: Restoration failed", e);
           }
@@ -481,6 +483,7 @@ const App: React.FC = () => {
       return;
     }
 
+    console.log("[App] handleStart: status -> RUNNING, insight -> AI optimizing focus...");
     setCurrentMetrics(null);
     setStatus(SessionStatus.RUNNING);
     setInsight('AI optimizing focus...');
@@ -748,11 +751,13 @@ const App: React.FC = () => {
   // Countdown Timer for session start from landing page
   useEffect(() => {
     if (countdownRemaining !== null && countdownRemaining > 0) {
+      console.log(`[App] Countdown Tick: ${countdownRemaining}`);
       const timer = setTimeout(() => {
         setCountdownRemaining(prev => (prev !== null ? prev - 1 : null));
       }, 1000);
       return () => clearTimeout(timer);
     } else if (countdownRemaining === 0) {
+      console.log("[App] Countdown hit zero! Starting session...");
       setCountdownRemaining(null);
       // Use the stored user ID for timer start
       handleStart(pendingStartUserId || undefined);
@@ -795,8 +800,15 @@ const App: React.FC = () => {
         setPendingStartUserId(userId || null);
 
         // Start the countdown notification immediately
-        console.log("[App] onEnter: Starting countdown notification...");
-        setCountdownRemaining(3);
+        // [DEBUG] Log the transition
+        console.log("[App] onEnter: triggering dashboard and 3s countdown...");
+
+        // We use a slightly longer delay (600ms) to ensure the Dashboard 
+        // has finished its mount and entry animations before the notification pops.
+        setTimeout(() => {
+          console.log("[App] onEnter delayed effect: setting countdown = 3");
+          setCountdownRemaining(3);
+        }, 600);
 
         // Add the analyzed task in the "background" (but await it to be safe for state)
         await addTask(data.task, userId);
