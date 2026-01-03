@@ -130,11 +130,10 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({
     // Updated: Added max-w-[240px] and mx-auto to tighten width
     <div className={`
       w-full max-w-[240px] mx-auto h-full
-      bg-gradient-to-br from-zinc-900/40 via-zinc-900/30 to-zinc-950/40
+      bg-[#0f0f12]/60
       backdrop-blur-xl
       rounded-2xl
-      shadow-[0_0_0_1px_rgba(255,255,255,0.02),0_8px_32px_rgba(0,0,0,0.32),0_16px_60px_rgba(0,0,0,0.28)]
-      hover:shadow-[0_0_0_1px_rgba(255,255,255,0.03),0_8px_40px_rgba(0,0,0,0.36),0_20px_80px_rgba(0,0,0,0.32)]
+      shadow-[0_8px_32px_rgba(0,0,0,0.5)]
       relative flex flex-col
       transition-all duration-700 ease-in-out
 

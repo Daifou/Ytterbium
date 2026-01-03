@@ -909,7 +909,7 @@ const App: React.FC = () => {
           <AIOptimizedIndicator currentInsight={insight} />
 
           <main
-            className="flex-1 relative w-full h-full z-10 flex flex-col items-center justify-center md:pl-[72px]"
+            className="flex-1 relative w-full h-full z-10 flex flex-col items-center justify-center md:pl-[260px]"
             style={{ perspective: '1600px' }}
           >
             <AnimatePresence mode="wait">

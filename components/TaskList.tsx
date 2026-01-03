@@ -37,7 +37,7 @@ export const TaskList: React.FC<TaskListProps> = ({ tasks, onToggle, onAdd }) =>
   };
 
   return (
-    <div ref={containerRef} className="w-full h-full bg-zinc-900/40 backdrop-blur-md border border-white/5 rounded-2xl overflow-hidden shadow-2xl transition-all hover:shadow-[0_0_30px_-5px_rgba(0,0,0,0.5)] relative flex flex-col group/panel">
+    <div ref={containerRef} className="w-full h-full bg-[#0f0f12]/60 backdrop-blur-xl border border-white/[0.08] rounded-2xl overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.5)] transition-all hover:shadow-[0_12px_48px_rgba(0,0,0,0.6)] relative flex flex-col group/panel">
 
       {/* Energetic Link Layer - Abstract Neural Line */}
       <svg className="absolute top-0 left-4 w-4 h-full pointer-events-none z-0 opacity-30">

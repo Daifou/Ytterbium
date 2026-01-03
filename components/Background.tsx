@@ -90,12 +90,12 @@ export const Background: React.FC = () => {
   }, []);
 
   return (
-    <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden select-none bg-[#020204]"> {/* Darkened by ~10-15% from #09090b */}
+    <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden select-none bg-[#050505]">
 
       {/* Container for Grid + Parallax */}
       <MotionDiv
         style={{ x, y }}
-        className="absolute inset-[-50px] opacity-[0.12] transition-opacity duration-1000" // Reduced opacity slightly (from 0.15)
+        className="absolute inset-[-50px] opacity-[0.05] transition-opacity duration-1000"
         animate={{
           x: [0, 5, 0], // Slow drift
           y: [0, -5, 0]
