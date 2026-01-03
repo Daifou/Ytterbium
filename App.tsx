@@ -822,6 +822,19 @@ const App: React.FC = () => {
             console.log("[App] onEnter: setting shouldTriggerCountdown = true");
             setShouldTriggerCountdown(true);
 
+            // [FAILSAFE] In case the centralized useEffect misses the trigger due to 
+            // rapid state updates, we add a decoupled backup trigger after 2 seconds.
+            setTimeout(() => {
+              setShouldTriggerCountdown(prev => {
+                if (prev) {
+                  console.warn("[App] Failsafe: shouldTriggerCountdown was still true. Forcing trigger...");
+                  setCountdownRemaining(3);
+                  return false;
+                }
+                return prev;
+              });
+            }, 2500);
+
             await addTask(data.task, userId);
           }
         }} />
