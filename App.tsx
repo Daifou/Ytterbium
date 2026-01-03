@@ -880,11 +880,8 @@ const App: React.FC = () => {
         }} />
       ) : (
         <div
-          className={`h-screen bg-transparent text-gray-200 selection:bg-primary/30 relative overflow-hidden flex flex-col ${alienMode ? 'font-alien' : 'font-sans'}`}
+          className={`h-screen bg-[#050505] text-gray-200 selection:bg-primary/30 relative overflow-hidden flex flex-col ${alienMode ? 'font-alien' : 'font-sans'}`}
         >
-          <Background />
-          <CosmicParticles />
-          <QuantumRippleBackground zIndex={5} />
           <AIWhisper />
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-indigo-500/5 blur-[120px] rounded-full pointer-events-none z-0" />
           <Sidebar
@@ -912,7 +909,7 @@ const App: React.FC = () => {
           {/* This wrapper creates the floating card effect next to the sidebar */}
           <main
             className="
-                fixed md:top-4 md:right-4 md:bottom-4 md:left-[280px] 
+                fixed md:top-12 md:right-12 md:bottom-12 md:left-[300px] 
                 inset-0 md:inset-auto z-10 
                 flex flex-col items-center justify-center 
                 bg-[#0A0A0C] 
@@ -923,6 +920,9 @@ const App: React.FC = () => {
             "
             style={{ perspective: '1600px' }}
           >
+            <Background />
+            <CosmicParticles />
+            <QuantumRippleBackground zIndex={5} />
             <AnimatePresence mode="wait">
               <MotionDiv
                 key={mode}

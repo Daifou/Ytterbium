@@ -90,7 +90,7 @@ export const Background: React.FC = () => {
   }, []);
 
   return (
-    <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden select-none bg-[#050505]">
+    <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden select-none bg-[#0A0A0C]">
 
       {/* Container for Grid + Parallax */}
       <MotionDiv

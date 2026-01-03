@@ -59,7 +59,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentMode, setMode, alienMod
     <>
       {/* DESKTOP SIDEBAR - EXACT ROBIN LAYOUT */}
       {/* Width 280px to allow safe spacing. Background is transparent/minimal to sit on canvas. */}
-      <aside className="fixed left-0 top-0 h-full w-[280px] hidden md:flex flex-col z-50 pl-8 pr-4 py-8">
+      <aside className="fixed left-0 top-0 h-full w-[280px] hidden md:flex flex-col z-50 pl-8 pr-4 py-8 bg-[#050505]">
 
         {/* 1. TOP PROFILE (User Info) */}
         <div className="flex flex-col gap-1 mb-12">
