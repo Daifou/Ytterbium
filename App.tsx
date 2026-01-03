@@ -747,16 +747,20 @@ const App: React.FC = () => {
 
   // [NEW] Centralized effect to trigger the countdown after the dashboard mounts
   useEffect(() => {
-    if (hasEntered && shouldTriggerCountdown && countdownRemaining === null && status === SessionStatus.IDLE) {
-      console.log("[App] Auto-start transition detected. Triggering 3s countdown in 800ms...");
-      setShouldTriggerCountdown(false); // Reset the flag immediately
+    if (hasEntered && shouldTriggerCountdown) {
+      console.log("[App] DEBUG: shouldTriggerCountdown is TRUE", { status, countdownRemaining });
 
-      const t = setTimeout(() => {
-        console.log("[App] Triggering countdown now.");
-        setCountdownRemaining(3);
-      }, 800);
+      if (countdownRemaining === null) {
+        setShouldTriggerCountdown(false);
+        console.log("[App] Firing auto-start sequence...");
 
-      return () => clearTimeout(t);
+        const t = setTimeout(() => {
+          console.log("[App] Setting countdownRemaining = 3");
+          setCountdownRemaining(3);
+        }, 1000);
+
+        return () => clearTimeout(t);
+      }
     }
   }, [hasEntered, shouldTriggerCountdown, countdownRemaining, status]);
 
@@ -790,6 +794,7 @@ const App: React.FC = () => {
   // [URGENT] Move Notification to the VERY top level of the render to ensure visibility
   const CountdownOverlay = (
     <div style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 9999, pointerEvents: 'none' }}>
+      {countdownRemaining !== null && console.log("[App] Rendering CountdownOverlay with value:", countdownRemaining)}
       <AnimatePresence>
         {countdownRemaining !== null && (
           <div style={{ pointerEvents: 'auto' }}>
@@ -805,10 +810,11 @@ const App: React.FC = () => {
       <>
         {CountdownOverlay}
         <LandingPage onEnter={async (data: any) => {
+          console.log("[App] onEnter called from LandingPage with data:", !!data);
           setHasEntered(true);
           if (data) {
             const userId = data.user?.id || currentUser?.id;
-            console.log("[App] onEnter: userId =", userId, "intensity =", data.intensity);
+            console.log("[App] onEnter Processing: userId =", userId, "intensity =", data.intensity);
 
             if (data.user) setCurrentUser(data.user);
 
