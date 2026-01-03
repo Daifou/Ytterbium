@@ -942,7 +942,7 @@ const App: React.FC = () => {
                 <div className="w-full h-full flex items-start justify-center pt-32 relative">
                   <div
                     ref={layoutWrapperRef}
-                    className="flex flex-col md:flex-row justify-start items-center md:items-start w-full max-w-[1600px] px-4 relative"
+                    className="flex flex-col md:flex-row justify-center items-center w-full max-w-[1600px] px-4 relative"
                     style={{
                       transform: typeof window !== 'undefined' && window.innerWidth < 768 ? 'none' : `scale(${SCALE_FACTOR})`,
                       transformOrigin: 'center',

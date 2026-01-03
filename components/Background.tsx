@@ -114,7 +114,7 @@ export const Background: React.FC = () => {
               linear-gradient(to right, #e4e4e7 1px, transparent 1px),
               linear-gradient(to bottom, #e4e4e7 1px, transparent 1px)
             `,
-            backgroundSize: '60px 60px',
+            backgroundSize: '30px 30px',
             maskImage: 'radial-gradient(circle at 50% 50%, black 40%, transparent 100%)',
             WebkitMaskImage: 'radial-gradient(circle at 50% 50%, black 40%, transparent 100%)'
           }}
@@ -172,7 +172,7 @@ export const Background: React.FC = () => {
               linear-gradient(to right, #a1a1aa 1px, transparent 1px),
               linear-gradient(to bottom, #a1a1aa 1px, transparent 1px)
             `,
-            backgroundSize: '60px 60px',
+            backgroundSize: '30px 30px',
             scale: 1.005, // Very subtle scale for 1px warp
             maskImage: warpMask,
             WebkitMaskImage: warpMask,
