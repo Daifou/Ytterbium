@@ -828,6 +828,9 @@ const App: React.FC = () => {
             setStatus(SessionStatus.IDLE);
             setPendingStartUserId(userId || null);
 
+            // FIX: Explicitly trigger countdown here
+            setCountdownRemaining(3);
+
             console.log("[App] onEnter: setting shouldTriggerCountdown = true");
             setShouldTriggerCountdown(true);
 
