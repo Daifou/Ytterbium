@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { supabase } from '../services/supabase';
+import { supabase, getRedirectUrl } from '../services/supabase';
 import { User } from '@supabase/supabase-js';
 import { useSubscription } from '../hooks/useSubscription';
 
@@ -238,7 +238,7 @@ const PricingStep: React.FC<{ onComplete: () => void; onAuthRequired: () => void
 
         const { error } = await supabase.auth.signInWithOAuth({
             provider: 'google',
-            options: { redirectTo: window.location.origin }
+            options: { redirectTo: getRedirectUrl() }
         });
         if (error) console.error("Google Auth Error:", error);
     };
@@ -250,7 +250,7 @@ const PricingStep: React.FC<{ onComplete: () => void; onAuthRequired: () => void
         // Returning free user might be here.
         const { error } = await supabase.auth.signInWithOAuth({
             provider: 'google',
-            options: { redirectTo: window.location.origin }
+            options: { redirectTo: getRedirectUrl() }
         });
         if (error) console.error("Google Auth Error:", error);
     };

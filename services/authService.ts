@@ -1,4 +1,4 @@
-import { supabase } from './supabase';
+import { supabase, getRedirectUrl } from './supabase';
 import type { User, AuthError, Session } from '@supabase/supabase-js';
 
 export interface AuthResponse {
@@ -128,7 +128,7 @@ class AuthService {
     async resetPassword(email: string): Promise<{ error: AuthError | null }> {
         try {
             const { error } = await supabase.auth.resetPasswordForEmail(email, {
-                redirectTo: `${window.location.origin}/reset-password`,
+                redirectTo: `${getRedirectUrl()}/reset-password`,
             });
             return { error };
         } catch (err) {
@@ -158,7 +158,7 @@ class AuthService {
             const { error } = await supabase.auth.signInWithOAuth({
                 provider: 'google',
                 options: {
-                    redirectTo: `${window.location.origin}?authenticated=true`
+                    redirectTo: `${getRedirectUrl()}?authenticated=true`
                 }
             });
             return { error };

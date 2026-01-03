@@ -6,6 +6,7 @@ Your app is built with Vite and is ready for high-performance hosting. Here is h
 Ensure the following variables are set in your hosting provider's dashboard:
 - `VITE_SUPABASE_URL`: `https://ocgsabgeikikddgutthh.supabase.co`
 - `VITE_SUPABASE_ANON_KEY`: (Your project's secret anonymous key)
+- `VITE_SITE_URL`: `https://ytterbium.life` (Ensures redirects stay on your domain)
 
 ## 2. Recommended Hosting (Vercel)
 Vercel is the most seamless for Vite projects:
@@ -19,7 +20,9 @@ Vercel is the most seamless for Vite projects:
 Before going live, ensure you have:
 1. Applied `supabase_migration.sql` for the initial schema.
 2. Applied `ghost_migration.sql` for the anonymous session logic.
-3. Updated the **Auth Redirect URL** in the Supabase dashboard (`Authentication > URL Configuration`) to your new production domain.
+3. Updated the **URL Configuration** in the Supabase dashboard (`Authentication > URL Configuration`):
+   - **Site URL**: `https://ytterbium.life`
+   - **Redirect URLs**: Add `https://ytterbium.life/*`
 
 ## 4. Final Verification
 Once hosted, verify:

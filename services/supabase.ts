@@ -54,6 +54,18 @@ if (supabaseUrl && supabaseAnonKey) {
 
 export const supabase = client;
 
+/**
+ * Get the base URL for redirects, prioritizing environment variable for production.
+ * This ensures users stay on ytterbium.life instead of falling back to Vercel URLs.
+ */
+export const getRedirectUrl = (): string => {
+    const siteUrl = import.meta.env.VITE_SITE_URL;
+    if (siteUrl && siteUrl.startsWith('http')) {
+        return siteUrl.replace(/\/$/, ''); // Remove trailing slash if present
+    }
+    return window.location.origin;
+};
+
 // Database types for TypeScript
 export interface Database {
     public: {

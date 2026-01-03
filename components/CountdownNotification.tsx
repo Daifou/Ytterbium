@@ -18,7 +18,7 @@ export const CountdownNotification: React.FC<CountdownNotificationProps> = ({ co
                 damping: 25,
                 mass: 0.8
             }}
-            className="fixed top-6 left-1/2 -translate-x-1/2 z-[200]"
+            className="fixed top-6 left-1/2 -translate-x-1/2 z-[9999]"
         >
             {/* Mac-style Notification Card */}
             <div className="relative group">

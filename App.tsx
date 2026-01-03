@@ -1,4 +1,5 @@
 // App.tsx - WITH SUPABASE INTEGRATION
+// FORCE REBUILD: 2026-01-03T14:12:00Z
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sidebar } from './components/Sidebar';
@@ -151,6 +152,7 @@ const App: React.FC = () => {
       try {
         const user = await authService.getUser();
         console.log("[App] initAuth found user:", user?.email || 'none');
+        console.log("%c!!! CODE IS UPDATED - v1.2.2 !!!", "color: red; font-size: 20px; font-weight: bold;");
 
         if (user) {
           setCurrentUser(user);
@@ -162,9 +164,11 @@ const App: React.FC = () => {
             return;
           }
 
-          // If this is an OAuth callback or user is already authenticated, bypass landing page
-          console.log("[App] initAuth: User authenticated, setting hasEntered = true");
-          setHasEntered(true);
+          // [CHANGE] Do NOT automatically bypass landing page just because user is auth'd.
+          // We want them to enter a task/intention unless they have an ACTIVE session.
+          if (user) {
+            console.log("[App] User identity confirmed. Checking for active sessions...");
+          }
 
           const activeSession = await databaseService.getCurrentSession(user.id);
           if (activeSession) {
@@ -176,6 +180,7 @@ const App: React.FC = () => {
 
             if (activeSession.type === 'RELAX') setMode(AppMode.RELAX);
             setInsight(`Welcome back. Resuming ${activeSession.type.toLowerCase()} session.`);
+            setHasEntered(true); // ONLY bypass if there is an active session
           }
 
           // [CRITICAL] Check for pending session immediately after confirming user
@@ -193,6 +198,7 @@ const App: React.FC = () => {
               await addTask(sessionData.task, user.id);
 
               // [FIX] Store data and set trigger instead of manual setTimeout
+              setHasEntered(true); // CRITICAL: Must set this for useEffect to trigger
               setPendingStartUserId(user.id);
               setShouldTriggerCountdown(true);
               console.log("[App] initAuth Restoration: flags set for countdown trigger effect.");
@@ -237,8 +243,10 @@ const App: React.FC = () => {
         setCurrentSessionId(null);
         setTasks([]);
       } else {
-        console.log("[App] onAuthStateChange: User found:", user.email, "setting hasEntered = true");
-        setHasEntered(true);
+        // [FIX - 2026-01-03] REMOVED unconditional bypass. 
+        // We do NOT want to auto-enter just because user is logged in.
+        // We only auto-enter if there is a pending_session below.
+        console.log("[App] onAuthStateChange: User found:", user.email);
 
         // [NEW] Also check for pending session here in case initAuth was too early
         const pendingSession = localStorage.getItem('pending_session');
@@ -252,6 +260,7 @@ const App: React.FC = () => {
             addTask(sessionData.task, user.id);
 
             // [FIX] Store data and set trigger
+            setHasEntered(true); // CRITICAL: Must set this for useEffect to trigger
             setPendingStartUserId(user.id);
             setShouldTriggerCountdown(true);
             console.log("[App] onAuthStateChange Restoration: flags set for countdown trigger effect.");
@@ -469,8 +478,11 @@ const App: React.FC = () => {
 
   // Handler functions
   const handleStart = useCallback(async (overrideUserId?: string) => {
-    console.log("[App] handleStart invoked. overrideUserId:", overrideUserId);
+    console.log("[App] handleStart: Initiating focus sequence. overrideUserId:", overrideUserId);
+
+    // Use override user ID if provided (from landing page flows), otherwise default to current user
     const effectiveUserId = overrideUserId || currentUser?.id || null;
+    console.log("[App] handleStart: Effective user ID for session creation:", effectiveUserId);
 
     if (elapsed >= duration) {
       setElapsed(0);
@@ -746,23 +758,23 @@ const App: React.FC = () => {
   }, [currentUser, hasEntered]);
 
   // [NEW] Centralized effect to trigger the countdown after the dashboard mounts
+  // [NEW] Centralized effect to trigger the countdown after the dashboard mounts
+
+  // [RESTORED] Centralized effect to trigger the countdown after the dashboard mounts
   useEffect(() => {
     if (hasEntered && shouldTriggerCountdown) {
-      console.log("[App] DEBUG: shouldTriggerCountdown is TRUE", { status, countdownRemaining });
+      console.log("[App] DEBUG: shouldTriggerCountdown sequence engaged", { status, countdownRemaining });
 
-      if (countdownRemaining === null) {
-        setShouldTriggerCountdown(false);
-        console.log("[App] Firing auto-start sequence...");
+      // We wait 1.5 seconds to ensure all dashboard components (Sidebar, Background, etc) are painted
+      const t = setTimeout(() => {
+        console.log("[App] Firing auto-start sequence Now.");
+        setShouldTriggerCountdown(false); // Reset the flag
+        setCountdownRemaining(3);
+      }, 1500);
 
-        const t = setTimeout(() => {
-          console.log("[App] Setting countdownRemaining = 3");
-          setCountdownRemaining(3);
-        }, 1000);
-
-        return () => clearTimeout(t);
-      }
+      return () => clearTimeout(t);
     }
-  }, [hasEntered, shouldTriggerCountdown, countdownRemaining, status]);
+  }, [hasEntered, shouldTriggerCountdown, status]);
 
   // Countdown Timer for session start from landing page
   useEffect(() => {
@@ -792,378 +804,275 @@ const App: React.FC = () => {
   }
 
   // [URGENT] Move Notification to the VERY top level of the render to ensure visibility
-  const CountdownOverlay = (
-    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 9999, pointerEvents: 'none' }}>
-      {countdownRemaining !== null && console.log("[App] Rendering CountdownOverlay with value:", countdownRemaining)}
+
+  // [FIX] Consolidate rendering for cleaner state management and to prevent CountdownOverlay unmounting
+  return (
+    <>
+      <div className="fixed bottom-2 right-2 text-[8px] text-white/20 z-[9999] pointer-events-none uppercase tracking-widest">
+        Sync Engine v1.2.1-LISTENER
+      </div>
+      {/* ON-SCREEN DEBUGGER */}
+      <div className="fixed top-2 right-2 text-[10px] text-white/50 z-[9999] pointer-events-none font-mono">
+        Status: {status} | Count: {countdownRemaining ?? 'null'}
+      </div>
+
       <AnimatePresence>
         {countdownRemaining !== null && (
-          <div style={{ pointerEvents: 'auto' }}>
-            <CountdownNotification countdown={countdownRemaining} />
-          </div>
+          <CountdownNotification key="countdown-overlay" countdown={countdownRemaining} />
         )}
       </AnimatePresence>
-    </div>
-  );
 
-  if (!hasEntered) {
-    return (
-      <>
-        <div className="fixed bottom-2 right-2 text-[8px] text-white/20 z-[9999] pointer-events-none uppercase tracking-widest">
-          Sync Engine v1.0.7-BUILD
-        </div>
-        {CountdownOverlay}
+      {!hasEntered ? (
         <LandingPage onEnter={async (data: any) => {
-          console.log("[App] onEnter called from LandingPage with data:", !!data);
-          setHasEntered(true);
+          console.log("[App] onEnter called from LandingPage. Intensity:", data?.intensity);
+
           if (data) {
             const userId = data.user?.id || currentUser?.id;
-            console.log("[App] onEnter Processing: userId =", userId, "intensity =", data.intensity);
-
             if (data.user) setCurrentUser(data.user);
 
+            // 1. Prepare Environment
             handleIntensityChange(data.intensity);
             setInsight(data.insight);
             setElapsed(0);
             setCurrentMetrics(null);
             setStatus(SessionStatus.IDLE);
+            setCurrentSessionId(null); // Ensure a fresh session is created
             setPendingStartUserId(userId || null);
 
-            // FIX: Explicitly trigger countdown here
-            setCountdownRemaining(3);
+            // 2. Set Entry State
+            setHasEntered(true);
 
-            console.log("[App] onEnter: setting shouldTriggerCountdown = true");
+            // 3. Trigger Countdown via the restored global listener
+            console.log("[App] onEnter: Setting trigger flag.");
             setShouldTriggerCountdown(true);
 
-            // [FAILSAFE] In case the centralized useEffect misses the trigger due to 
-            // rapid state updates, we add a decoupled backup trigger after 2 seconds.
-            setTimeout(() => {
-              setShouldTriggerCountdown(prev => {
-                if (prev) {
-                  console.warn("[App] Failsafe: shouldTriggerCountdown was still true. Forcing trigger...");
-                  setCountdownRemaining(3);
-                  return false;
-                }
-                return prev;
-              });
-            }, 2500);
-
             await addTask(data.task, userId);
+          } else {
+            // No task data, but still trigger countdown for manual start
+            console.log("[App] onEnter: No task data, but triggering countdown anyway.");
+            setHasEntered(true);
+            setElapsed(0);
+            setCurrentMetrics(null);
+            setStatus(SessionStatus.IDLE);
+            setCurrentSessionId(null);
+            setShouldTriggerCountdown(true);
           }
         }} />
-      </>
-    );
-  }
+      ) : (
+        <div
+          className={`h-screen bg-transparent text-gray-200 selection:bg-primary/30 relative overflow-hidden flex flex-col ${alienMode ? 'font-alien' : 'font-sans'}`}
+        >
+          <Background />
+          <CosmicParticles />
+          <QuantumRippleBackground zIndex={5} />
+          <AIWhisper />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-indigo-500/5 blur-[120px] rounded-full pointer-events-none z-0" />
+          <Sidebar
+            currentMode={mode}
+            setMode={setMode}
+            alienMode={alienMode}
+            toggleAlienMode={() => setAlienMode(!alienMode)}
+            onSignOut={handleSignOut}
+            user={currentUser}
+          />
 
-
-
-
-  const path1Start = getPathCoords(path1, 'start');
-  const path1End = getPathCoords(path1, 'end');
-  const path2Start = getPathCoords(path2, 'start');
-  const path2End = getPathCoords(path2, 'end');
-
-  // Pre-calculate focus mode boolean for usage in the layout below
-  // (Moved higher to avoid use-before-define)
-
-
-  return (
-    <div
-      className={`h-screen bg-transparent text-gray-200 selection:bg-primary/30 relative overflow-hidden flex flex-col ${alienMode ? 'font-alien' : 'font-sans'}`}
-    >
-      {/* VERSION TAG FOR DEBUGGING */}
-      <div className="fixed bottom-2 right-2 text-[8px] text-white/20 z-[9999] pointer-events-none uppercase tracking-widest">
-        Sync Engine v1.0.7-BUILD
-      </div>
-      {CountdownOverlay}
-      <Background />
-      <CosmicParticles />
-      <QuantumRippleBackground zIndex={5} />
-      <AIWhisper />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-indigo-500/5 blur-[120px] rounded-full pointer-events-none z-0" />
-      <Sidebar
-        currentMode={mode}
-        setMode={setMode}
-        alienMode={alienMode}
-        toggleAlienMode={() => setAlienMode(!alienMode)}
-        onSignOut={handleSignOut}
-        user={currentUser}
-      />
-
-      <AuthModal
-        isOpen={isAuthModalOpen}
-        onClose={() => setIsAuthModalOpen(false)}
-        onSuccess={(user) => {
-          setCurrentUser(user);
-          setIsAuthModalOpen(false);
-          // Handshake logic is triggered by onAuthStateChange in useEffect
-        }}
-        intensityMode={insight.includes('Intensity') ? insight.split(' threshold')[0].replace('🚨 ', '') : 'Focus Mode'}
-      />
-
-      {/* AI Optimized Indicator displayed globally in the top right */}
-      <AIOptimizedIndicator currentInsight={insight} />
-
-      {/* Main Content Area */}
-      <main
-        className="flex-1 relative w-full h-full z-10 flex flex-col items-center justify-center md:pl-72"
-        style={{ perspective: '1600px' }}
-      >
-        <AnimatePresence mode="wait">
-          <MotionDiv
-            key={mode}
-            initial={{ opacity: 0, rotateY: 3, scale: 0.96, filter: 'blur(8px)', y: 15 }}
-            animate={{
-              opacity: 1,
-              rotateY: 0,
-              scale: 1,
-              filter: 'blur(0px)',
-              y: 0,
-              transition: {
-                duration: 0.7,
-                ease: [0.22, 1, 0.36, 1],
-                y: { type: 'spring', stiffness: 100, damping: 20 }
-              }
+          <AuthModal
+            isOpen={isAuthModalOpen}
+            onClose={() => setIsAuthModalOpen(false)}
+            onSuccess={(user) => {
+              setCurrentUser(user);
+              setIsAuthModalOpen(false);
             }}
-            exit={{
-              opacity: 0,
-              rotateY: -3,
-              scale: 0.96,
-              filter: 'blur(8px)',
-              y: -15,
-              transition: { duration: 0.5, ease: "easeIn" }
-            }}
-            className="w-full max-w-[1800px] px-6 relative flex flex-col items-center justify-center"
-            style={{ transformStyle: 'preserve-3d' }}
+            intensityMode={insight.includes('Intensity') ? insight.split(' threshold')[0].replace('🚨 ', '') : 'Focus Mode'}
+          />
+
+          <AIOptimizedIndicator currentInsight={insight} />
+
+          <main
+            className="flex-1 relative w-full h-full z-10 flex flex-col items-center justify-center md:pl-72"
+            style={{ perspective: '1600px' }}
           >
-
-            <div className="w-full h-full flex items-start justify-center pt-32 relative">
-              {/* Scaled Layout Wrapper - SVG Parent */}
-              <div
-                ref={layoutWrapperRef}
-                className="flex flex-col md:flex-row justify-start items-center md:items-start w-full max-w-[1600px] px-4 relative"
-                style={{
-                  transform: typeof window !== 'undefined' && window.innerWidth < 768 ? 'none' : `scale(${SCALE_FACTOR})`,
-                  transformOrigin: 'center',
-                  // CRITICAL FIX: Hide when not in FOCUS mode, but KEEP IT IN THE DOM
-                  opacity: isFocusMode ? 1 : 0,
-                  pointerEvents: isFocusMode ? 'auto' : 'none',
-                  transition: 'opacity 0.5s ease-out'
+            <AnimatePresence mode="wait">
+              <MotionDiv
+                key={mode}
+                initial={{ opacity: 0, rotateY: 3, scale: 0.96, filter: 'blur(8px)', y: 15 }}
+                animate={{
+                  opacity: 1,
+                  rotateY: 0,
+                  scale: 1,
+                  filter: 'blur(0px)',
+                  y: 0,
+                  transition: {
+                    duration: 0.7,
+                    ease: [0.22, 1, 0.36, 1],
+                    y: { type: 'spring', stiffness: 100, damping: 20 }
+                  }
                 }}
+                exit={{
+                  opacity: 0,
+                  rotateY: -3,
+                  scale: 0.96,
+                  filter: 'blur(8px)',
+                  y: -15,
+                  transition: { duration: 0.5, ease: "easeIn" }
+                }}
+                className="w-full max-w-[1800px] px-6 relative flex flex-col items-center justify-center"
+                style={{ transformStyle: 'preserve-3d' }}
               >
-                {/* PRO DATABASE CONNECTION LINES - SVG REMAINS ALWAYS RENDERED */}
-                <svg
-                  className="absolute top-0 left-0 w-full h-full overflow-visible pointer-events-none z-40 hidden md:block"
-                  style={{ isolation: 'isolate' }}
-                >
-                  <defs>
-                    {/* High visibility gradient */}
-                    <linearGradient id="connection-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                      <stop offset="0%" stopColor="#818cf8" stopOpacity="0.2" />
-                      <stop offset="50%" stopColor="#c7d2fe" stopOpacity="0.4" />
-                      <stop offset="100%" stopColor="#818cf8" stopOpacity="0.2" />
-                    </linearGradient>
-
-                    {/* Subtle Glow */}
-                    <filter id="subtle-glow" x="-50%" y="-50%" width="200%" height="200%">
-                      <feGaussianBlur in="SourceGraphic" stdDeviation="1" result="blur" />
-                      <feMerge>
-                        <feMergeNode in="blur" />
-                        <feMergeNode in="SourceGraphic" />
-                      </feMerge>
-                    </filter>
-
-                    {/* Perfect Geometric Arrow */}
-                    <marker
-                      id="arrow-head"
-                      markerWidth="4"
-                      markerHeight="4"
-                      refX="3.5"
-                      refY="2"
-                      orient="auto"
+                <div className="w-full h-full flex items-start justify-center pt-32 relative">
+                  <div
+                    ref={layoutWrapperRef}
+                    className="flex flex-col md:flex-row justify-start items-center md:items-start w-full max-w-[1600px] px-4 relative"
+                    style={{
+                      transform: typeof window !== 'undefined' && window.innerWidth < 768 ? 'none' : `scale(${SCALE_FACTOR})`,
+                      transformOrigin: 'center',
+                      opacity: isFocusMode ? 1 : 0,
+                      pointerEvents: isFocusMode ? 'auto' : 'none',
+                      transition: 'opacity 0.5s ease-out'
+                    }}
+                  >
+                    <svg
+                      className="absolute top-0 left-0 w-full h-full overflow-visible pointer-events-none z-40 hidden md:block"
+                      style={{ isolation: 'isolate' }}
                     >
-                      <path
-                        d="M0,0 L4,2 L0,4 Z"
-                        fill="#c7d2fe"
-                      />
-                    </marker>
-                  </defs>
+                      <defs>
+                        <linearGradient id="connection-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                          <stop offset="0%" stopColor="#818cf8" stopOpacity="0.2" />
+                          <stop offset="50%" stopColor="#c7d2fe" stopOpacity="0.4" />
+                          <stop offset="100%" stopColor="#818cf8" stopOpacity="0.2" />
+                        </linearGradient>
+                        <filter id="subtle-glow" x="-50%" y="-50%" width="200%" height="200%">
+                          <feGaussianBlur in="SourceGraphic" stdDeviation="1" result="blur" />
+                          <feMerge>
+                            <feMergeNode in="blur" />
+                            <feMergeNode in="SourceGraphic" />
+                          </feMerge>
+                        </filter>
+                        <marker
+                          id="arrow-head"
+                          markerWidth="4"
+                          markerHeight="4"
+                          refX="3.5"
+                          refY="2"
+                          orient="auto"
+                        >
+                          <path d="M0,0 L4,2 L0,4 Z" fill="#c7d2fe" />
+                        </marker>
+                      </defs>
 
-                  {/* CONNECTION 1: Tasks → Timer */}
-                  {path1 && (
-                    <g filter="url(#subtle-glow)">
-                      <path
-                        d={path1}
-                        fill="none"
-                        stroke="url(#connection-gradient)"
-                        strokeWidth="1.5"
-                        strokeDasharray="8 8"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        markerEnd="url(#arrow-head)"
-                        className="transition-all duration-500"
-                      >
-                        <animate
-                          attributeName="stroke-dashoffset"
-                          from="0"
-                          to="8"
-                          dur="3s"
-                          repeatCount="indefinite"
-                          calcMode="linear"
-                        />
-                      </path>
-                      <circle r="1.5" fill="#e0e7ff" fillOpacity="0.8">
-                        <animateMotion
-                          dur="4s"
-                          repeatCount="indefinite"
-                          path={path1}
-                          rotate="auto"
-                        />
-                      </circle>
-                    </g>
-                  )}
+                      {path1 && (
+                        <g filter="url(#subtle-glow)">
+                          <path
+                            d={path1}
+                            fill="none"
+                            stroke="url(#connection-gradient)"
+                            strokeWidth="1.5"
+                            strokeDasharray="8 8"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            markerEnd="url(#arrow-head)"
+                            className="transition-all duration-500"
+                          >
+                            <animate attributeName="stroke-dashoffset" from="0" to="8" dur="3s" repeatCount="indefinite" calcMode="linear" />
+                          </path>
+                          <circle r="1.5" fill="#e0e7ff" fillOpacity="0.8">
+                            <animateMotion dur="4s" repeatCount="indefinite" path={path1} rotate="auto" />
+                          </circle>
+                        </g>
+                      )}
 
-                  {/* CONNECTION 2: Timer → Vault */}
-                  {path2 && (
-                    <g filter="url(#subtle-glow)">
-                      <path
-                        d={path2}
-                        fill="none"
-                        stroke="url(#connection-gradient)"
-                        strokeWidth="1.5"
-                        strokeDasharray="8 8"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        markerEnd="url(#arrow-head)"
-                        className="transition-all duration-500"
-                      >
-                        <animate
-                          attributeName="stroke-dashoffset"
-                          from="0"
-                          to="8"
-                          dur="3s"
-                          repeatCount="indefinite"
-                          calcMode="linear"
-                          begin="1s"
-                        />
-                      </path>
-                      <circle r="1.5" fill="#e0e7ff" fillOpacity="0.8">
-                        <animateMotion
-                          dur="4s"
-                          repeatCount="indefinite"
-                          path={path2}
-                          rotate="auto"
-                          begin="2s"
-                        />
-                      </circle>
-                    </g>
-                  )}
-                </svg>
+                      {path2 && (
+                        <g filter="url(#subtle-glow)">
+                          <path
+                            d={path2}
+                            fill="none"
+                            stroke="url(#connection-gradient)"
+                            strokeWidth="1.5"
+                            strokeDasharray="8 8"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            markerEnd="url(#arrow-head)"
+                            className="transition-all duration-500"
+                          >
+                            <animate attributeName="stroke-dashoffset" from="0" to="8" dur="3s" repeatCount="indefinite" calcMode="linear" begin="1s" />
+                          </path>
+                          <circle r="1.5" fill="#e0e7ff" fillOpacity="0.8">
+                            <animateMotion dur="4s" repeatCount="indefinite" path={path2} rotate="auto" begin="2s" />
+                          </circle>
+                        </g>
+                      )}
+                    </svg>
 
-                {/* Main Dashboard Stacking Container */}
-                {/* Main Dashboard Stacking Container */}
-                <div className="flex flex-col md:flex-row items-center justify-center gap-12 md:gap-0 pt-20 md:pt-0">
-                  {/* 1. Left Column: Contextual Tasks */}
-                  <div ref={tasksRef} className={`w-full max-w-[16rem] min-h-[13rem] relative z-20 transition-opacity duration-700 ${isFocusMode ? 'opacity-100 animate-in slide-in-from-left-8 fade-in' : 'opacity-0'}`}>
-                    {/* Only render TaskList content when in Focus mode */}
-                    {isFocusMode ? (
-                      <TaskList tasks={tasks} onToggle={toggleTask} onAdd={addTask} />
-                    ) : (
-                      <div className="h-full w-full" /> // Placeholder to maintain ref size/position
-                    )}
-                  </div>
+                    <div className="flex flex-col md:flex-row items-center justify-center gap-12 md:gap-0 pt-20 md:pt-0">
+                      <div ref={tasksRef} className={`w-full max-w-[16rem] min-h-[13rem] relative z-20 transition-opacity duration-700 ${isFocusMode ? 'opacity-100 animate-in slide-in-from-left-8 fade-in' : 'opacity-0'}`}>
+                        {isFocusMode ? <TaskList tasks={tasks} onToggle={toggleTask} onAdd={addTask} /> : <div className="h-full w-full" />}
+                      </div>
 
-                  {/* Connector 1 Placeholder - HIDDEN ON MOBILE */}
-                  {!isMobile && <div className="w-[16rem] relative z-0 pointer-events-none" />}
+                      {!isMobile && <div className="w-[16rem] relative z-0 pointer-events-none" />}
 
-                  {/* 2. Center Column: AI Optimized - RENDERED ALWAYS */}
-                  <div ref={timerRefDiv} className={`w-full max-w-[20rem] h-[15rem] relative z-30 transition-opacity duration-1000 ${isFocusMode ? 'opacity-100 animate-in zoom-in-95 fade-in' : 'opacity-0'}`}>
-                    {/* Only render FocusTimer content when in Focus mode */}
-                    {isFocusMode ? (
-                      <FocusTimer
-                        status={status}
-                        elapsedSeconds={elapsed}
-                        durationSeconds={duration}
-                        fatigueScore={currentMetrics?.fatigueScore || 0}
-                        onStart={() => handleStart()}
-                        onPause={handlePause}
-                        onReset={handleReset}
-                        onIntensityChange={handleIntensityChange}
-                        currentIntensity={focusIntensity}
-                        currentInsight={insight}
-                      />
-                    ) : (
-                      <div className="h-full w-full" /> // Placeholder to maintain ref size/position
-                    )}
-                  </div>
+                      <div ref={timerRefDiv} className={`w-full max-w-[20rem] h-[15rem] relative z-30 transition-opacity duration-1000 ${isFocusMode ? 'opacity-100 animate-in zoom-in-95 fade-in' : 'opacity-0'}`}>
+                        {isFocusMode ? (
+                          <FocusTimer
+                            status={status}
+                            elapsedSeconds={elapsed}
+                            durationSeconds={duration}
+                            fatigueScore={currentMetrics?.fatigueScore || 0}
+                            onStart={() => handleStart()}
+                            onPause={handlePause}
+                            onReset={handleReset}
+                            onIntensityChange={handleIntensityChange}
+                            currentIntensity={focusIntensity}
+                            currentInsight={insight}
+                          />
+                        ) : <div className="h-full w-full" />}
+                      </div>
 
-                  {/* Connector 2 Placeholder - HIDDEN ON MOBILE */}
-                  {!isMobile && <div className="w-[16rem] relative z-0 pointer-events-none" />}
+                      {!isMobile && <div className="w-[16rem] relative z-0 pointer-events-none" />}
 
-                  {/* 3. Right Column: Gold Vault - RENDERED ALWAYS */}
-                  <div ref={vaultRef} className={`w-full max-w-[16rem] h-[9.25rem] mt-0 md:mt-24 relative z-20 transition-opacity duration-700 ${isFocusMode ? 'opacity-100 animate-in slide-in-from-right-8 fade-in' : 'opacity-0'}`}>
-                    {/* Only render GoldVault content when in Focus mode */}
-                    {isFocusMode ? (
-                      <GoldVault
-                        progress={(elapsed / duration) * 100}
-                        barsToday={barsToday}
-                        totalBars={totalBars}
-                      />
-                    ) : (
-                      <div className="h-full w-full" /> // Placeholder to maintain ref size/position
-                    )}
+                      <div ref={vaultRef} className={`w-full max-w-[16rem] h-[9.25rem] mt-0 md:mt-24 relative z-20 transition-opacity duration-700 ${isFocusMode ? 'opacity-100 animate-in slide-in-from-right-8 fade-in' : 'opacity-0'}`}>
+                        {isFocusMode ? (
+                          <GoldVault
+                            progress={(elapsed / duration) * 100}
+                            barsToday={barsToday}
+                            totalBars={totalBars}
+                          />
+                        ) : <div className="h-full w-full" />}
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>
 
-            {/* 2. ABSOLUTE CONTAINER for STATS and RELAX modes to overlay FocusLayout 
-                 without causing layout shifts. 
-            */}
-            <div className={`absolute inset-0 flex items-center justify-center pointer-events-${mode !== AppMode.FOCUS ? 'auto' : 'none'}`}>
+                <div className={`absolute inset-0 flex items-center justify-center pointer-events-${mode !== AppMode.FOCUS ? 'auto' : 'none'}`}>
+                  <AnimatePresence>
+                    {mode === AppMode.RELAX && (
+                      <MotionDiv key="relax" initial={{ opacity: 0, y: 50, scale: 0.9 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -50, scale: 0.9 }} transition={{ duration: 0.5 }}>
+                        <RelaxTimer
+                          onComplete={() => {
+                            setMode(AppMode.FOCUS);
+                            setStatus(SessionStatus.IDLE);
+                            setElapsed(0);
+                            setDuration(DEFAULT_DURATION);
+                          }}
+                          fatigueScore={currentMetrics?.fatigueScore || 50}
+                        />
+                      </MotionDiv>
+                    )}
+                  </AnimatePresence>
 
-              <AnimatePresence>
-                {mode === AppMode.RELAX && (
-                  <MotionDiv
-                    key="relax"
-                    initial={{ opacity: 0, y: 50, scale: 0.9 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: -50, scale: 0.9 }}
-                    transition={{ duration: 0.5 }}
-                  >
-                    <RelaxTimer
-                      onComplete={() => {
-                        setMode(AppMode.FOCUS);
-                        setStatus(SessionStatus.IDLE);
-                        setElapsed(0);
-                        setDuration(DEFAULT_DURATION);
-                      }}
-                      fatigueScore={currentMetrics?.fatigueScore || 50}
-                    />
-                  </MotionDiv>
-                )}
-              </AnimatePresence>
-
-
-              <AnimatePresence>
-                {mode === AppMode.STATS && (
-                  <MotionDiv
-                    key="stats"
-                    initial={{ opacity: 0, y: 50, scale: 0.9 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: -50, scale: 0.9 }}
-                    transition={{ duration: 0.5 }}
-                  >
-                    <StatsView metricsHistory={metricsHistory} />
-                  </MotionDiv>
-                )}
-              </AnimatePresence>
-
-            </div>
-
-          </MotionDiv>
-        </AnimatePresence>
-      </main>
-    </div >
+                  <AnimatePresence>
+                    {mode === AppMode.STATS && (
+                      <MotionDiv key="stats" initial={{ opacity: 0, y: 50, scale: 0.9 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -50, scale: 0.9 }} transition={{ duration: 0.5 }}>
+                        <StatsView metricsHistory={metricsHistory} />
+                      </MotionDiv>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </MotionDiv>
+            </AnimatePresence>
+          </main>
+        </div>
+      )}
+    </>
   );
 };
 

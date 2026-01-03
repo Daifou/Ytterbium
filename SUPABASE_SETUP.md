@@ -38,7 +38,15 @@ You should see a success message indicating all tables, policies, and triggers w
    - "Users can create their own tasks"
    - etc.
 
-## Step 5: Test Authentication
+## Step 5: URL Configuration (Production)
+
+To ensure redirects work correctly on your custom domain (`ytterbium.life`):
+1. Go to **Authentication** → **URL Configuration**
+2. Set **Site URL** to `https://ytterbium.life`
+3. In **Redirect URLs** (Allow List), add `https://ytterbium.life/**` (the double stars are important!)
+4. Click **Save**
+
+## Step 6: Test Authentication
 
 1. Run your development server: `npm run dev`
 2. Open the app in your browser
