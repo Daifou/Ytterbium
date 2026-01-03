@@ -789,11 +789,15 @@ const App: React.FC = () => {
 
   // [URGENT] Move Notification to the VERY top level of the render to ensure visibility
   const CountdownOverlay = (
-    <AnimatePresence>
-      {countdownRemaining !== null && (
-        <CountdownNotification countdown={countdownRemaining} />
-      )}
-    </AnimatePresence>
+    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 9999, pointerEvents: 'none' }}>
+      <AnimatePresence>
+        {countdownRemaining !== null && (
+          <div style={{ pointerEvents: 'auto' }}>
+            <CountdownNotification countdown={countdownRemaining} />
+          </div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 
   if (!hasEntered) {

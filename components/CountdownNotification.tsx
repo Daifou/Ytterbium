@@ -6,6 +6,7 @@ interface CountdownNotificationProps {
 }
 
 export const CountdownNotification: React.FC<CountdownNotificationProps> = ({ countdown }) => {
+    console.log("[CountdownNotification] rendering with countdown:", countdown);
     return (
         <motion.div
             initial={{ y: -100, opacity: 0, scale: 0.9 }}

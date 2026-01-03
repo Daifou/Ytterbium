@@ -1,12 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Play, Pause, Square, Clock, Zap, Activity, Gauge, Target, Sparkles } from 'lucide-react';
-
-export enum SessionStatus {
-  IDLE = 'IDLE',
-  RUNNING = 'RUNNING',
-  PAUSED = 'PAUSED'
-}
+import { SessionStatus } from '../types';
 
 interface FocusTimerProps {
   status: SessionStatus;
