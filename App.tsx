@@ -787,39 +787,42 @@ const App: React.FC = () => {
     );
   }
 
+  // [URGENT] Move Notification to the VERY top level of the render to ensure visibility
+  const CountdownOverlay = (
+    <AnimatePresence>
+      {countdownRemaining !== null && (
+        <CountdownNotification countdown={countdownRemaining} />
+      )}
+    </AnimatePresence>
+  );
+
   if (!hasEntered) {
-    return <LandingPage onEnter={async (data: any) => {
-      setHasEntered(true);
-      if (data) {
-        const userId = data.user?.id || currentUser?.id;
-        console.log("[App] onEnter: userId =", userId, "data.intensity =", data.intensity);
+    return (
+      <>
+        {CountdownOverlay}
+        <LandingPage onEnter={async (data: any) => {
+          setHasEntered(true);
+          if (data) {
+            const userId = data.user?.id || currentUser?.id;
+            console.log("[App] onEnter: userId =", userId, "intensity =", data.intensity);
 
-        // Set current user if provided
-        if (data.user) {
-          setCurrentUser(data.user);
-        }
+            if (data.user) setCurrentUser(data.user);
 
-        // Apply AI settings - this sets the focus intensity from AI classification
-        handleIntensityChange(data.intensity);
-        setInsight(data.insight);
+            handleIntensityChange(data.intensity);
+            setInsight(data.insight);
+            setElapsed(0);
+            setCurrentMetrics(null);
+            setStatus(SessionStatus.IDLE);
+            setPendingStartUserId(userId || null);
 
-        // Prepare for Auto-start Timer
-        setElapsed(0);
-        setCurrentMetrics(null);
-        setStatus(SessionStatus.IDLE);
+            console.log("[App] onEnter: setting shouldTriggerCountdown = true");
+            setShouldTriggerCountdown(true);
 
-        // Store the user ID for when countdown finishes
-        setPendingStartUserId(userId || null);
-
-        // [NEW] Set the trigger flag. The centralized useEffect will handle the rest
-        // as soon as the state reflects that the user has entered the dashboard.
-        console.log("[App] onEnter: setting trigger flag for countdown...");
-        setShouldTriggerCountdown(true);
-
-        // Add the analyzed task in the "background" (but await it to be safe for state)
-        await addTask(data.task, userId);
-      }
-    }} />;
+            await addTask(data.task, userId);
+          }
+        }} />
+      </>
+    );
   }
 
 
@@ -838,9 +841,7 @@ const App: React.FC = () => {
     <div
       className={`h-screen bg-transparent text-gray-200 selection:bg-primary/30 relative overflow-hidden flex flex-col ${alienMode ? 'font-alien' : 'font-sans'}`}
     >
-
-
-      {/* Background System and Sidebar */}
+      {CountdownOverlay}
       <Background />
       <CosmicParticles />
       <QuantumRippleBackground zIndex={5} />
@@ -868,13 +869,6 @@ const App: React.FC = () => {
 
       {/* AI Optimized Indicator displayed globally in the top right */}
       <AIOptimizedIndicator currentInsight={insight} />
-
-      {/* Countdown Notification - Mac-style Preparation Alert */}
-      <AnimatePresence>
-        {countdownRemaining !== null && (
-          <CountdownNotification countdown={countdownRemaining} />
-        )}
-      </AnimatePresence>
 
       {/* Main Content Area */}
       <main
