@@ -94,6 +94,7 @@ const App: React.FC = () => {
   const [insight, setInsight] = useState('Initializing quantum focus systems...');
   const [countdownRemaining, setCountdownRemaining] = useState<number | null>(null);
   const [pendingStartUserId, setPendingStartUserId] = useState<string | null>(null);
+  const [shouldTriggerCountdown, setShouldTriggerCountdown] = useState(false); // [NEW] Centralized trigger flag
 
   // Layout Refs
   const tasksRef = useRef<HTMLDivElement>(null);
@@ -191,12 +192,10 @@ const App: React.FC = () => {
 
               await addTask(sessionData.task, user.id);
 
-              // [FIX] Trigger countdown instead of starting immediately
+              // [FIX] Store data and set trigger instead of manual setTimeout
               setPendingStartUserId(user.id);
-              setTimeout(() => {
-                console.log("[App] initAuth Restoration: setting countdown = 3");
-                setCountdownRemaining(3);
-              }, 1000);
+              setShouldTriggerCountdown(true);
+              console.log("[App] initAuth Restoration: flags set for countdown trigger effect.");
             } catch (e) {
               console.error("[App] initAuth: Restoration failed", e);
             }
@@ -252,12 +251,10 @@ const App: React.FC = () => {
             setInsight(sessionData.insight);
             addTask(sessionData.task, user.id);
 
-            // [FIX] Trigger countdown instead of starting immediately
+            // [FIX] Store data and set trigger
             setPendingStartUserId(user.id);
-            setTimeout(() => {
-              console.log("[App] onAuthStateChange Restoration: setting countdown = 3");
-              setCountdownRemaining(3);
-            }, 1000);
+            setShouldTriggerCountdown(true);
+            console.log("[App] onAuthStateChange Restoration: flags set for countdown trigger effect.");
           } catch (e) {
             console.error("[App] onAuthStateChange: Restoration failed", e);
           }
@@ -748,6 +745,21 @@ const App: React.FC = () => {
     // Primary restoration logic moved to initAuth and onAuthStateChange
   }, [currentUser, hasEntered]);
 
+  // [NEW] Centralized effect to trigger the countdown after the dashboard mounts
+  useEffect(() => {
+    if (hasEntered && shouldTriggerCountdown && countdownRemaining === null && status === SessionStatus.IDLE) {
+      console.log("[App] Auto-start transition detected. Triggering 3s countdown in 800ms...");
+      setShouldTriggerCountdown(false); // Reset the flag immediately
+
+      const t = setTimeout(() => {
+        console.log("[App] Triggering countdown now.");
+        setCountdownRemaining(3);
+      }, 800);
+
+      return () => clearTimeout(t);
+    }
+  }, [hasEntered, shouldTriggerCountdown, countdownRemaining, status]);
+
   // Countdown Timer for session start from landing page
   useEffect(() => {
     if (countdownRemaining !== null && countdownRemaining > 0) {
@@ -799,16 +811,10 @@ const App: React.FC = () => {
         // Store the user ID for when countdown finishes
         setPendingStartUserId(userId || null);
 
-        // Start the countdown notification immediately
-        // [DEBUG] Log the transition
-        console.log("[App] onEnter: triggering dashboard and 3s countdown...");
-
-        // We use a slightly longer delay (600ms) to ensure the Dashboard 
-        // has finished its mount and entry animations before the notification pops.
-        setTimeout(() => {
-          console.log("[App] onEnter delayed effect: setting countdown = 3");
-          setCountdownRemaining(3);
-        }, 600);
+        // [NEW] Set the trigger flag. The centralized useEffect will handle the rest
+        // as soon as the state reflects that the user has entered the dashboard.
+        console.log("[App] onEnter: setting trigger flag for countdown...");
+        setShouldTriggerCountdown(true);
 
         // Add the analyzed task in the "background" (but await it to be safe for state)
         await addTask(data.task, userId);
