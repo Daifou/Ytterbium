@@ -20,6 +20,8 @@ import { authService } from './services/authService';
 import { databaseService } from './services/databaseService';
 import { AuthModal } from './components/AuthModal';
 import { CountdownNotification } from './components/CountdownNotification';
+import { MacNotification } from './components/MacNotification';
+import { Moon } from 'lucide-react';
 import type { User } from '@supabase/supabase-js';
 import { useSubscription } from './hooks/useSubscription';
 
@@ -96,6 +98,11 @@ const App: React.FC = () => {
   const [countdownRemaining, setCountdownRemaining] = useState<number | null>(null);
   const [pendingStartUserId, setPendingStartUserId] = useState<string | null>(null);
   const [shouldTriggerCountdown, setShouldTriggerCountdown] = useState(false); // [NEW] Centralized trigger flag
+  const [notification, setNotification] = useState<{
+    title: string;
+    message: string;
+    action?: { label: string; onClick: () => void };
+  } | null>(null);
 
   // Layout Refs
   const tasksRef = useRef<HTMLDivElement>(null);
@@ -392,6 +399,19 @@ const App: React.FC = () => {
           // Message when biometric fatigue is detected
           setInsight(`🚨 Critical Fatigue Detected (${score}%). Session paused based on Intensity ${focusIntensity}/10 threshold of ${criticalThreshold}%.`);
         }
+
+        // [NEW] Trigger Mac-style notification for Relax exercises
+        setNotification({
+          title: "Recovery Recommended",
+          message: "High cognitive load detected. Restore your focus with a guided relaxation session.",
+          action: {
+            label: "Open Relax Mode",
+            onClick: () => {
+              setMode(AppMode.RELAX);
+              setNotification(null);
+            }
+          }
+        });
 
         // AUTH WALL: Trigger modal on auto-pause if not logged in
         if (!currentUser) {
@@ -889,7 +909,7 @@ const App: React.FC = () => {
           <AIOptimizedIndicator currentInsight={insight} />
 
           <main
-            className="flex-1 relative w-full h-full z-10 flex flex-col items-center justify-center md:pl-72"
+            className="flex-1 relative w-full h-full z-10 flex flex-col items-center justify-center md:pl-[72px]"
             style={{ perspective: '1600px' }}
           >
             <AnimatePresence mode="wait">
@@ -1072,6 +1092,14 @@ const App: React.FC = () => {
           </main>
         </div>
       )}
+      <MacNotification
+        isVisible={!!notification}
+        title={notification?.title || ''}
+        message={notification?.message || ''}
+        icon={<Moon className="w-5 h-5 text-indigo-300" />}
+        onClose={() => setNotification(null)}
+        action={notification?.action}
+      />
     </>
   );
 };
