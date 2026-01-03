@@ -18,6 +18,7 @@ import { AIOptimizedIndicator } from './components/AIOptimizedIndicator';
 import { authService } from './services/authService';
 import { databaseService } from './services/databaseService';
 import { AuthModal } from './components/AuthModal';
+import { CountdownNotification } from './components/CountdownNotification';
 import type { User } from '@supabase/supabase-js';
 import { useSubscription } from './hooks/useSubscription';
 
@@ -91,6 +92,7 @@ const App: React.FC = () => {
   const [currentMetrics, setCurrentMetrics] = useState<FatigueMetrics | null>(null);
   const [metricsHistory, setMetricsHistory] = useState<FatigueMetrics[]>([]);
   const [insight, setInsight] = useState('Initializing quantum focus systems...');
+  const [countdownRemaining, setCountdownRemaining] = useState<number | null>(null);
 
   // Layout Refs
   const tasksRef = useRef<HTMLDivElement>(null);
@@ -737,6 +739,19 @@ const App: React.FC = () => {
     // Primary restoration logic moved to initAuth and onAuthStateChange
   }, [currentUser, hasEntered]);
 
+  // Countdown Timer for session start from landing page
+  useEffect(() => {
+    if (countdownRemaining !== null && countdownRemaining > 0) {
+      const timer = setTimeout(() => {
+        setCountdownRemaining(prev => (prev !== null ? prev - 1 : null));
+      }, 1000);
+      return () => clearTimeout(timer);
+    } else if (countdownRemaining === 0) {
+      setCountdownRemaining(null);
+      handleStart();
+    }
+  }, [countdownRemaining, handleStart]);
+
   if (isAuthLoading) {
     return (
       <div className="min-h-screen bg-[#09090b] flex flex-col items-center justify-center space-y-4">
@@ -774,8 +789,8 @@ const App: React.FC = () => {
         setStatus(SessionStatus.IDLE);
 
         setTimeout(() => {
-          handleStart(userId);
-        }, 1200);
+          setCountdownRemaining(3);
+        }, 800);
       }
     }} />;
   }
@@ -827,6 +842,13 @@ const App: React.FC = () => {
       {/* AI Optimized Indicator displayed globally in the top right */}
       <AIOptimizedIndicator currentInsight={insight} />
 
+      {/* Countdown Notification - Mac-style Preparation Alert */}
+      <AnimatePresence>
+        {countdownRemaining !== null && (
+          <CountdownNotification countdown={countdownRemaining} />
+        )}
+      </AnimatePresence>
+
       {/* Main Content Area */}
       <main
         className="flex-1 relative w-full h-full z-10 flex flex-col items-center justify-center md:pl-72"
@@ -864,7 +886,7 @@ const App: React.FC = () => {
               {/* Scaled Layout Wrapper - SVG Parent */}
               <div
                 ref={layoutWrapperRef}
-                className="flex flex-col md:flex-row justify-start items-center md:items-start w-full max-w-[1600px] px-4 md:-ml-48 relative"
+                className="flex flex-col md:flex-row justify-start items-center md:items-start w-full max-w-[1600px] px-4 relative"
                 style={{
                   transform: typeof window !== 'undefined' && window.innerWidth < 768 ? 'none' : `scale(${SCALE_FACTOR})`,
                   transformOrigin: 'center',
@@ -997,10 +1019,10 @@ const App: React.FC = () => {
                   </div>
 
                   {/* Connector 1 Placeholder - HIDDEN ON MOBILE */}
-                  {!isMobile && <div className="w-[12rem] relative z-0 pointer-events-none" />}
+                  {!isMobile && <div className="w-[16rem] relative z-0 pointer-events-none" />}
 
                   {/* 2. Center Column: AI Optimized - RENDERED ALWAYS */}
-                  <div ref={timerRefDiv} className={`w-full max-w-[20rem] h-[15rem] relative z-30 transition-opacity duration-1000 ${isFocusMode ? 'opacity-100 animate-in zoom-in-95 fade-in' : 'opacity-0'} md:-ml-32`}>
+                  <div ref={timerRefDiv} className={`w-full max-w-[20rem] h-[15rem] relative z-30 transition-opacity duration-1000 ${isFocusMode ? 'opacity-100 animate-in zoom-in-95 fade-in' : 'opacity-0'}`}>
                     {/* Only render FocusTimer content when in Focus mode */}
                     {isFocusMode ? (
                       <FocusTimer
@@ -1020,10 +1042,10 @@ const App: React.FC = () => {
                   </div>
 
                   {/* Connector 2 Placeholder - HIDDEN ON MOBILE */}
-                  {!isMobile && <div className="w-[12rem] relative z-0 pointer-events-none" />}
+                  {!isMobile && <div className="w-[16rem] relative z-0 pointer-events-none" />}
 
                   {/* 3. Right Column: Gold Vault - RENDERED ALWAYS */}
-                  <div ref={vaultRef} className={`w-full max-w-[16rem] h-[9.25rem] mt-0 md:mt-24 relative z-20 transition-opacity duration-700 ${isFocusMode ? 'opacity-100 animate-in slide-in-from-right-8 fade-in' : 'opacity-0'} md:-ml-32`}>
+                  <div ref={vaultRef} className={`w-full max-w-[16rem] h-[9.25rem] mt-0 md:mt-24 relative z-20 transition-opacity duration-700 ${isFocusMode ? 'opacity-100 animate-in slide-in-from-right-8 fade-in' : 'opacity-0'}`}>
                     {/* Only render GoldVault content when in Focus mode */}
                     {isFocusMode ? (
                       <GoldVault
