@@ -808,6 +808,9 @@ const App: React.FC = () => {
   if (!hasEntered) {
     return (
       <>
+        <div className="fixed bottom-2 right-2 text-[8px] text-white/20 z-[9999] pointer-events-none uppercase tracking-widest">
+          Sync Engine v1.0.7-BUILD
+        </div>
         {CountdownOverlay}
         <LandingPage onEnter={async (data: any) => {
           console.log("[App] onEnter called from LandingPage with data:", !!data);
@@ -864,6 +867,10 @@ const App: React.FC = () => {
     <div
       className={`h-screen bg-transparent text-gray-200 selection:bg-primary/30 relative overflow-hidden flex flex-col ${alienMode ? 'font-alien' : 'font-sans'}`}
     >
+      {/* VERSION TAG FOR DEBUGGING */}
+      <div className="fixed bottom-2 right-2 text-[8px] text-white/20 z-[9999] pointer-events-none uppercase tracking-widest">
+        Sync Engine v1.0.7-BUILD
+      </div>
       {CountdownOverlay}
       <Background />
       <CosmicParticles />
