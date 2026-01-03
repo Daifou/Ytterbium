@@ -908,8 +908,19 @@ const App: React.FC = () => {
 
           <AIOptimizedIndicator currentInsight={insight} />
 
+          {/* MAIN CONTENT - FLOATING CARD LAYOUT */}
+          {/* This wrapper creates the floating card effect next to the sidebar */}
           <main
-            className="flex-1 relative w-full h-full z-10 flex flex-col items-center justify-center md:pl-[260px]"
+            className="
+                fixed md:top-4 md:right-4 md:bottom-4 md:left-[280px] 
+                inset-0 md:inset-auto z-10 
+                flex flex-col items-center justify-center 
+                bg-[#0A0A0C] 
+                md:rounded-[32px] 
+                md:border md:border-white/5 
+                overflow-hidden
+                shadow-2xl
+            "
             style={{ perspective: '1600px' }}
           >
             <AnimatePresence mode="wait">
