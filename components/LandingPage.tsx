@@ -153,7 +153,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
                                 animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
                                 exit={{ opacity: 0, scale: 0.98, filter: 'blur(8px)' }}
                                 transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                                className="relative z-10 w-full max-w-5xl px-6"
+                                className="relative z-10 w-full max-w-3xl px-6"
                             >
                                 {/* Headline */}
                                 <motion.div
@@ -162,18 +162,21 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
                                     transition={{ delay: 0.2 }}
                                     className="text-center mb-10"
                                 >
-                                    <h1 className="flex flex-col">
-                                        <span className="text-4xl md:text-[6rem] font-black text-zinc-50 tracking-tighter uppercase font-tight leading-[0.9] mb-6">
-                                            A neural and physical <br /> guard.
+                                    <h1 className="flex flex-col gap-0 mb-6">
+                                        <span className="text-4xl md:text-[84px] font-black text-white tracking-tighter uppercase leading-[0.9]">
+                                            A neural and physical
                                         </span>
-                                        <span className="block text-base md:text-lg text-zinc-400 max-w-xl mx-auto leading-relaxed font-light tracking-[0.02em] font-sans opacity-90">
+                                        <span className="text-4xl md:text-[84px] font-black text-white tracking-tighter uppercase leading-[0.9]">
+                                            guard.
+                                        </span>
+                                        <p className="mt-8 text-base md:text-lg text-zinc-400 max-w-2xl mx-auto leading-relaxed font-light tracking-wide opacity-80">
                                             For your eyes, posture, and cognitive health. Detect burnout and <br className="hidden md:block" /> calibrate your biology to work smarter.
-                                        </span>
+                                        </p>
                                     </h1>
                                 </motion.div>
 
                                 {/* Input Container */}
-                                <div className="relative group max-w-2xl mx-auto">
+                                <div className="relative group">
                                     <div className="relative bg-[#18181b] border border-zinc-800 rounded-2xl md:rounded-[36px] overflow-hidden shadow-2xl">
                                         <form
                                             onSubmit={(e) => {
