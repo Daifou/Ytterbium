@@ -13,6 +13,7 @@ interface FocusTimerProps {
   elapsedSeconds: number;
   durationSeconds: number;
   fatigueScore: number;
+  currentIntensity: number; // Added prop
   onStart: () => void;
   onPause: () => void;
   onReset: () => void;
@@ -38,13 +39,20 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({
   elapsedSeconds,
   durationSeconds,
   fatigueScore,
+  currentIntensity,
   onStart,
   onPause,
   onReset,
   onIntensityChange,
   currentInsight,
 }) => {
-  const [sliderValue, setSliderValue] = useState(5);
+  const [sliderValue, setSliderValue] = useState(currentIntensity);
+
+  // Sync sliderValue when currentIntensity changes from parent (e.g., AI classification)
+  React.useEffect(() => {
+    setSliderValue(currentIntensity);
+  }, [currentIntensity]);
+
   // Get the current label based on the slider value
   const { label: intensityLabel, color: intensityColor } = getIntensityLabel(sliderValue);
 

@@ -93,6 +93,7 @@ const App: React.FC = () => {
   const [metricsHistory, setMetricsHistory] = useState<FatigueMetrics[]>([]);
   const [insight, setInsight] = useState('Initializing quantum focus systems...');
   const [countdownRemaining, setCountdownRemaining] = useState<number | null>(null);
+  const [pendingStartUserId, setPendingStartUserId] = useState<string | null>(null);
 
   // Layout Refs
   const tasksRef = useRef<HTMLDivElement>(null);
@@ -190,9 +191,11 @@ const App: React.FC = () => {
 
               await addTask(sessionData.task, user.id);
 
+              // [FIX] Trigger countdown instead of starting immediately
+              setPendingStartUserId(user.id);
               setTimeout(() => {
-                handleStart(user.id);
-              }, 800);
+                setCountdownRemaining(3);
+              }, 400);
             } catch (e) {
               console.error("[App] initAuth: Restoration failed", e);
             }
@@ -247,9 +250,12 @@ const App: React.FC = () => {
             handleIntensityChange(sessionData.intensity);
             setInsight(sessionData.insight);
             addTask(sessionData.task, user.id);
+
+            // [FIX] Trigger countdown instead of starting immediately
+            setPendingStartUserId(user.id);
             setTimeout(() => {
-              handleStart(user.id);
-            }, 800);
+              setCountdownRemaining(3);
+            }, 400);
           } catch (e) {
             console.error("[App] onAuthStateChange: Restoration failed", e);
           }
@@ -748,9 +754,12 @@ const App: React.FC = () => {
       return () => clearTimeout(timer);
     } else if (countdownRemaining === 0) {
       setCountdownRemaining(null);
-      handleStart();
+      // Use the stored user ID for timer start
+      handleStart(pendingStartUserId || undefined);
+      // Clear the pending user ID after starting
+      setPendingStartUserId(null);
     }
-  }, [countdownRemaining, handleStart]);
+  }, [countdownRemaining, handleStart, pendingStartUserId]);
 
   if (isAuthLoading) {
     return (
@@ -766,31 +775,31 @@ const App: React.FC = () => {
       setHasEntered(true);
       if (data) {
         const userId = data.user?.id || currentUser?.id;
+        console.log("[App] onEnter: userId =", userId, "data.intensity =", data.intensity);
 
         // Set current user if provided
         if (data.user) {
           setCurrentUser(data.user);
         }
 
-        // Apply AI settings
+        // Apply AI settings - this sets the focus intensity from AI classification
         handleIntensityChange(data.intensity);
         setInsight(data.insight);
 
-        // Add the analyzed task with forced user ID to avoid state lag
-        // AWAIT the task creation to ensure it's in state before rendering
-        await addTask(data.task, userId);
-
-        // Force a small delay to ensure state propagates
-        await new Promise(resolve => setTimeout(resolve, 100));
-
-        // Auto-start Timer
+        // Prepare for Auto-start Timer
         setElapsed(0);
         setCurrentMetrics(null);
         setStatus(SessionStatus.IDLE);
 
-        setTimeout(() => {
-          setCountdownRemaining(3);
-        }, 800);
+        // Store the user ID for when countdown finishes
+        setPendingStartUserId(userId || null);
+
+        // Start the countdown notification immediately
+        console.log("[App] onEnter: Starting countdown notification...");
+        setCountdownRemaining(3);
+
+        // Add the analyzed task in the "background" (but await it to be safe for state)
+        await addTask(data.task, userId);
       }
     }} />;
   }
@@ -1030,10 +1039,11 @@ const App: React.FC = () => {
                         elapsedSeconds={elapsed}
                         durationSeconds={duration}
                         fatigueScore={currentMetrics?.fatigueScore || 0}
-                        onStart={handleStart}
+                        onStart={() => handleStart()}
                         onPause={handlePause}
                         onReset={handleReset}
                         onIntensityChange={handleIntensityChange}
+                        currentIntensity={focusIntensity}
                         currentInsight={insight}
                       />
                     ) : (
