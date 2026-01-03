@@ -831,10 +831,6 @@ const App: React.FC = () => {
       <div className="fixed bottom-2 right-2 text-[8px] text-white/20 z-[9999] pointer-events-none uppercase tracking-widest">
         Sync Engine v1.2.1-LISTENER
       </div>
-      {/* ON-SCREEN DEBUGGER */}
-      <div className="fixed top-2 right-2 text-[10px] text-white/50 z-[9999] pointer-events-none font-mono">
-        Status: {status} | Count: {countdownRemaining ?? 'null'}
-      </div>
 
       <AnimatePresence>
         {countdownRemaining !== null && (
@@ -903,7 +899,6 @@ const App: React.FC = () => {
             intensityMode={insight.includes('Intensity') ? insight.split(' threshold')[0].replace('🚨 ', '') : 'Focus Mode'}
           />
 
-          <AIOptimizedIndicator currentInsight={insight} />
 
           {/* MAIN CONTENT - FLOATING CARD LAYOUT */}
           {/* This wrapper creates the floating card effect next to the sidebar */}
@@ -920,6 +915,7 @@ const App: React.FC = () => {
             "
             style={{ perspective: '1600px' }}
           >
+            <AIOptimizedIndicator currentInsight={insight} />
             <Background />
             <CosmicParticles />
             <QuantumRippleBackground zIndex={5} />
