@@ -164,11 +164,11 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
                                     className="text-center mb-10"
                                 >
                                     <h1 className="flex flex-col gap-0 mb-6">
-                                        <span className="text-4xl md:text-[84px] font-black text-white tracking-tighter uppercase leading-[0.9]">
-                                            A neural and physical
+                                        <span className="text-4xl md:text-[72px] font-black text-white tracking-tighter uppercase leading-[0.9]">
+                                            A neural and
                                         </span>
-                                        <span className="text-4xl md:text-[84px] font-black text-white tracking-tighter uppercase leading-[0.9]">
-                                            guard.
+                                        <span className="text-4xl md:text-[72px] font-black text-white tracking-tighter uppercase leading-[0.9]">
+                                            physical guard.
                                         </span>
                                         <p className="mt-8 text-base md:text-lg text-zinc-400 max-w-2xl mx-auto leading-relaxed font-light tracking-wide opacity-80">
                                             For your eyes, posture, and cognitive health. Detect burnout and <br className="hidden md:block" /> calibrate your biology to work smarter.
