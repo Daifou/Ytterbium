@@ -9,6 +9,8 @@ import {
 } from 'lucide-react';
 import type { User } from '@supabase/supabase-js';
 
+import { SystemReadout } from './SystemReadout';
+
 interface SidebarProps {
   currentMode: AppMode;
   setMode: (mode: AppMode) => void;
@@ -16,15 +18,17 @@ interface SidebarProps {
   toggleAlienMode: () => void;
   onSignOut: () => void;
   user: User | null;
+  focusIntensity: number; // [NEW] Prop for Readout
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ currentMode, setMode, onSignOut, user }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ currentMode, setMode, onSignOut, user, focusIntensity }) => {
 
   const isFocus = currentMode === AppMode.FOCUS;
   const isRelax = currentMode === AppMode.RELAX;
   const isStats = currentMode === AppMode.STATS;
 
   const userInitials = user?.email ? user.email.substring(0, 2).toUpperCase() : 'Y';
+  // Use specific name requested if possible, or fallback to user email
   const displayEmail = 'daifalla.harkat2003';
   const displayRole = 'Design Engineer';
 
@@ -48,12 +52,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentMode, setMode, onSignOu
 
           {/* Segmented Toggle (Focus/Relax) */}
           <div className="bg-[#111] p-1 rounded-full border border-white/[0.05] relative flex h-10">
-            <motion.div
-              initial={false}
-              animate={{ x: isFocus ? 0 : '100%' }}
-              transition={{ type: "spring", stiffness: 400, damping: 30 }}
-              className="absolute top-1 bottom-1 left-1 w-[calc(50%-4px)] bg-[#1A1A1A] rounded-full border border-white/[0.08] shadow-lg"
-            />
+            <AnimatePresence mode="wait">
+              <motion.div
+                initial={false}
+                animate={{ x: isFocus ? 0 : '100%' }}
+                transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                className="absolute top-1 bottom-1 left-1 w-[calc(50%-4px)] bg-[#1A1A1A] rounded-full border border-white/[0.08] shadow-lg"
+              />
+            </AnimatePresence>
 
             <button
               onClick={() => setMode(AppMode.FOCUS)}
@@ -72,7 +78,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentMode, setMode, onSignOu
             </button>
           </div>
 
-          {/* Insights Section */}
+          {/* Insights Menu Item */}
           <div className="flex flex-col">
             <button
               onClick={() => setMode(AppMode.STATS)}
@@ -86,6 +92,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentMode, setMode, onSignOu
               {isStats && <div className="ml-auto w-1 h-1 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.6)]" />}
             </button>
           </div>
+
+          {/* [NEW] SYSTEM READOUT INTERSTITIAL */}
+          <SystemReadout mode={currentMode} intensity={focusIntensity} />
 
         </div>
 

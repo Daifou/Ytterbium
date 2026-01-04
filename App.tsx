@@ -887,6 +887,7 @@ const App: React.FC = () => {
             toggleAlienMode={() => setAlienMode(!alienMode)}
             onSignOut={handleSignOut}
             user={currentUser}
+            focusIntensity={focusIntensity}
           />
 
           <AuthModal
