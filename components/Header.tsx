@@ -1,13 +1,18 @@
-import React from 'react';
-import { motion } from 'framer-motion';
+import type { User } from '@supabase/supabase-js';
 
 interface HeaderProps {
     onGetStartedClick: () => void;
     onLoginClick: () => void;
     isDashboard?: boolean;
+    currentUser?: User | null;
 }
 
-export const Header: React.FC<HeaderProps> = ({ onGetStartedClick, onLoginClick, isDashboard = false }) => {
+export const Header: React.FC<HeaderProps> = ({ onGetStartedClick, onLoginClick, isDashboard = false, currentUser }) => {
+    // Get initials from current user or fallback
+    const initials = currentUser?.email
+        ? currentUser.email.substring(0, 2).toUpperCase()
+        : 'G'; // G for Guest or similar default if generic profile is needed
+
     return (
         <motion.header
             initial={{ y: -20, opacity: 0 }}
@@ -58,9 +63,8 @@ export const Header: React.FC<HeaderProps> = ({ onGetStartedClick, onLoginClick,
                     {isDashboard ? (
                         <div className="px-0 md:px-8 flex items-center gap-4">
                             <div className="flex items-center gap-3">
-                                <span className="text-[10px] text-zinc-500 uppercase tracking-widest font-medium hidden md:block">Settings</span>
                                 <div className="w-8 h-8 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-400 hover:border-zinc-700 transition-colors cursor-pointer group">
-                                    <span className="text-[10px] font-bold group-hover:text-zinc-200 transition-colors">JD</span>
+                                    <span className="text-[10px] font-bold group-hover:text-zinc-200 transition-colors">{initials}</span>
                                 </div>
                             </div>
                         </div>

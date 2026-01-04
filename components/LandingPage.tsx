@@ -141,6 +141,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
                 onGetStartedClick={handleGetStarted}
                 onLoginClick={handleLogin}
                 isDashboard={stage !== 'hero'}
+                currentUser={currentUser}
             />
 
             {/* Main Content */}
@@ -455,7 +456,7 @@ const ResultView: React.FC<ResultViewProps> = ({ task, result, onStartSession, s
             </div>
 
             {/* Right Main Content (65%) - Stacked Card Design */}
-            <div className="flex-1 flex flex-col items-center justify-center p-6 md:p-12 pb-20 md:pb-24 relative bg-[#09090b] overflow-y-auto">
+            <div className="flex-1 flex flex-col items-center justify-center p-6 md:p-12 pb-20 md:pb-24 relative bg-[#09090b]">
 
 
                 {/* Stacked Card Effect */}
@@ -519,9 +520,9 @@ const ResultView: React.FC<ResultViewProps> = ({ task, result, onStartSession, s
                                 whileHover={{ scale: 1.02 }}
                                 whileTap={{ scale: 0.98 }}
                                 onClick={onStartSession}
-                                className={`w-full py-4 rounded-sm font-black text-[11px] uppercase tracking-[0.2em] font-sans shadow-lg transition-all duration-300 ${showLock
-                                    ? 'bg-zinc-900 text-zinc-600 cursor-not-allowed border border-zinc-800'
-                                    : 'bg-zinc-50 text-zinc-950 hover:bg-white hover:shadow-[0_0_20px_rgba(99,102,241,0.3)] border border-zinc-800'
+                                className={`w-full py-4 rounded-md font-medium text-[13px] transition-all duration-200 flex items-center justify-center gap-2 ${showLock
+                                    ? 'bg-zinc-900/50 text-zinc-600 cursor-not-allowed border border-zinc-800'
+                                    : 'bg-[#1A1A1A] text-white hover:bg-[#252525] border border-zinc-800 shadow-[0_1px_2px_rgba(0,0,0,0.4)] hover:shadow-[0_4px_12px_rgba(0,0,0,0.5)] active:scale-[0.99]'
                                     }`}
                             >
                                 {showLock ? (
