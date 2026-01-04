@@ -947,7 +947,7 @@ const App: React.FC = () => {
                 className="w-full max-w-[1800px] px-6 relative flex flex-col items-center justify-center"
                 style={{ transformStyle: 'preserve-3d' }}
               >
-                <div className="w-full h-full flex items-start justify-center pt-16 relative">
+                <div className="w-full h-full flex items-start justify-center pt-8 relative">
                   <div
                     ref={layoutWrapperRef}
                     className="flex flex-col md:flex-row justify-center items-center w-full max-w-[1600px] px-4 relative"
