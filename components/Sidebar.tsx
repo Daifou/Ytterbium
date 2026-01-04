@@ -94,7 +94,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentMode, setMode, onSignOu
           </div>
 
           {/* [NEW] SYSTEM READOUT INTERSTITIAL */}
-          <div className="flex-1 flex flex-col justify-center">
+          <div className="flex-1 flex flex-col justify-center pb-12">
             <SystemReadout mode={currentMode} intensity={focusIntensity} />
           </div>
 

@@ -84,7 +84,7 @@ export const SystemReadout: React.FC<SystemReadoutProps> = ({ mode, intensity })
     }, [mode, intensity]);
 
     return (
-        <div className="w-full mt-auto px-1 pb-4">
+        <div className="w-full px-1">
             <div className="w-full rounded-md bg-[#0A0A0A] border border-white/[0.05] p-3 font-mono text-[10px] leading-relaxed text-[#666] select-none">
 
                 <AnimatePresence mode="wait">
