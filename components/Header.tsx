@@ -1,3 +1,5 @@
+import React from 'react';
+import { motion } from 'framer-motion';
 import type { User } from '@supabase/supabase-js';
 
 interface HeaderProps {
