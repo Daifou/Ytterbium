@@ -6,6 +6,7 @@ import { databaseService } from '../services/databaseService';
 import type { User } from '@supabase/supabase-js';
 import { Header } from './Header';
 import { PricingModal } from './PricingModal';
+import { PricingSection } from './PricingSection';
 import { authService } from '../services/authService';
 import { useSubscription } from '../hooks/useSubscription';
 
@@ -131,7 +132,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
     };
 
     return (
-        <div className="min-h-screen bg-black text-white relative overflow-hidden">
+        <div className="min-h-screen bg-black text-white relative overflow-x-hidden">
             {/* Background Elements */}
             <div className="fixed inset-0 bg-[#09090b]" />
 
@@ -258,6 +259,14 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
                 </AnimatePresence>
             </div>
 
+            {/* Pricing Section (Accessible via Scroll / Anchor) */}
+            {stage === 'hero' && (
+                <PricingSection
+                    currentUser={currentUser}
+                    onAuthRequired={() => setShowAuthModal(true)}
+                />
+            )}
+
             {/* Auth Modal */}
             <AnimatePresence>
                 {showAuthModal && (
@@ -266,7 +275,15 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
             </AnimatePresence>
 
             {/* Pricing Modal */}
-            <PricingModal isOpen={showPricingModal} onClose={() => setShowPricingModal(false)} />
+            <PricingModal
+                isOpen={showPricingModal}
+                onClose={() => setShowPricingModal(false)}
+                currentUser={currentUser}
+                onAuthRequired={() => {
+                    setShowPricingModal(false);
+                    setShowAuthModal(true);
+                }}
+            />
         </div >
     );
 };
