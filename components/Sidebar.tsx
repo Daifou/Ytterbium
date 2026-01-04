@@ -1,7 +1,11 @@
 import React from 'react';
-import { motion } from 'framer-motion';
 import { AppMode } from '../types';
-import { Focus, BarChart2, Coffee, Settings, Twitter, Github, BookOpen, Layers, Zap, Moon, Sun, ArrowUpRight } from 'lucide-react';
+import {
+  Target,
+  Wind,
+  BarChart2,
+  LogOut
+} from 'lucide-react';
 import type { User } from '@supabase/supabase-js';
 
 interface SidebarProps {
@@ -13,173 +17,104 @@ interface SidebarProps {
   user: User | null;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ currentMode, setMode, alienMode, toggleAlienMode, onSignOut, user }) => {
+const SidebarItem = ({
+  icon: Icon,
+  label,
+  active,
+  onClick,
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  active?: boolean;
+  onClick?: () => void;
+}) => {
+  return (
+    <button
+      onClick={onClick}
+      className={`
+        group flex items-center gap-3 px-3 py-2 mx-2 rounded-md transition-all duration-200 text-[13px] font-medium
+        ${active ? 'bg-[#1E1E1E] text-[#EAEAEA]' : 'text-[#8A8A8A] hover:bg-[#1E1E1E]/50 hover:text-[#D4D4D4]'}
+      `}
+    >
+      <Icon className={`w-4 h-4 ${active ? 'text-[#EAEAEA]' : 'text-[#8A8A8A] group-hover:text-[#BFBFBF]'}`} />
+      <span className="flex-1 text-left">{label}</span>
+      {active && <div className="w-1 h-1 rounded-full bg-[#EAEAEA]" />}
+    </button>
+  );
+};
 
-  // "Robin Pattern" Navigation Data
-  const groupedItems = [
-    {
-      header: 'WHAT I CREATE',
-      items: [
-        { mode: AppMode.FOCUS, label: 'Projects', icon: <Focus className="w-4 h-4" /> }, // Mapped Focus -> Projects
-        { mode: 'PHOTOGRAPHY' as any, label: 'Photography', icon: <Zap className="w-4 h-4" />, count: 2 }, // Dummy
-      ]
-    },
-    {
-      header: 'WHAT I CONSUME',
-      items: [
-        { mode: 'BOOKS' as any, label: 'Books', icon: <BookOpen className="w-4 h-4" />, count: 3 }, // Dummy
-        { mode: AppMode.RELAX, label: 'Music', icon: <Coffee className="w-4 h-4" />, count: 4 },     // Mapped Relax -> Music
-        { mode: AppMode.STATS, label: 'Bookmarks', icon: <BarChart2 className="w-4 h-4" />, count: 5 } // Mapped Stats -> Bookmarks
-      ]
-    },
-    {
-      header: 'WHERE TO FIND ME',
-      items: [
-        { mode: 'SOCIAL_MASTODON' as any, label: 'Mastodon', icon: <Twitter className="w-4 h-4" />, external: true },
-        { mode: 'SOCIAL_GITHUB' as any, label: 'Github', icon: <Github className="w-4 h-4" />, external: true },
-      ]
-    }
-  ];
+export const Sidebar: React.FC<SidebarProps> = ({ currentMode, setMode, onSignOut, user }) => {
 
-  /* Helper to check activation - allows mapping dummy items to real modes for functional continuity */
-  const checkActive = (itemMode: any) => {
-    // Direct match
-    if (itemMode === currentMode) return true;
-    // Mappings
-    if (itemMode === 'PHOTOGRAPHY' && currentMode === AppMode.FOCUS) return false; // Differentiate? No, let's just stick to the functional ones being active.
+  const isFocus = currentMode === AppMode.FOCUS;
+  const isRelax = currentMode === AppMode.RELAX;
+  const isStats = currentMode === AppMode.STATS;
 
-    // For this visual refactor, we are mapping the functional specific modes to these labels.
-    // Projects -> Focus
-    // Music -> Relax
-    // Bookmarks -> Stats
-    return false;
-  };
+  const userInitials = user?.email ? user.email.substring(0, 2).toUpperCase() : 'ME';
+  const userName = user?.email ? user.email.split('@')[0] : 'Guest';
 
   return (
     <>
-      {/* DESKTOP SIDEBAR - EXACT ROBIN LAYOUT */}
-      {/* Width 280px to allow safe spacing. Background is transparent/minimal to sit on canvas. */}
-      <aside className="fixed left-0 top-0 h-full w-[280px] hidden md:flex flex-col z-50 pl-8 pr-4 py-8 bg-[#050505]">
+      {/* DESKTOP SIDEBAR - PURE MINIMALIST LINEAR */}
+      <aside className="fixed left-0 top-0 h-full w-[240px] hidden md:flex flex-col z-50 bg-[#050505] border-r border-white/5 font-sans select-none pt-4">
 
-        {/* 1. TOP PROFILE (User Info) */}
-        <div className="flex flex-col gap-1 mb-12">
-          <div className="flex items-center gap-3 mb-2">
-            {/* Avatar */}
-            <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-serif italic text-lg shadow-lg relative overflow-hidden">
-              {user?.email?.charAt(0).toUpperCase() || 'Y'}
-              <div className="absolute inset-0 bg-gradient-to-tr from-transparent to-white/20" />
+        {/* 1. HEADER: User Profile (Sign Out Trigger) */}
+        <div className="px-4 mb-8">
+          <button
+            onClick={onSignOut}
+            className="flex items-center gap-3 hover:bg-[#1E1E1E] p-2 -ml-2 rounded-lg transition-colors w-full group text-left"
+            title="Sign Out"
+          >
+            {/* Avatar Circle */}
+            <div className="w-6 h-6 rounded-full bg-gradient-to-br from-[#333] to-[#111] border border-white/10 flex items-center justify-center shadow-inner group-hover:border-white/20 transition-all">
+              <span className="text-[9px] font-bold text-[#EAEAEA] tracking-widest">{userInitials}</span>
             </div>
 
-            {/* Name & Role */}
-            <div className="flex flex-col">
-              <span className="text-sm font-semibold text-white tracking-wide">
-                {user?.email?.split('@')[0] || 'Design Engineer'}
-              </span>
-              <span className="text-[11px] text-[#9CA3AF] font-medium tracking-wide">
-                Design Engineer
+            {/* Name */}
+            <div className="flex flex-col flex-1">
+              <span className="text-[13px] font-medium text-[#EAEAEA] group-hover:text-white transition-colors truncate">
+                {userName}
               </span>
             </div>
-          </div>
-          {/* Optional Bio Blurb or Status could go here if needed, keeping it clean for now */}
+
+            {/* Sign Out Icon (Hidden by default, visible on hover) */}
+            <LogOut className="w-3.5 h-3.5 text-[#8A8A8A] opacity-0 group-hover:opacity-100 transition-opacity" />
+          </button>
         </div>
 
-        {/* 2. NAVIGATION LISTS */}
-        <div className="flex-1 flex flex-col gap-10 overflow-y-auto custom-scrollbar">
-          {groupedItems.map((group, gIdx) => (
-            <div key={gIdx} className="flex flex-col gap-3">
-              <h4 className="text-[10px] font-bold text-[#6B7280] tracking-[0.15em] uppercase pl-2">
-                {group.header}
-              </h4>
-              <div className="flex flex-col">
-                {group.items.map((item, iIdx) => {
-                  // Logic determining if this item is the "Active" one visually
-                  const isActuallyActive =
-                    (item.label === 'Projects' && currentMode === AppMode.FOCUS) ||
-                    (item.label === 'Music' && currentMode === AppMode.RELAX) ||
-                    (item.label === 'Bookmarks' && currentMode === AppMode.STATS);
-
-                  const clickHandler = () => {
-                    if (item.label === 'Projects') setMode(AppMode.FOCUS);
-                    else if (item.label === 'Music') setMode(AppMode.RELAX);
-                    else if (item.label === 'Bookmarks') setMode(AppMode.STATS);
-                  };
-
-                  return (
-                    <motion.button
-                      key={iIdx}
-                      onClick={clickHandler}
-                      className={`
-                                        group flex items-center justify-between px-3 py-2 text-[13px] font-medium transition-all duration-200 rounded-lg
-                                        ${isActuallyActive ? 'text-blue-400' : 'text-[#9CA3AF] hover:text-white'}
-                                    `}
-                      whileHover={{ x: 4 }}
-                    >
-                      <div className="flex items-center gap-3">
-                        <span className={`opacity-80 group-hover:opacity-100 transition-opacity ${isActuallyActive ? 'text-blue-400' : ''}`}>
-                          {item.icon}
-                        </span>
-                        <span>{item.label}</span>
-                      </div>
-
-                      {/* Right Side Indicator (Count or Arrow) */}
-                      {item.external ? (
-                        <ArrowUpRight className="w-3 h-3 opacity-30 group-hover:opacity-100 transition-opacity" />
-                      ) : (
-                        item.count && (
-                          <span className={`text-[10px] px-1.5 py-0.5 rounded-md ${isActuallyActive ? 'bg-blue-500/10 text-blue-400' : 'bg-white/5 text-gray-500'}`}>
-                            {item.count}
-                          </span>
-                        )
-                      )}
-                    </motion.button>
-                  );
-                })}
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* 3. BOTTOM UTILITIES (Footer) */}
-        <div className="flex flex-col gap-4 mt-auto pt-6">
-
-          {/* Links */}
-          <div className="flex items-center gap-4 px-2">
-            <button className="text-[11px] text-[#6B7280] hover:text-white transition-colors">Legals</button>
-            <button className="text-[11px] text-[#6B7280] hover:text-white transition-colors">Changelog</button>
-          </div>
-
-          {/* Theme Toggle Pill */}
-          <div className="flex items-center gap-3 bg-[#0A0A0C] border border-white/10 rounded-full p-1 w-fit">
-            <button
-              onClick={!alienMode ? undefined : toggleAlienMode}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-all text-[11px] font-medium ${!alienMode ? 'bg-blue-600 text-white shadow-lg' : 'text-[#6B7280] hover:text-white'}`}
-            >
-              <div className={`w-1.5 h-1.5 rounded-full ${!alienMode ? 'bg-white' : 'bg-[#6B7280]'}`} />
-              Blue
-            </button>
-            <button
-              onClick={alienMode ? undefined : toggleAlienMode}
-              className={`p-1.5 rounded-full hover:bg-white/5 transition-all ${alienMode ? 'text-white' : 'text-[#6B7280]'}`}
-            >
-              {alienMode ? <Sun size={14} /> : <Moon size={14} />}
-            </button>
-          </div>
-
+        {/* 2. CORE TABS */}
+        <div className="flex flex-col gap-1 px-2">
+          <SidebarItem
+            icon={Target}
+            label="Focus"
+            active={isFocus}
+            onClick={() => setMode(AppMode.FOCUS)}
+          />
+          <SidebarItem
+            icon={Wind}
+            label="Relax"
+            active={isRelax}
+            onClick={() => setMode(AppMode.RELAX)}
+          />
+          <SidebarItem
+            icon={BarChart2}
+            label="Insights"
+            active={isStats}
+            onClick={() => setMode(AppMode.STATS)}
+          />
         </div>
 
       </aside>
 
       {/* MOBILE NAV (Preserved) */}
       <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-sm h-16 md:hidden z-[100] flex items-center justify-around bg-[#0A0A0C]/90 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.5)] px-2">
-        {/* Simple items for mobile */}
-        <button onClick={() => setMode(AppMode.FOCUS)} className={`flex flex-col items-center gap-1 ${currentMode === AppMode.FOCUS ? 'text-blue-400' : 'text-gray-500'}`}>
-          <Focus className="w-5 h-5" />
+        <button onClick={() => setMode(AppMode.FOCUS)} className={`flex flex-col items-center gap-1 ${currentMode === AppMode.FOCUS ? 'text-[#EAEAEA]' : 'text-[#8A8A8A]'}`}>
+          <Target className="w-5 h-5" />
         </button>
-        <button onClick={() => setMode(AppMode.STATS)} className={`flex flex-col items-center gap-1 ${currentMode === AppMode.STATS ? 'text-blue-400' : 'text-gray-500'}`}>
+        <button onClick={() => setMode(AppMode.STATS)} className={`flex flex-col items-center gap-1 ${currentMode === AppMode.STATS ? 'text-[#EAEAEA]' : 'text-[#8A8A8A]'}`}>
           <BarChart2 className="w-5 h-5" />
         </button>
-        <button onClick={() => setMode(AppMode.RELAX)} className={`flex flex-col items-center gap-1 ${currentMode === AppMode.RELAX ? 'text-blue-400' : 'text-gray-500'}`}>
-          <Coffee className="w-5 h-5" />
+        <button onClick={() => setMode(AppMode.RELAX)} className={`flex flex-col items-center gap-1 ${currentMode === AppMode.RELAX ? 'text-[#EAEAEA]' : 'text-[#8A8A8A]'}`}>
+          <Wind className="w-5 h-5" />
         </button>
       </nav>
     </>
