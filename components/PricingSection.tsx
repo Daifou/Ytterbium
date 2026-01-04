@@ -10,7 +10,7 @@ interface PricingSectionProps {
 
 export const PricingSection: React.FC<PricingSectionProps> = ({ currentUser, onAuthRequired }) => {
     return (
-        <section id="pricing" className="relative py-24 md:py-32 w-full overflow-hidden bg-black text-white">
+        <section id="pricing" className="relative py-24 md:py-32 w-full overflow-hidden bg-[#09090b] text-white">
 
             {/* Background Gradients */}
             <div className="absolute top-[20%] left-[10%] w-[500px] h-[500px] bg-indigo-900/10 rounded-full blur-[128px] pointer-events-none" />
