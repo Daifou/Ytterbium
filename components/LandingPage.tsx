@@ -456,7 +456,7 @@ const ResultView: React.FC<ResultViewProps> = ({ task, result, onStartSession, s
             </div>
 
             {/* Right Main Content (65%) - Stacked Card Design */}
-            <div className="flex-1 flex flex-col items-center justify-center p-6 md:p-12 pb-20 md:pb-24 relative bg-[#09090b]">
+            <div className="flex-1 flex flex-col items-center justify-center p-6 md:p-12 py-12 md:py-24 relative bg-[#09090b]">
 
 
                 {/* Stacked Card Effect */}

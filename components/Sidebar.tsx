@@ -63,7 +63,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentMode, setMode, onSignOu
 
             <button
               onClick={() => setMode(AppMode.FOCUS)}
-              className={`relative z-10 flex-1 flex items-center justify-center gap-2 text-[12px] font-medium transition-colors duration-200 ${isFocus ? 'text-blue-400' : 'text-[#8A8A8A] hover:text-[#EAEAEA]'}`}
+              className={`relative z-10 flex-1 flex items-center justify-center gap-2 text-[12px] font-medium transition-colors duration-200 ${isFocus ? 'text-white' : 'text-[#8A8A8A] hover:text-[#EAEAEA]'}`}
             >
               <Target className={`w-3.5 h-3.5 ${isFocus ? 'opacity-100' : 'opacity-40'}`} />
               Focus
