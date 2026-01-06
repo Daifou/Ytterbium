@@ -36,47 +36,22 @@ export const PricingCard: React.FC<PricingCardProps> = ({
         }
     }, [currentUser]);
 
-    const handleCheckout = () => {
-        setIsLoading(true);
-
-        // Gumroad Product URL (Monthly)
-        const gumroadUrl = "https://ytterbiumlife.gumroad.com/l/ccmqg";
-
-        // 1. If user is logged in, append their ID to the URL for tracking
-        if (currentUser) {
-            // We use 'window.location.href' approach but for Gumroad Overlay, 
-            // the script intercepts clicks on <a> tags. 
-            // So ideally we render an <a> tag. 
-            // However, since we are in a button handler, we can programmatically open it 
-            // or better yet, just update the button to be an <a> tag in the JSX.
-            // But to keep structure, we can manually trigger or redirect if overlay fails.
-
-            // Construct URL with custom fields (passed as URL params)
-            // Gumroad allows passing params like ?email=... and custom fields
-            const targetUrl = `${gumroadUrl}?email=${encodeURIComponent(currentUser.email || '')}&user_id=${currentUser.id}`;
-
-            // Programmatic click equivalent or just setting location (Gumroad script intercepts specific class/attr if present)
-            // Actually, for the Overlay to work reliably with the script, it's best to use an <a> tag.
-            // We will modify the button in the JSX below to be an <a> tag if possible, 
-            // or just window.open which Gumroad might catch if configured, 
-            // but standard behavior is <a href="..." data-gumroad-overlay>
-
-            // Fallback for now: redirect to the link. 
-            // If the script is loaded, it might intercept this navigation if it was a link click, 
-            // but navigation change via JS might NOT be intercepted as an overlay.
-            // WE NEED TO CHANGE THE BUTTON TO AN ANCHOR TAG in the JSX.
-            window.location.href = targetUrl;
-            return;
+    const handleCheckout = (e: React.MouseEvent) => {
+        // If not logged in, prevent the link from opening and show auth
+        if (!currentUser) {
+            e.preventDefault();
+            setIsLoading(true);
+            localStorage.setItem('pending_plan', 'monthly');
+            setTimeout(() => {
+                setIsLoading(false);
+                if (onAuthRequired) {
+                    onAuthRequired();
+                }
+            }, 600);
         }
-
-        // 2. If not logged in, suggest logging in first
-        localStorage.setItem('pending_plan', 'monthly');
-        setTimeout(() => {
-            setIsLoading(false);
-            if (onAuthRequired) {
-                onAuthRequired();
-            }
-        }, 600);
+        // If logged in, we do NOTHING. 
+        // We let the default anchor behavior happen,
+        // which the Gumroad script will intercept to show the popup.
     };
 
     return (
