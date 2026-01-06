@@ -22,24 +22,43 @@ export const PricingCard: React.FC<PricingCardProps> = ({
 
     const handleCheckout = () => {
         setIsLoading(true);
-        const planType = isAnnual ? 'annual' : 'monthly';
 
-        // 1. If user is logged in, redirect directly to our internal checkout API
+        // Gumroad Product URL (Monthly)
+        const gumroadUrl = "https://ytterbiumlife.gumroad.com/l/ccmqg";
+
+        // 1. If user is logged in, append their ID to the URL for tracking
         if (currentUser) {
-            window.location.href = `/api/checkout?user_id=${currentUser.id}&plan=${planType}`;
+            // We use 'window.location.href' approach but for Gumroad Overlay, 
+            // the script intercepts clicks on <a> tags. 
+            // So ideally we render an <a> tag. 
+            // However, since we are in a button handler, we can programmatically open it 
+            // or better yet, just update the button to be an <a> tag in the JSX.
+            // But to keep structure, we can manually trigger or redirect if overlay fails.
+
+            // Construct URL with custom fields (passed as URL params)
+            // Gumroad allows passing params like ?email=... and custom fields
+            const targetUrl = `${gumroadUrl}?email=${encodeURIComponent(currentUser.email || '')}&user_id=${currentUser.id}`;
+
+            // Programmatic click equivalent or just setting location (Gumroad script intercepts specific class/attr if present)
+            // Actually, for the Overlay to work reliably with the script, it's best to use an <a> tag.
+            // We will modify the button in the JSX below to be an <a> tag if possible, 
+            // or just window.open which Gumroad might catch if configured, 
+            // but standard behavior is <a href="..." data-gumroad-overlay>
+
+            // Fallback for now: redirect to the link. 
+            // If the script is loaded, it might intercept this navigation if it was a link click, 
+            // but navigation change via JS might NOT be intercepted as an overlay.
+            // WE NEED TO CHANGE THE BUTTON TO AN ANCHOR TAG in the JSX.
+            window.location.href = targetUrl;
             return;
         }
 
-        // 2. If not logged in, save intent and trigger auth
-        localStorage.setItem('pending_plan', planType);
-
-        // Short delay to show the spinner/interaction before opening auth
+        // 2. If not logged in, suggest logging in first
+        localStorage.setItem('pending_plan', 'monthly');
         setTimeout(() => {
             setIsLoading(false);
             if (onAuthRequired) {
                 onAuthRequired();
-            } else {
-                console.warn("Auth required callback not provided to PricingCard");
             }
         }, 600);
     };
@@ -172,12 +191,19 @@ export const PricingCard: React.FC<PricingCardProps> = ({
 
                     {/* CTA Button */}
                     <div className="mt-auto">
-                        <motion.button
-                            onClick={handleCheckout}
-                            disabled={isLoading}
+                        <motion.a
+                            href={currentUser ? `https://ytterbiumlife.gumroad.com/l/ccmqg?email=${encodeURIComponent(currentUser.email || '')}&user_id=${currentUser.id}` : '#'}
+                            data-gumroad-overlay="true"
+                            onClick={(e) => {
+                                if (!currentUser) {
+                                    e.preventDefault();
+                                    handleCheckout(); // Trigger auth flow
+                                }
+                                // If current user, let default anchor behavior happen (Gumroad config intercepts it)
+                            }}
                             whileHover={{ scale: 1.02, boxShadow: "0 0 20px rgba(99, 102, 241, 0.4)" }}
                             whileTap={{ scale: 0.98 }}
-                            className="w-full relative overflow-hidden group py-4 rounded-xl bg-gradient-to-r from-indigo-500 to-indigo-600 text-white font-bold uppercase tracking-widest text-xs shadow-lg border border-indigo-400/20"
+                            className="w-full relative overflow-hidden group py-4 rounded-xl bg-gradient-to-r from-indigo-500 to-indigo-600 text-white font-bold uppercase tracking-widest text-xs shadow-lg border border-indigo-400/20 block text-center flex items-center justify-center cursor-pointer"
                         >
                             <span className={`flex items-center justify-center gap-2 ${isLoading ? 'opacity-0' : 'opacity-100'}`}>
                                 {isAnnual ? 'Start Scaling Now' : 'Get Instant Access'}
@@ -191,7 +217,7 @@ export const PricingCard: React.FC<PricingCardProps> = ({
                                     <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                                 </div>
                             )}
-                        </motion.button>
+                        </motion.a>
 
                         <div className="mt-4 flex items-center justify-center gap-4 opacity-50">
                             <div className="flex items-center gap-1.5">
