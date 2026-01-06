@@ -1,6 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { User } from '@supabase/supabase-js';
+
+// Extend Window interface for Gumroad
+declare global {
+    interface Window {
+        GumroadOverlay?: {
+            init: () => void;
+        };
+    }
+}
 
 interface PricingCardProps {
     className?: string;
@@ -19,6 +28,13 @@ export const PricingCard: React.FC<PricingCardProps> = ({
 }) => {
     const [isAnnual, setIsAnnual] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+
+    useEffect(() => {
+        // Run Gumroad overlay initializer when component mounts
+        if (window.GumroadOverlay) {
+            window.GumroadOverlay.init();
+        }
+    }, [currentUser]);
 
     const handleCheckout = () => {
         setIsLoading(true);
