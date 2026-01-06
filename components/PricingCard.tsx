@@ -28,6 +28,7 @@ export const PricingCard: React.FC<PricingCardProps> = ({
 }) => {
     const [isAnnual, setIsAnnual] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [isCheckingOut, setIsCheckingOut] = useState(false);
 
     useEffect(() => {
         // Run Gumroad overlay initializer when component mounts
@@ -37,7 +38,7 @@ export const PricingCard: React.FC<PricingCardProps> = ({
     }, [currentUser]);
 
     const handleCheckout = (e: React.MouseEvent) => {
-        // If not logged in, prevent the link from opening and show auth
+        // 1. If not logged in, prevent the link from opening and show auth
         if (!currentUser) {
             e.preventDefault();
             setIsLoading(true);
@@ -48,11 +49,43 @@ export const PricingCard: React.FC<PricingCardProps> = ({
                     onAuthRequired();
                 }
             }, 600);
+            return;
         }
-        // If logged in, we do NOTHING. 
-        // We let the default anchor behavior happen,
-        // which the Gumroad script will intercept to show the popup.
+
+        // 2. If logged in, we trigger the INLINE EMBED inside the card
+        e.preventDefault();
+        setIsCheckingOut(true);
     };
+
+    // Render the Gumroad Embed Inline
+    if (isCheckingOut && currentUser) {
+        return (
+            <div className={`relative w-full max-w-sm mx-auto animate-in fade-in zoom-in duration-300 ${className}`}>
+                {/* Card Container */}
+                <div className="relative w-full bg-[#09090b] border border-zinc-800 rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl flex flex-col p-4 min-h-[500px]">
+                    <div className="flex items-center justify-between mb-4 px-2">
+                        <h3 className="text-white font-bold text-sm uppercase tracking-widest">Secure Checkout</h3>
+                        <button
+                            onClick={() => setIsCheckingOut(false)}
+                            className="text-zinc-500 hover:text-white transition-colors"
+                        >
+                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div
+                        className="gumroad-product-embed flex-1"
+                        data-gumroad-product-id="ccmqg"
+                        data-gumroad-single-product="true"
+                    >
+                        <a href="https://gumroad.com/l/ccmqg">Loading Checkout...</a>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className={`relative w-full max-w-sm mx-auto ${className}`}>
