@@ -210,14 +210,7 @@ export const PricingCard: React.FC<PricingCardProps> = ({
                         <motion.a
                             href={currentUser ? `https://ytterbiumlife.gumroad.com/l/ccmqg?email=${encodeURIComponent(currentUser.email || '')}&user_id=${currentUser.id}` : '#'}
                             data-gumroad-overlay="true"
-                            onClick={(e) => {
-                                if (!currentUser) {
-                                    e.preventDefault();
-                                    handleCheckout(); // Trigger auth flow
-                                }
-                                // If current user, the 'gumroad-button' class and data-gumroad-overlay 
-                                // will tell the gumroad.js script to open the overlay.
-                            }}
+                            onClick={handleCheckout}
                             whileHover={{ scale: 1.02, boxShadow: "0 0 20px rgba(99, 102, 241, 0.4)" }}
                             whileTap={{ scale: 0.98 }}
                             className="gumroad-button w-full relative overflow-hidden group py-4 rounded-xl bg-gradient-to-r from-indigo-500 to-indigo-600 text-white font-bold uppercase tracking-widest text-xs shadow-lg border border-indigo-400/20 block text-center flex items-center justify-center cursor-pointer"
