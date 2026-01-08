@@ -165,13 +165,6 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
                                     className="text-center mb-12"
                                 >
                                     <h1 className="flex flex-col gap-2 mb-8 items-center">
-                                        <motion.span
-                                            initial={{ opacity: 0, tracking: '0.2em' }}
-                                            animate={{ opacity: 0.5, tracking: '0.1em' }}
-                                            className="text-indigo-400 text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] mb-4"
-                                        >
-                                            You don't feel it until it's too late.
-                                        </motion.span>
                                         <span className="text-5xl md:text-[88px] font-instrument italic text-white tracking-tight leading-[0.85] max-w-4xl">
                                             You're Already <br /> Burning Out
                                         </span>
