@@ -157,29 +157,43 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
                                 transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
                                 className="relative z-10 w-full max-w-3xl px-6"
                             >
-                                {/* Headline */}
+                                {/* Headline & Subheadline */}
                                 <motion.div
                                     initial={{ opacity: 0, y: 10 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: 0.2 }}
-                                    className="text-center mb-10"
+                                    className="text-center mb-12"
                                 >
-                                    <h1 className="flex flex-col gap-0 mb-6">
-                                        <span className="text-4xl md:text-[72px] font-black text-white tracking-tighter uppercase leading-[0.9]">
-                                            A neural and
+                                    <h1 className="flex flex-col gap-2 mb-8 items-center">
+                                        <motion.span
+                                            initial={{ opacity: 0, tracking: '0.2em' }}
+                                            animate={{ opacity: 0.5, tracking: '0.1em' }}
+                                            className="text-indigo-400 text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] mb-4"
+                                        >
+                                            You don't feel it until it's too late.
+                                        </motion.span>
+                                        <span className="text-5xl md:text-[88px] font-instrument italic text-white tracking-tight leading-[0.85] max-w-4xl">
+                                            You're Already <br /> Burning Out
                                         </span>
-                                        <span className="text-4xl md:text-[72px] font-black text-white tracking-tighter uppercase leading-[0.9]">
-                                            physical guard.
-                                        </span>
-                                        <p className="mt-8 text-base md:text-lg text-zinc-400 max-w-2xl mx-auto leading-relaxed font-light tracking-wide opacity-80">
-                                            For your eyes, posture, and cognitive health. Detect burnout and <br className="hidden md:block" /> calibrate your biology to work smarter.
-                                        </p>
+                                        <div className="mt-8 px-4">
+                                            <p className="text-zinc-400 text-base md:text-[19px] max-w-xl mx-auto leading-relaxed font-light tracking-wide">
+                                                Blurred vision. Tension headaches. Mental fog. Your body is screaming warnings you've learned to ignore.
+                                            </p>
+                                            <p className="mt-2 text-zinc-500 text-sm md:text-base max-w-lg mx-auto leading-relaxed font-light italic">
+                                                AI that detects burnout at the biological level and intervenes before the damage becomes permanent.
+                                            </p>
+                                        </div>
                                     </h1>
                                 </motion.div>
 
                                 {/* Input Container */}
-                                <div className="relative group">
-                                    <div className="relative bg-[#18181b] border border-zinc-800 rounded-2xl md:rounded-[36px] overflow-hidden shadow-2xl">
+                                <motion.div
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.6, duration: 0.8, ease: "easeOut" }}
+                                    className="relative group mt-4"
+                                >
+                                    <div className="relative bg-[#18181b] border border-zinc-800 rounded-2xl md:rounded-[36px] overflow-hidden shadow-2xl transition-all duration-500 group-hover:border-zinc-700/50 group-hover:shadow-indigo-500/5">
                                         <form
                                             onSubmit={(e) => {
                                                 e.preventDefault();
@@ -198,42 +212,47 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
                                                     }
                                                 }}
                                                 placeholder="Ask Ytterbium to analyze a task..."
-                                                className="w-full bg-transparent text-white placeholder-zinc-500 text-sm md:text-base px-6 pt-4 pb-14 focus:outline-none resize-none min-h-[80px] leading-relaxed"
+                                                className="w-full bg-transparent text-white placeholder-zinc-500 text-sm md:text-base px-8 pt-6 pb-16 focus:outline-none resize-none min-h-[100px] leading-relaxed font-sans"
                                                 style={{ caretColor: '#818cf8' }}
                                                 autoFocus
                                             />
 
                                             {/* Input Footer / Actions */}
-                                            <div className="absolute bottom-3 right-3 flex items-center justify-end">
+                                            <div className="absolute bottom-4 right-4 flex items-center justify-end">
 
                                                 {/* Submit Button */}
                                                 <button
                                                     type="submit"
                                                     disabled={!task.trim()}
-                                                    className={`p-1.5 rounded-full transition-all duration-300 ${task.trim()
-                                                        ? 'bg-zinc-50 text-zinc-950 translate-x-0 opacity-100 shadow-[0_0_20px_rgba(250,250,250,0.1)]'
+                                                    className={`p-2 rounded-full transition-all duration-300 ${task.trim()
+                                                        ? 'bg-zinc-50 text-zinc-950 translate-x-0 opacity-100 shadow-[0_0_20px_rgba(250,250,250,0.2)] hover:scale-105'
                                                         : 'bg-zinc-900/50 text-zinc-600 translate-x-0 opacity-50 cursor-not-allowed border border-zinc-800'
                                                         }`}
                                                 >
-                                                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
                                                     </svg>
                                                 </button>
                                             </div>
                                         </form>
                                     </div>
-                                </div>
+
+                                    {/* Sub-input subtle text */}
+                                    <p className="mt-4 text-center text-[11px] text-zinc-600 uppercase tracking-widest font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                                        Powered by biological AI calibration
+                                    </p>
+                                </motion.div>
 
                                 {/* Suggestion Chips (Secondary Button Style) */}
-                                <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+                                <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
                                     {['Deep Work Session', 'Study for Exam', 'Debug Code'].map((suggestion, i) => (
                                         <motion.button
                                             key={suggestion}
                                             initial={{ opacity: 0, y: 10 }}
                                             animate={{ opacity: 1, y: 0 }}
-                                            transition={{ delay: 0.4 + (i * 0.1) }}
+                                            transition={{ delay: 0.8 + (i * 0.1) }}
                                             onClick={() => setTask(suggestion)}
-                                            className="px-4 py-2 rounded-full border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 text-xs md:text-sm text-zinc-400 hover:text-zinc-50 transition-all duration-200"
+                                            className="px-5 py-2.5 rounded-full border border-zinc-800 bg-zinc-900/30 hover:bg-zinc-800/50 text-xs md:text-sm text-zinc-500 hover:text-zinc-200 transition-all duration-300 backdrop-blur-sm"
                                         >
                                             {suggestion}
                                         </motion.button>
