@@ -90,13 +90,77 @@ export const PricingCard: React.FC<PricingCardProps> = ({
     }
 
     const features = [
-        { text: 'Unlock unlimited AI Focus sessions', active: true },
-        { text: 'Automate cognitive load fatigue detection', active: true },
-        { text: 'Access deep-dive focus analytics', active: true },
-        { text: 'Sync context across all devices', active: true },
-        { text: 'Priority support & feature access', active: true },
-        { text: 'Custom Focus presets', active: false },
-        { text: 'Team collaboration tools', active: false },
+        {
+            title: 'Zero Eye Strain',
+            benefit: 'End your day without dryness or fatigue.',
+            icon: (
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+            ),
+            active: true
+        },
+        {
+            title: 'No Gamer Posture',
+            benefit: 'Sit long without slouching or pain.',
+            icon: (
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+            ),
+            active: true
+        },
+        {
+            title: 'Hormone Protection',
+            benefit: 'Work hard without burning out.',
+            icon: (
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.040L3 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622l-.382-3.016z" />
+                </svg>
+            ),
+            active: true
+        },
+        {
+            title: 'Real Rest',
+            benefit: 'Guided breaks that truly refresh you.',
+            icon: (
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                </svg>
+            ),
+            active: true
+        },
+        {
+            title: 'Prevent Mental Fog',
+            benefit: 'Get alerted before focus drops.',
+            icon: (
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+            ),
+            active: true
+        },
+        {
+            title: 'True Finish',
+            benefit: 'End the "worked all day, did nothing" cycle.',
+            icon: (
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+            ),
+            active: true
+        },
+        {
+            title: 'Laser Productivity',
+            benefit: 'Focus when it matters; stop when it doesn\'t.',
+            icon: (
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                </svg>
+            ),
+            active: true
+        },
     ];
 
     const annualId = 'annual_id_placeholder'; // Placeholder for annual ID
@@ -115,10 +179,10 @@ export const PricingCard: React.FC<PricingCardProps> = ({
                     style={{ backgroundImage: 'radial-gradient(circle, #ffffff 1px, transparent 1px)', backgroundSize: '32px 32px' }} />
 
                 {/* LEFT COLUMN: Features (40%) */}
-                <div className="w-full md:w-[40%] bg-zinc-900/10 border-b md:border-b-0 md:border-r border-zinc-800 flex flex-col relative z-10">
-                    <div className="p-8 md:p-10 border-b border-zinc-800">
+                <div className="w-full md:w-[45%] bg-zinc-900/10 border-b md:border-b-0 md:border-r border-zinc-800 flex flex-col relative z-10">
+                    <div className="p-8 border-b border-zinc-800">
                         <h3 className="text-white text-lg font-bold mb-1 uppercase tracking-tighter">Features</h3>
-                        <p className="text-zinc-500 text-[11px] uppercase tracking-widest font-medium">Core Capabilities</p>
+                        <p className="text-zinc-500 text-[10px] uppercase tracking-widest font-bold">Standard on All Plans</p>
                     </div>
 
                     <div className="flex-1">
@@ -128,19 +192,18 @@ export const PricingCard: React.FC<PricingCardProps> = ({
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
                                 transition={{ delay: 0.05 * i }}
-                                className={`flex items-center justify-between px-8 py-5 border-b border-zinc-800/60 last:border-b-0 ${feature.active ? 'bg-transparent' : 'bg-black/20'}`}
+                                className={`flex items-start gap-4 px-8 py-6 border-b border-zinc-800/60 last:border-b-0 hover:bg-white/[0.02] transition-colors`}
                             >
-                                <span className={`text-[13px] font-medium tracking-tight ${feature.active ? 'text-zinc-300' : 'text-zinc-600'}`}>
-                                    {feature.text}
-                                </span>
-                                <div className={`flex items-center justify-center w-5 h-5 ${feature.active ? 'text-indigo-400' : 'text-zinc-800'}`}>
-                                    {feature.active ? (
-                                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                                        </svg>
-                                    ) : (
-                                        <div className="w-1.5 h-1.5 bg-current" />
-                                    )}
+                                <div className={`mt-0.5 flex items-center justify-center w-6 h-6 shrink-0 ${feature.active ? 'text-indigo-400' : 'text-zinc-800'}`}>
+                                    {feature.icon}
+                                </div>
+                                <div className="space-y-1">
+                                    <span className={`text-[13px] font-bold tracking-tight block ${feature.active ? 'text-white' : 'text-zinc-600'}`}>
+                                        {feature.title}
+                                    </span>
+                                    <span className={`text-[12px] font-medium leading-relaxed block ${feature.active ? 'text-zinc-500' : 'text-zinc-800'}`}>
+                                        {feature.benefit}
+                                    </span>
                                 </div>
                             </motion.div>
                         ))}
