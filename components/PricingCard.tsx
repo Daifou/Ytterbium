@@ -180,7 +180,7 @@ export const PricingCard: React.FC<PricingCardProps> = ({
 
                 {/* LEFT COLUMN: Features (40%) */}
                 <div className="w-full md:w-[45%] bg-zinc-900/10 border-b md:border-b-0 md:border-r border-zinc-800 flex flex-col relative z-10">
-                    <div className="p-8 border-b border-zinc-800">
+                    <div className="p-8 md:p-10 border-b border-zinc-800">
                         <h3 className="text-white text-lg font-bold mb-1 uppercase tracking-tighter">Features</h3>
                         <p className="text-zinc-500 text-[10px] uppercase tracking-widest font-bold">Standard on All Plans</p>
                     </div>
@@ -281,20 +281,23 @@ export const PricingCard: React.FC<PricingCardProps> = ({
                                 data-gumroad-overlay="true"
                                 data-gumroad-product-id={currentProductId}
                                 onClick={handleCheckout}
-                                whileTap={{ scale: 0.995 }}
-                                className="gumroad-button w-full relative overflow-hidden group py-6 border border-white bg-white text-black font-black uppercase tracking-[0.3em] text-[11px] shadow-lg block text-center cursor-pointer transition-all duration-300 hover:bg-transparent hover:text-white"
+                                whileHover={{ scale: 1.01 }}
+                                whileTap={{ scale: 0.99 }}
+                                className="gumroad-button w-full relative overflow-hidden group py-4.5 rounded-md bg-indigo-600 text-white font-bold uppercase tracking-widest text-[13px] shadow-[0_1px_2px_rgba(0,0,0,0.4)] hover:shadow-[0_4px_12px_rgba(99,102,241,0.3)] block text-center flex items-center justify-center cursor-pointer transition-all duration-300 hover:bg-indigo-500 border border-indigo-500/50"
                             >
-                                <div className="relative z-10 flex items-center justify-center gap-3">
-                                    {isLoading ? 'Processing' : 'Initiate 7-Day Protocol'}
-                                    {!isLoading && (
-                                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                                        </svg>
+                                <div className="relative z-10 flex items-center justify-center gap-2">
+                                    {isLoading ? 'Processing' : (
+                                        <>
+                                            Initiate 7-Day Protocol
+                                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                                            </svg>
+                                        </>
                                     )}
                                 </div>
                                 {isLoading && (
                                     <div className="absolute inset-0 flex items-center justify-center">
-                                        <div className="w-5 h-5 border-2 border-black/30 border-t-black animate-spin" />
+                                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                                     </div>
                                 )}
                             </motion.a>
