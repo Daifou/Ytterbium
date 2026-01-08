@@ -27,7 +27,7 @@ export const PricingModal: React.FC<PricingModalProps> = ({ isOpen, onClose, cur
                     animate={{ scale: 1, opacity: 1, y: 0 }}
                     exit={{ scale: 0.95, opacity: 0, y: 20 }}
                     onClick={(e) => e.stopPropagation()}
-                    className="w-full max-w-sm"
+                    className="w-full max-w-4xl"
                 >
                     <PricingCard
                         showCloseButton={true}
