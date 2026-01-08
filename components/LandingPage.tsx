@@ -510,11 +510,31 @@ const ResultView: React.FC<ResultViewProps> = ({ task, result, onStartSession, s
 
                         <div className="p-8 bg-[#121214] space-y-6">
                             <div className="space-y-4">
-                                <div className="space-y-1">
-                                    <h3 className="text-lg font-bold text-zinc-100 tracking-tight font-sans">Ytterbium Environment</h3>
-                                    <p className="text-sm text-zinc-500 leading-relaxed font-light font-sans">
-                                        Calibrated for {result.intensity}/10 intensity across {result.suggestedSessions} scheduled sprints.
-                                    </p>
+                                <div className="space-y-4">
+                                    <h3 className="text-sm font-bold text-zinc-500 uppercase tracking-[0.2em] font-sans">Ytterbium Environment</h3>
+
+                                    <div className="flex items-center gap-2">
+                                        {/* Badge 1: Intensity */}
+                                        <div
+                                            className="px-3 py-1.5 rounded-full bg-white/5 backdrop-blur-[5px] border border-white/10 flex items-center shadow-[0_0_10px_rgba(161,161,170,0.1)]"
+                                        >
+                                            <span className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.15em]">
+                                                {result.intensity}/10 Intensity
+                                            </span>
+                                        </div>
+
+                                        {/* Badge 2: Sessions */}
+                                        <div
+                                            className="px-3 py-1.5 rounded-full bg-white/5 backdrop-blur-[5px] border border-emerald-500/20 flex items-center gap-1.5 shadow-[0_0_10px_rgba(16,185,129,0.05)]"
+                                        >
+                                            <svg className="w-3 h-3 text-emerald-500/60" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" />
+                                            </svg>
+                                            <span className="text-[10px] font-black text-emerald-500/60 uppercase tracking-[0.15em]">
+                                                {result.suggestedSessions} Sessions
+                                            </span>
+                                        </div>
+                                    </div>
                                 </div>
                                 {/* Intensity Progress Bar */}
                                 <div className="w-full h-[1px] bg-zinc-800 rounded-full overflow-hidden">
