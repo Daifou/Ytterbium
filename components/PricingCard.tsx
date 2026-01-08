@@ -108,141 +108,148 @@ export const PricingCard: React.FC<PricingCardProps> = ({
 
     return (
         <div className={`relative w-full max-w-5xl mx-auto ${className}`}>
-            {/* Glow Effect */}
-            <div className="absolute -inset-[1px] bg-gradient-to-b from-indigo-500/10 to-transparent rounded-2xl md:rounded-3xl blur-sm -z-10" />
+            <div className="relative w-full bg-[#09090b] border border-zinc-800 rounded-none overflow-hidden shadow-2xl flex flex-col md:flex-row min-h-[600px]">
 
-            <div className="relative w-full bg-[#09090b] border border-zinc-800 rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl flex flex-col md:flex-row min-h-[600px]">
+                {/* Subtle Grid Pattern Overlay */}
+                <div className="absolute inset-0 opacity-[0.03] pointer-events-none"
+                    style={{ backgroundImage: 'radial-gradient(circle, #ffffff 1px, transparent 1px)', backgroundSize: '32px 32px' }} />
 
                 {/* LEFT COLUMN: Features (40%) */}
-                <div className="w-full md:w-[40%] bg-zinc-900/30 border-b md:border-b-0 md:border-r border-zinc-800/80 p-8 md:p-10 flex flex-col">
-                    <div className="mb-10">
-                        <h3 className="text-white text-lg font-bold mb-2">Features</h3>
-                        <p className="text-zinc-500 text-sm font-light">This pricing plan includes the following features</p>
+                <div className="w-full md:w-[40%] bg-zinc-900/10 border-b md:border-b-0 md:border-r border-zinc-800 flex flex-col relative z-10">
+                    <div className="p-8 md:p-10 border-b border-zinc-800">
+                        <h3 className="text-white text-lg font-bold mb-1 uppercase tracking-tighter">Features</h3>
+                        <p className="text-zinc-500 text-[11px] uppercase tracking-widest font-medium">Core Capabilities</p>
                     </div>
 
-                    <div className="flex-1 space-y-5">
+                    <div className="flex-1">
                         {features.map((feature, i) => (
                             <motion.div
                                 key={i}
-                                initial={{ opacity: 0, x: -10 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                transition={{ delay: 0.1 * i }}
-                                className="flex items-start gap-3"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                transition={{ delay: 0.05 * i }}
+                                className={`flex items-center justify-between px-8 py-5 border-b border-zinc-800/60 last:border-b-0 ${feature.active ? 'bg-transparent' : 'bg-black/20'}`}
                             >
-                                <div className={`mt-0.5 min-w-[20px] h-5 rounded-full flex items-center justify-center ${feature.active ? 'bg-indigo-500/10' : 'bg-zinc-800/50'}`}>
-                                    <svg className={`w-3.2 h-3.2 ${feature.active ? 'text-indigo-400' : 'text-zinc-600'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
-                                    </svg>
-                                </div>
-                                <span className={`text-sm font-light leading-snug ${feature.active ? 'text-zinc-300' : 'text-zinc-600'}`}>
+                                <span className={`text-[13px] font-medium tracking-tight ${feature.active ? 'text-zinc-300' : 'text-zinc-600'}`}>
                                     {feature.text}
                                 </span>
+                                <div className={`flex items-center justify-center w-5 h-5 ${feature.active ? 'text-indigo-400' : 'text-zinc-800'}`}>
+                                    {feature.active ? (
+                                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                                        </svg>
+                                    ) : (
+                                        <div className="w-1.5 h-1.5 bg-current" />
+                                    )}
+                                </div>
                             </motion.div>
                         ))}
                     </div>
 
                     {/* Meta Status */}
-                    <div className="mt-8 pt-8 border-t border-zinc-800/50">
-                        <div className="flex items-center gap-2">
-                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                            <span className="text-[10px] text-zinc-500 uppercase tracking-widest font-medium">System Ready for Calibration</span>
+                    <div className="p-6 border-t border-zinc-800 bg-black/40">
+                        <div className="flex items-center gap-3">
+                            <div className="w-1.5 h-1.5 bg-emerald-500 animate-pulse" />
+                            <span className="text-[10px] text-zinc-500 uppercase tracking-[0.3em] font-bold">Calibration Active</span>
                         </div>
                     </div>
                 </div>
 
                 {/* RIGHT COLUMN: Action (60%) */}
-                <div className="flex-1 p-8 md:p-12 bg-black/40 flex flex-col">
-                    <div className="mb-10">
-                        <h3 className="text-white text-lg font-bold mb-2">Pricing Plan</h3>
-                        <p className="text-zinc-500 text-sm font-light">Choose the plan that best suits your needs</p>
+                <div className="flex-1 bg-black/20 flex flex-col relative z-10">
+                    <div className="p-8 md:p-10 border-b border-zinc-800 bg-zinc-900/5">
+                        <h3 className="text-white text-lg font-bold mb-1 uppercase tracking-tighter">Configuration</h3>
+                        <p className="text-zinc-500 text-[11px] uppercase tracking-widest font-medium">Select Deployment Mode</p>
                     </div>
 
-                    {/* Radio Button Cards */}
-                    <div className="space-y-4 mb-8">
-                        {/* Monthly Option */}
-                        <div
-                            onClick={() => setIsAnnual(false)}
-                            className={`p-6 rounded-2xl border transition-all duration-300 cursor-pointer group relative ${!isAnnual ? 'bg-indigo-500/5 border-indigo-500/30' : 'bg-zinc-900/30 border-zinc-800/80 hover:border-zinc-700'}`}
-                        >
-                            <div className="flex items-center gap-4">
-                                <div className={`w-5 h-5 rounded-full border flex items-center justify-center ${!isAnnual ? 'border-indigo-500 bg-indigo-500 text-white' : 'border-zinc-700'}`}>
-                                    {!isAnnual && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
-                                </div>
-                                <div className="flex-1">
-                                    <h4 className="text-white font-medium text-base">Monthly</h4>
-                                    <div className="flex items-baseline gap-1 mt-1">
-                                        <span className="text-2xl font-bold text-white">$5</span>
-                                        <span className="text-zinc-500 text-xs">/month</span>
+                    <div className="p-8 md:p-12 flex-1 flex flex-col">
+                        {/* Radio Button Options (Table Look) */}
+                        <div className="border border-zinc-800 divide-y divide-zinc-800 mb-10 overflow-hidden">
+                            {/* Monthly Option */}
+                            <div
+                                onClick={() => setIsAnnual(false)}
+                                className={`p-8 transition-all duration-200 cursor-pointer group flex items-center justify-between ${!isAnnual ? 'bg-indigo-500/[0.03]' : 'hover:bg-zinc-900/40'}`}
+                            >
+                                <div className="flex items-center gap-6">
+                                    <div className={`w-4 h-4 border flex items-center justify-center ${!isAnnual ? 'border-indigo-500 bg-indigo-500' : 'border-zinc-700'}`}>
+                                        {!isAnnual && <div className="w-1.5 h-1.5 bg-white" />}
                                     </div>
+                                    <div>
+                                        <h4 className={`text-sm font-bold uppercase tracking-widest ${!isAnnual ? 'text-white' : 'text-zinc-500'}`}>Monthly Access</h4>
+                                        <p className="text-[10px] text-zinc-600 uppercase mt-1">Flexible subscription</p>
+                                    </div>
+                                </div>
+                                <div className="text-right">
+                                    <span className="text-2xl font-black text-white">$5</span>
+                                    <span className="text-zinc-600 text-[10px] uppercase ml-1 block font-bold">Per month</span>
+                                </div>
+                            </div>
+
+                            {/* Annual Option */}
+                            <div
+                                onClick={() => setIsAnnual(true)}
+                                className={`p-8 transition-all duration-200 cursor-pointer group flex items-center justify-between ${isAnnual ? 'bg-indigo-500/[0.03]' : 'hover:bg-zinc-900/40'}`}
+                            >
+                                <div className="flex items-center gap-6">
+                                    <div className={`w-4 h-4 border flex items-center justify-center ${isAnnual ? 'border-indigo-500 bg-indigo-500' : 'border-zinc-700'}`}>
+                                        {isAnnual && <div className="w-1.5 h-1.5 bg-white" />}
+                                    </div>
+                                    <div>
+                                        <div className="flex items-center gap-3">
+                                            <h4 className={`text-sm font-bold uppercase tracking-widest ${isAnnual ? 'text-white' : 'text-zinc-500'}`}>Annual Access</h4>
+                                            {isAnnual && (
+                                                <span className="px-1.5 py-0.5 text-[9px] font-black uppercase bg-emerald-500 text-black">Optimal</span>
+                                            )}
+                                        </div>
+                                        <p className="text-[10px] text-zinc-600 uppercase mt-1">Full year calibration</p>
+                                    </div>
+                                </div>
+                                <div className="text-right">
+                                    <span className="text-2xl font-black text-white">$50</span>
+                                    <span className="text-zinc-600 text-[10px] uppercase ml-1 block font-bold">Per year</span>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Annual Option */}
-                        <div
-                            onClick={() => setIsAnnual(true)}
-                            className={`p-6 rounded-2xl border transition-all duration-300 cursor-pointer group relative ${isAnnual ? 'bg-indigo-500/5 border-indigo-500/30 shadow-[0_0_30px_rgba(99,102,241,0.05)]' : 'bg-zinc-900/30 border-zinc-800/80 hover:border-zinc-700'}`}
-                        >
-                            <div className="flex items-center gap-4">
-                                <div className={`w-5 h-5 rounded-full border flex items-center justify-center ${isAnnual ? 'border-indigo-500 bg-indigo-500 text-white' : 'border-zinc-700'}`}>
-                                    {isAnnual && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                        {/* CTA Section */}
+                        <div className="mt-auto">
+                            <motion.a
+                                href={checkoutUrl}
+                                data-gumroad-overlay="true"
+                                data-gumroad-product-id={currentProductId}
+                                onClick={handleCheckout}
+                                whileTap={{ scale: 0.995 }}
+                                className="gumroad-button w-full relative overflow-hidden group py-6 border border-white bg-white text-black font-black uppercase tracking-[0.3em] text-[11px] shadow-lg block text-center cursor-pointer transition-all duration-300 hover:bg-transparent hover:text-white"
+                            >
+                                <div className="relative z-10 flex items-center justify-center gap-3">
+                                    {isLoading ? 'Processing' : 'Initiate 7-Day Protocol'}
+                                    {!isLoading && (
+                                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                        </svg>
+                                    )}
                                 </div>
-                                <div className="flex-1">
-                                    <div className="flex items-center gap-2 mb-1">
-                                        <h4 className="text-white font-medium text-base">Yearly</h4>
-                                        <span className="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Best value</span>
+                                {isLoading && (
+                                    <div className="absolute inset-0 flex items-center justify-center">
+                                        <div className="w-5 h-5 border-2 border-black/30 border-t-black animate-spin" />
                                     </div>
-                                    <div className="flex items-baseline gap-1">
-                                        <span className="text-2xl font-bold text-white">$50</span>
-                                        <span className="text-zinc-500 text-xs">/year</span>
-                                        <span className="ml-2 text-[10px] text-emerald-500/80 font-medium">Save $10 yearly</span>
-                                    </div>
+                                )}
+                            </motion.a>
+
+                            {/* Minimal Trust Grid */}
+                            <div className="mt-10 grid grid-cols-2 border border-zinc-800/60 divide-x divide-zinc-800/60">
+                                <div className="p-4 flex flex-col items-center justify-center gap-1 bg-black/10">
+                                    <span className="text-[9px] text-zinc-500 uppercase font-black tracking-widest">Trial Mode</span>
+                                    <span className="text-[10px] text-white font-medium">7 Days Free</span>
+                                </div>
+                                <div className="p-4 flex flex-col items-center justify-center gap-1 bg-black/10">
+                                    <span className="text-[9px] text-zinc-500 uppercase font-black tracking-widest">Gateway</span>
+                                    <span className="text-[10px] text-white font-medium">SSL Encrypted</span>
                                 </div>
                             </div>
-                        </div>
-                    </div>
 
-                    {/* Micro-copy */}
-                    <p className="text-center text-[12px] text-zinc-500 mb-6 font-light">
-                        No charge today. Credit card required to start your 7-day bio-calibration.
-                    </p>
-
-                    {/* CTA Button */}
-                    <div className="mt-auto">
-                        <motion.a
-                            href={checkoutUrl}
-                            data-gumroad-overlay="true"
-                            data-gumroad-product-id={currentProductId}
-                            onClick={handleCheckout}
-                            whileHover={{ scale: 1.01 }}
-                            whileTap={{ scale: 0.99 }}
-                            className="gumroad-button w-full relative overflow-hidden group py-4.5 rounded-xl bg-white text-black font-bold uppercase tracking-widest text-[11px] shadow-lg block text-center flex items-center justify-center cursor-pointer transition-all duration-300 hover:bg-zinc-100"
-                        >
-                            <span className={`flex items-center justify-center gap-2 ${isLoading ? 'opacity-0' : 'opacity-100'}`}>
-                                Start 7-Day Free Trial
-                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                                </svg>
-                            </span>
-                            {isLoading && (
-                                <div className="absolute inset-0 flex items-center justify-center">
-                                    <div className="w-5 h-5 border-2 border-black/30 border-t-black rounded-full animate-spin" />
-                                </div>
-                            )}
-                        </motion.a>
-
-                        {/* Trust Badges */}
-                        <div className="mt-8 pt-6 border-t border-zinc-800/50 flex flex-col items-center gap-3">
-                            <div className="flex items-center gap-2 text-[10px] text-zinc-500 uppercase tracking-widest font-bold">
-                                <span className="flex items-center gap-1.5">
-                                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.040L3 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622l-.382-3.016z" />
-                                    </svg>
-                                    Secure checkout via Gumroad
-                                </span>
-                            </div>
-                            <p className="text-[10px] text-zinc-600 uppercase tracking-[0.2em]">
-                                7-day free trial • Cancel anytime
+                            <p className="mt-6 text-center text-[9px] text-zinc-600 uppercase tracking-[0.4em] font-bold">
+                                No initial charge • Secure via Gumroad
                             </p>
                         </div>
                     </div>
