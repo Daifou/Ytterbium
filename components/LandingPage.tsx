@@ -237,7 +237,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
                                 </motion.div>
 
                                 {/* Suggestion Chips (Secondary Button Style) */}
-                                <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+                                <div className="mt-2 flex flex-wrap items-center justify-center gap-3">
                                     {['Deep Work Session', 'Study for Exam', 'Debug Code'].map((suggestion, i) => (
                                         <motion.button
                                             key={suggestion}
