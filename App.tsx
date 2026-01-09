@@ -291,7 +291,9 @@ const App: React.FC = () => {
           // alert(msg); // Uncomment to force pause if needed
 
           // Redirect to checkout if they just signed up and intend to pay
-          const checkoutUrl = `/api/checkout?user_id=${encodeURIComponent(user.id)}&plan=${pendingPlan}`;
+          const productId = pendingPlan === 'annual' ? 'annual_id_placeholder' : 'ccmqg';
+          const checkoutUrl = `https://ytterbiumlife.gumroad.com/l/${productId}?email=${encodeURIComponent(user.email || '')}&user_id=${user.id}`;
+
           // Clear it to avoid loops, though redirect unloads page anyway
           localStorage.removeItem('pending_plan');
           window.location.href = checkoutUrl;
