@@ -21,10 +21,17 @@ export const PricingSection: React.FC<PricingSectionProps> = ({ currentUser, onA
                         transition={{ duration: 0.8 }}
                         className="relative w-full max-w-[1000px] border border-white/10 bg-[#09090b] overflow-visible"
                     >
-                        {/* Clipped Grid Background */}
-                        <div className="absolute inset-0 overflow-hidden">
-                            <div
-                                className="absolute inset-0 pointer-events-none"
+
+                        {/* Corner Crosshairs */}
+                        <div className="absolute top-0 left-0 -translate-x-1/2 -translate-y-1/2 text-zinc-600 font-light text-xl select-none z-20">+</div>
+                        <div className="absolute top-0 right-0 translate-x-1/2 -translate-y-1/2 text-zinc-600 font-light text-xl select-none z-20">+</div>
+                        <div className="absolute bottom-0 left-0 -translate-x-1/2 translate-y-1/2 text-zinc-600 font-light text-xl select-none z-20">+</div>
+                        <div className="absolute bottom-0 right-0 translate-x-1/2 translate-y-1/2 text-zinc-600 font-light text-xl select-none z-20">+</div>
+
+                        {/* Section Header */}
+                        <div className="relative z-10 text-center py-20 border-b border-white/10 overflow-hidden">
+                            {/* Clipped Grid Background (Now restricted to header) */}
+                            <div className="absolute inset-0 pointer-events-none"
                                 style={{
                                     backgroundImage: `
                                         linear-gradient(to right, rgba(255,255,255,0.05) 1px, transparent 1px),
@@ -35,16 +42,7 @@ export const PricingSection: React.FC<PricingSectionProps> = ({ currentUser, onA
                                     WebkitMaskImage: 'radial-gradient(circle at center, black 50%, transparent 95%)'
                                 }}
                             />
-                        </div>
 
-                        {/* Corner Crosshairs */}
-                        <div className="absolute top-0 left-0 -translate-x-1/2 -translate-y-1/2 text-zinc-600 font-light text-xl select-none z-20">+</div>
-                        <div className="absolute top-0 right-0 translate-x-1/2 -translate-y-1/2 text-zinc-600 font-light text-xl select-none z-20">+</div>
-                        <div className="absolute bottom-0 left-0 -translate-x-1/2 translate-y-1/2 text-zinc-600 font-light text-xl select-none z-20">+</div>
-                        <div className="absolute bottom-0 right-0 translate-x-1/2 translate-y-1/2 text-zinc-600 font-light text-xl select-none z-20">+</div>
-
-                        {/* Section Header (Now inside the grid) */}
-                        <div className="relative z-10 text-center py-20 border-b border-white/10">
                             <motion.div
                                 initial={{ opacity: 0, y: 10 }}
                                 whileInView={{ opacity: 1, y: 0 }}
@@ -65,7 +63,7 @@ export const PricingSection: React.FC<PricingSectionProps> = ({ currentUser, onA
                             </motion.div>
                         </div>
 
-                        {/* Pricing Card (Centered on the grid) */}
+                        {/* Pricing Card Section */}
                         <div className="relative z-10 w-full py-20 flex justify-center">
                             <PricingCard currentUser={currentUser} onAuthRequired={onAuthRequired} />
                         </div>
