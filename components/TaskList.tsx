@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Plus, Circle, CheckCircle2, MoreHorizontal } from 'lucide-react';
+import { Plus, Circle, CheckCircle2, MoreHorizontal, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Task } from '../types';
 import { useQuantumRipple } from '../hooks/useQuantumRipple';
@@ -12,15 +12,34 @@ interface TaskListProps {
   tasks: Task[];
   onToggle: (id: string) => void;
   onAdd: (title: string) => void;
+  onDelete?: (id: string) => void;
 }
 
-export const TaskList: React.FC<TaskListProps> = ({ tasks, onToggle, onAdd }) => {
+export const TaskList: React.FC<TaskListProps> = ({ tasks, onToggle, onAdd, onDelete }) => {
   const [newTaskTitle, setNewTaskTitle] = useState('');
   const [isAdding, setIsAdding] = useState(false);
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const { triggerRipple } = useQuantumRipple();
 
-  // Refs to track task positions for the neural link line
+  // Refs to track task positions for the neural link link
   const containerRef = useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setOpenMenuId(null);
+      }
+    };
+
+    if (openMenuId) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [openMenuId]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,6 +53,13 @@ export const TaskList: React.FC<TaskListProps> = ({ tasks, onToggle, onAdd }) =>
   const handleTaskToggle = (id: string, e: React.MouseEvent) => {
     triggerRipple({ intensity: 'large', x: e.clientX, y: e.clientY, force: true });
     onToggle(id);
+  };
+
+  const handleDelete = (id: string) => {
+    if (onDelete) {
+      onDelete(id);
+    }
+    setOpenMenuId(null);
   };
 
   return (
@@ -79,7 +105,7 @@ export const TaskList: React.FC<TaskListProps> = ({ tasks, onToggle, onAdd }) =>
                 initial={{ opacity: 0, x: -5 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, height: 0 }}
-                className="group flex items-center justify-between px-3 py-2 hover:bg-white/5 transition-all duration-300 cursor-default border-l-2 border-transparent hover:border-white/10"
+                className="group flex items-center justify-between px-3 py-2 hover:bg-white/5 transition-all duration-300 cursor-default border-l-2 border-transparent hover:border-white/10 relative"
               >
                 <div className="flex items-center gap-3">
                   <button onClick={(e) => handleTaskToggle(task.id, e)} className="text-gray-500 hover:text-indigo-400 transition-colors relative">
@@ -102,9 +128,41 @@ export const TaskList: React.FC<TaskListProps> = ({ tasks, onToggle, onAdd }) =>
                     {task.title}
                   </span>
                 </div>
-                <button className="opacity-0 group-hover:opacity-100 text-gray-600 hover:text-gray-400 transition-opacity">
-                  <MoreHorizontal className="w-3.5 h-3.5" />
-                </button>
+
+                <div className="relative">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setOpenMenuId(openMenuId === task.id ? null : task.id);
+                    }}
+                    className={`text-gray-600 hover:text-gray-400 transition-opacity ${openMenuId === task.id ? 'opacity-100 text-gray-200' : 'opacity-0 group-hover:opacity-100'}`}
+                  >
+                    <MoreHorizontal className="w-3.5 h-3.5" />
+                  </button>
+
+                  <AnimatePresence>
+                    {openMenuId === task.id && (
+                      <motion.div
+                        ref={menuRef}
+                        initial={{ opacity: 0, scale: 0.95, y: -5 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.95, y: -5 }}
+                        className="absolute right-0 top-6 z-50 w-24 bg-[#18181b] border border-zinc-700 rounded-lg shadow-xl overflow-hidden"
+                      >
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDelete(task.id);
+                          }}
+                          className="w-full flex items-center gap-2 px-3 py-2 text-[10px] text-red-400 hover:bg-white/5 hover:text-red-300 transition-colors"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                          Delete
+                        </button>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
 
                 {/* Neural Connector to next task if both checked */}
                 {task.completed && tasks[index + 1]?.completed && (

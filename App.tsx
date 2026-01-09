@@ -623,6 +623,16 @@ const App: React.FC = () => {
     setInsight(`Focus Intensity set to ${validatedIntensity}/10. AI detection threshold adjusted.`);
   };
 
+  const deleteTask = async (id: string) => {
+    // Update local state immediately for UI responsiveness
+    setTasks(prev => prev.filter(t => t.id !== id));
+
+    // Update in database
+    if (currentUser) {
+      await databaseService.deleteTask(id);
+    }
+  };
+
   const toggleTask = async (id: string) => {
     const task = tasks.find(t => t.id === id);
     if (!task) return;
@@ -1062,7 +1072,7 @@ const App: React.FC = () => {
 
                     <div className="flex flex-col md:flex-row items-center justify-center gap-12 md:gap-0 pt-20 md:pt-0">
                       <div ref={tasksRef} className={`w-full max-w-[16rem] min-h-[13rem] relative z-20 transition-opacity duration-700 ${isFocusMode ? 'opacity-100 animate-in slide-in-from-left-8 fade-in' : 'opacity-0'}`}>
-                        {isFocusMode ? <TaskList tasks={tasks} onToggle={toggleTask} onAdd={addTask} /> : <div className="h-full w-full" />}
+                        {isFocusMode ? <TaskList tasks={tasks} onToggle={toggleTask} onAdd={addTask} onDelete={deleteTask} /> : <div className="h-full w-full" />}
                       </div>
 
                       {!isMobile && <div className="w-[16rem] relative z-0 pointer-events-none" />}
