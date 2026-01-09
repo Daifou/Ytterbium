@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { motion, useAnimation } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import type { User } from '@supabase/supabase-js';
 
 // Extend Window interface for Gumroad
@@ -32,7 +32,7 @@ export const PricingCard: React.FC<PricingCardProps> = ({
     isAuthMode = false,
     onAuth
 }) => {
-    const [isAnnual, setIsAnnual] = useState(true); // Default to annual
+    const [isAnnual, setIsAnnual] = useState(false); // Default to monthly
     const [isLoading, setIsLoading] = useState(false);
     const [isCheckingOut, setIsCheckingOut] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
@@ -141,7 +141,7 @@ export const PricingCard: React.FC<PricingCardProps> = ({
     ];
 
     const currentPrice = isAnnual ? '50' : '5';
-    const period = isAnnual ? '/ year' : '/ month';
+    const period = isAnnual ? 'per year' : 'per month';
 
     return (
         <motion.div
@@ -162,7 +162,7 @@ export const PricingCard: React.FC<PricingCardProps> = ({
             {/* Professional Pricing Card (Vercel Aesthetic) */}
             <div className="relative bg-black border border-white/10 rounded-[24px] overflow-hidden transition-all duration-700 hover:border-white/30 text-left px-8 py-10 shadow-[0_0_50px_rgba(0,0,0,0.8)]">
 
-                {/* Orbital Border Beam (Mind Blowing Part) */}
+                {/* Orbital Border Beam */}
                 <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden rounded-[24px]">
                     <motion.div
                         animate={isHovered ? { opacity: 0 } : { rotate: [0, 360], opacity: [0, 1, 0] }}
@@ -176,24 +176,39 @@ export const PricingCard: React.FC<PricingCardProps> = ({
                 </div>
 
                 <div className="relative z-10 flex flex-col h-full">
-                    {/* Compact Mode/Toggle */}
-                    <div className="flex items-center justify-between mb-8">
-                        <div>
-                            <h3 className="text-xl font-bold text-white tracking-tight">Pro Access</h3>
-                            <p className="text-zinc-500 text-[13px] leading-relaxed mt-1">
-                                For elite individual performance.
-                            </p>
-                        </div>
-                        {isAnnual && (
-                            <div className="px-2.5 py-1 rounded-full bg-white/10 border border-white/10">
-                                <span className="text-[9px] font-bold text-white uppercase tracking-tight">-15%</span>
-                            </div>
-                        )}
+                    {/* Header */}
+                    <div className="flex flex-col mb-8">
+                        <h3 className="text-xl font-bold text-white tracking-tight">Pro Access</h3>
+                        <p className="text-zinc-500 text-[13px] leading-relaxed mt-1">
+                            For elite individual performance.
+                        </p>
                     </div>
 
-                    <div className="flex items-baseline gap-1 mb-8">
+                    <div className="flex items-baseline gap-2 mb-8">
                         <span className="text-4xl font-bold text-white tracking-tighter">${currentPrice}</span>
-                        <span className="text-zinc-500 text-[13px]">{period}</span>
+                        <span className="text-zinc-500 text-[14px] font-medium">{period}</span>
+                    </div>
+
+                    {/* Toggle Switch (Vercel Pro Style) */}
+                    <div className="flex items-center gap-3 mb-10 pb-10 border-b border-white/5">
+                        <button
+                            onClick={() => setIsAnnual(!isAnnual)}
+                            className={`relative w-10 h-6 flex items-center rounded-full p-1 transition-colors duration-300 ${isAnnual ? 'bg-zinc-700' : 'bg-zinc-800'}`}
+                        >
+                            <motion.div
+                                animate={{ x: isAnnual ? 16 : 0 }}
+                                transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                                className="w-4 h-4 bg-white rounded-full shadow-sm"
+                            />
+                        </button>
+                        <span className={`text-[13px] font-semibold transition-colors duration-300 ${isAnnual ? 'text-white' : 'text-zinc-500'}`}>
+                            Annual
+                        </span>
+                        {isAnnual && (
+                            <span className="ml-auto text-[10px] font-bold text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded-full uppercase tracking-tighter">
+                                Save 15%
+                            </span>
+                        )}
                     </div>
 
                     {/* Features Section */}
@@ -217,16 +232,16 @@ export const PricingCard: React.FC<PricingCardProps> = ({
                         </div>
                     )}
 
-                    {/* Primary Action Button (Pill style) */}
+                    {/* Primary Action Button */}
                     <motion.a
                         href={isAuthMode ? '#' : `https://ytterbiumlife.gumroad.com/l/${isAnnual ? 'annual_id_placeholder' : 'ccmqg'}?email=${encodeURIComponent(currentUser?.email || '')}&user_id=${currentUser?.id}`}
                         onClick={handleCheckout}
-                        whileHover={{ scale: 1.02, boxShadow: "0 0 25px rgba(99, 102, 241, 0.3)" }}
+                        whileHover={{ scale: 1.02, boxShadow: "0 0 25px rgba(255, 255, 255, 0.1)" }}
                         whileTap={{ scale: 0.98 }}
-                        className={`w-full py-3.5 rounded-full font-bold text-[13px] tracking-tight transition-all duration-300 flex items-center justify-center gap-3 mb-6 bg-white text-black hover:bg-zinc-200 shadow-xl shadow-white/5`}
+                        className="w-full py-3.5 rounded-full font-bold text-[13px] tracking-tight transition-all duration-300 flex items-center justify-center gap-3 bg-white text-black hover:bg-zinc-200 shadow-xl"
                     >
                         {isLoading ? (
-                            <div className="w-4 h-4 border-2 border-current/20 border-t-current rounded-full animate-spin" />
+                            <div className="w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin" />
                         ) : isAuthMode ? (
                             <>
                                 <svg className="w-4 h-4" viewBox="0 0 24 24">
@@ -246,24 +261,6 @@ export const PricingCard: React.FC<PricingCardProps> = ({
                             </>
                         )}
                     </motion.a>
-
-                    {/* Minimal Toggle Switch (Pill) */}
-                    <div className="flex justify-center">
-                        <div className="p-1 bg-zinc-900 border border-white/5 rounded-full flex items-center shadow-inner">
-                            <button
-                                onClick={() => setIsAnnual(false)}
-                                className={`px-4 py-1.5 rounded-full text-[10px] font-bold tracking-tight transition-all duration-300 ${!isAnnual ? 'bg-zinc-800 text-white' : 'text-zinc-500 hover:text-white'}`}
-                            >
-                                Monthly
-                            </button>
-                            <button
-                                onClick={() => setIsAnnual(true)}
-                                className={`px-4 py-1.5 rounded-full text-[10px] font-bold tracking-tight transition-all duration-300 ${isAnnual ? 'bg-zinc-800 text-white' : 'text-zinc-500 hover:text-white'}`}
-                            >
-                                Yearly
-                            </button>
-                        </div>
-                    </div>
                 </div>
             </div>
         </motion.div>
