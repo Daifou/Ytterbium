@@ -46,23 +46,31 @@ export const PricingSection: React.FC<PricingSectionProps> = ({ currentUser, onA
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                         transition={{ duration: 0.8 }}
-                        className="relative w-full max-w-[1000px] border border-white/5 rounded-[2rem] overflow-hidden bg-zinc-950/50 backdrop-blur-sm"
+                        className="relative w-full max-w-[1000px] border border-white/5 rounded-[2rem] bg-zinc-950/50 backdrop-blur-sm"
                     >
-                        {/* Technical Grid Background */}
-                        <div
-                            className="absolute inset-0 pointer-events-none"
-                            style={{
-                                backgroundImage: `
-                                    linear-gradient(to right, rgba(255,255,255,0.04) 1px, transparent 1px),
-                                    linear-gradient(to bottom, rgba(255,255,255,0.04) 1px, transparent 1px)
-                                `,
-                                backgroundSize: '45px 45px',
-                                maskImage: 'radial-gradient(circle at center, black, transparent 90%)',
-                                WebkitMaskImage: 'radial-gradient(circle at center, black, transparent 90%)'
-                            }}
-                        />
+                        {/* Clipped Grid Background */}
+                        <div className="absolute inset-0 overflow-hidden rounded-[2rem]">
+                            <div
+                                className="absolute inset-0 pointer-events-none"
+                                style={{
+                                    backgroundImage: `
+                                        linear-gradient(to right, rgba(255,255,255,0.05) 1px, transparent 1px),
+                                        linear-gradient(to bottom, rgba(255,255,255,0.05) 1px, transparent 1px)
+                                    `,
+                                    backgroundSize: '40px 40px',
+                                    maskImage: 'radial-gradient(circle at center, black 30%, transparent 80%)',
+                                    WebkitMaskImage: 'radial-gradient(circle at center, black 30%, transparent 80%)'
+                                }}
+                            />
+                        </div>
 
-                        <div className="relative z-10 py-6">
+                        {/* Corner Crosshairs - Positioned exactly on the border intersections */}
+                        <div className="absolute top-0 left-0 -translate-x-1/2 -translate-y-1/2 text-zinc-600 font-light text-xl select-none z-20">+</div>
+                        <div className="absolute top-0 right-0 translate-x-1/2 -translate-y-1/2 text-zinc-600 font-light text-xl select-none z-20">+</div>
+                        <div className="absolute bottom-0 left-0 -translate-x-1/2 translate-y-1/2 text-zinc-600 font-light text-xl select-none z-20">+</div>
+                        <div className="absolute bottom-0 right-0 translate-x-1/2 translate-y-1/2 text-zinc-600 font-light text-xl select-none z-20">+</div>
+
+                        <div className="relative z-10 py-16 px-4 md:px-8">
                             <PricingCard currentUser={currentUser} onAuthRequired={onAuthRequired} />
                         </div>
                     </motion.div>
