@@ -144,6 +144,15 @@ const App: React.FC = () => {
     }
   }, [currentUser]);
 
+  // [SECURITY] Enforce Paywall State
+  useEffect(() => {
+    // If user is logged in AND not premium, and has entered the app, FORCE paywall open
+    if (currentUser && hasEntered && !isPremium) {
+      console.log("[App] Security: User is non-premium. Enforcing paywall.");
+      setIsPaywallOpen(true);
+    }
+  }, [currentUser, hasEntered, isPremium]);
+
   // --- 4. AUTH & SESSION INITIALIZATION ---
   useEffect(() => {
     const initAuth = async () => {
