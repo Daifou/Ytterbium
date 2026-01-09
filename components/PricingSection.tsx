@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
 import { PricingCard } from './PricingCard';
 import type { User } from '@supabase/supabase-js';
@@ -9,64 +9,17 @@ interface PricingSectionProps {
 }
 
 export const PricingSection: React.FC<PricingSectionProps> = ({ currentUser, onAuthRequired }) => {
-    const [isAnnual, setIsAnnual] = useState(false);
-
     return (
-        <section id="pricing" className="relative py-24 md:py-32 w-full overflow-hidden bg-[#050505] text-white">
+        <section id="pricing" className="relative py-24 md:py-32 w-full overflow-hidden bg-[#09090b] text-white">
             <div className="max-w-6xl mx-auto px-6 relative z-10">
-                {/* Header */}
-                <div className="text-center mb-16">
-                    <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.6 }}
-                        className="max-w-2xl mx-auto"
-                    >
-                        <h2 className="text-4xl md:text-5xl font-bold text-white tracking-tight mb-4">
-                            Simple, transparent pricing
-                        </h2>
-                        <p className="text-lg text-zinc-400 font-light">
-                            Invest in your focus. Cancel anytime.
-                        </p>
-                    </motion.div>
-
-                    {/* Toggle Switch */}
-                    <motion.div 
-                        initial={{ opacity: 0, y: 10 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.6, delay: 0.1 }}
-                        className="mt-10 flex items-center justify-center gap-4"
-                    >
-                        <span className={`text-sm font-medium transition-colors ${!isAnnual ? 'text-white' : 'text-zinc-500'}`}>Monthly</span>
-                        <button
-                            onClick={() => setIsAnnual(!isAnnual)}
-                            className="relative w-12 h-6 rounded-full bg-zinc-800 p-1 transition-colors hover:bg-zinc-700"
-                        >
-                            <motion.div
-                                animate={{ x: isAnnual ? 24 : 0 }}
-                                transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                                className="w-4 h-4 rounded-full bg-white shadow-sm"
-                            />
-                        </button>
-                        <div className="flex items-center gap-2">
-                            <span className={`text-sm font-medium transition-colors ${isAnnual ? 'text-white' : 'text-zinc-500'}`}>Annual</span>
-                            <span className="px-2 py-0.5 text-[10px] font-bold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 rounded-full">
-                                Save 20%
-                            </span>
-                        </div>
-                    </motion.div>
-                </div>
-
                 {/* Pricing Card Container with Grid */}
-                <div className="flex justify-center">
+                <div className="flex justify-center mb-24">
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                         transition={{ duration: 0.8 }}
-                        className="relative w-full max-w-[1000px] border border-white/5 bg-[#09090b] rounded-3xl overflow-hidden shadow-2xl"
+                        className="relative w-full max-w-[1000px] border border-white/10 bg-[#09090b] overflow-visible"
                     >
                         {/* Clipped Grid Background */}
                         <div className="absolute inset-0 overflow-hidden">
@@ -74,27 +27,94 @@ export const PricingSection: React.FC<PricingSectionProps> = ({ currentUser, onA
                                 className="absolute inset-0 pointer-events-none"
                                 style={{
                                     backgroundImage: `
-                                        linear-gradient(to right, rgba(255,255,255,0.03) 1px, transparent 1px),
-                                        linear-gradient(to bottom, rgba(255,255,255,0.03) 1px, transparent 1px)
+                                        linear-gradient(to right, rgba(255,255,255,0.05) 1px, transparent 1px),
+                                        linear-gradient(to bottom, rgba(255,255,255,0.05) 1px, transparent 1px)
                                     `,
-                                    backgroundSize: '40px 40px',
-                                    maskImage: 'radial-gradient(circle at center, black 40%, transparent 90%)',
-                                    WebkitMaskImage: 'radial-gradient(circle at center, black 40%, transparent 90%)'
+                                    backgroundSize: '50px 50px',
+                                    maskImage: 'radial-gradient(circle at center, black 50%, transparent 95%)',
+                                    WebkitMaskImage: 'radial-gradient(circle at center, black 50%, transparent 95%)'
                                 }}
                             />
                         </div>
 
+                        {/* Corner Crosshairs */}
+                        <div className="absolute top-0 left-0 -translate-x-1/2 -translate-y-1/2 text-zinc-600 font-light text-xl select-none z-20">+</div>
+                        <div className="absolute top-0 right-0 translate-x-1/2 -translate-y-1/2 text-zinc-600 font-light text-xl select-none z-20">+</div>
+                        <div className="absolute bottom-0 left-0 -translate-x-1/2 translate-y-1/2 text-zinc-600 font-light text-xl select-none z-20">+</div>
+                        <div className="absolute bottom-0 right-0 translate-x-1/2 translate-y-1/2 text-zinc-600 font-light text-xl select-none z-20">+</div>
+
+                        {/* Section Header (Now inside the grid) */}
+                        <div className="relative z-10 text-center py-20 border-b border-white/10">
+                            <motion.div
+                                initial={{ opacity: 0, y: 10 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true }}
+                                transition={{ duration: 0.6 }}
+                                className="max-w-2xl mx-auto px-6"
+                            >
+                                <h2 className="text-4xl md:text-5xl font-black text-white tracking-tighter uppercase mb-6">
+                                    Invest in your <br />
+                                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 via-white to-indigo-300">
+                                        Cognitive Capital.
+                                    </span>
+                                </h2>
+                                <p className="text-lg text-zinc-400 font-light leading-relaxed">
+                                    Stop burning out. Start working with biological precision.
+                                    The cost of a coffee for a month of peak performance.
+                                </p>
+                            </motion.div>
+                        </div>
+
                         {/* Pricing Card (Docked to the grid) */}
-                        <div className="relative z-10 w-full py-12 md:py-20 px-6 flex justify-center">
-                            <PricingCard 
-                                currentUser={currentUser} 
-                                onAuthRequired={onAuthRequired} 
-                                isAnnualProp={isAnnual}
-                                className="!border-0 !bg-transparent !shadow-none" 
-                            />
+                        <div className="relative z-10 w-full bg-[#050505]">
+                            <PricingCard currentUser={currentUser} onAuthRequired={onAuthRequired} className="!border-0 !rounded-none" />
                         </div>
                     </motion.div>
                 </div>
+
+                {/* Testimonials / Social Proof */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 border-t border-zinc-900 pt-16 mt-24">
+                    {[
+                        {
+                            quote: "Since using Ytterbium, my deep work blocks have doubled. It pays for itself in one morning.",
+                            author: "Alex D.",
+                            role: "Senior Engineer"
+                        },
+                        {
+                            quote: "The fatigue detection is specific. It stops me before I crash, which saves my entire afternoon.",
+                            author: "Sarah K.",
+                            role: "Product Designer"
+                        },
+                        {
+                            quote: "Simple, beautiful, and effective. It’s the cleanliness of the UI that keeps me in flow.",
+                            author: "James M.",
+                            role: "Writer"
+                        }
+                    ].map((t, i) => (
+                        <motion.div
+                            key={i}
+                            initial={{ opacity: 0, y: 20 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 0.5, delay: 0.4 + (i * 0.1) }}
+                            className="space-y-4"
+                        >
+                            <div className="flex text-indigo-500 mb-2">
+                                {[...Array(5)].map((_, j) => (
+                                    <svg key={j} className="w-4 h-4 fill-current" viewBox="0 0 20 20">
+                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                    </svg>
+                                ))}
+                            </div>
+                            <p className="text-zinc-300 text-sm leading-relaxed italic">"{t.quote}"</p>
+                            <div>
+                                <div className="text-white text-xs font-bold uppercase tracking-wider">{t.author}</div>
+                                <div className="text-zinc-600 text-[10px] uppercase tracking-wider">{t.role}</div>
+                            </div>
+                        </motion.div>
+                    ))}
+                </div>
+
             </div>
         </section>
     );
