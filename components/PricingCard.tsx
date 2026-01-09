@@ -223,10 +223,7 @@ export const PricingCard: React.FC<PricingCardProps> = ({
                         onClick={handleCheckout}
                         whileHover={{ scale: 1.02, boxShadow: "0 0 25px rgba(99, 102, 241, 0.3)" }}
                         whileTap={{ scale: 0.98 }}
-                        className={`w-full py-3.5 rounded-full font-bold text-[13px] tracking-tight transition-all duration-300 flex items-center justify-center gap-3 mb-6 ${isAuthMode
-                            ? 'bg-white text-black hover:bg-zinc-200'
-                            : 'bg-indigo-600 text-white hover:bg-indigo-500 shadow-xl shadow-indigo-500/10'
-                            }`}
+                        className={`w-full py-3.5 rounded-full font-bold text-[13px] tracking-tight transition-all duration-300 flex items-center justify-center gap-3 mb-6 bg-white text-black hover:bg-zinc-200 shadow-xl shadow-white/5`}
                     >
                         {isLoading ? (
                             <div className="w-4 h-4 border-2 border-current/20 border-t-current rounded-full animate-spin" />
