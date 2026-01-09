@@ -19,6 +19,7 @@ import { AIOptimizedIndicator } from './components/AIOptimizedIndicator';
 import { authService } from './services/authService';
 import { databaseService } from './services/databaseService';
 import { AuthModal } from './components/AuthModal';
+import { PaywallModal } from './components/PaywallModal';
 import { CountdownNotification } from './components/CountdownNotification';
 import { MacNotification } from './components/MacNotification';
 import { Moon } from 'lucide-react';
@@ -98,6 +99,9 @@ const App: React.FC = () => {
   const [countdownRemaining, setCountdownRemaining] = useState<number | null>(null);
   const [pendingStartUserId, setPendingStartUserId] = useState<string | null>(null);
   const [shouldTriggerCountdown, setShouldTriggerCountdown] = useState(false); // [NEW] Centralized trigger flag
+  const [isPaywallOpen, setIsPaywallOpen] = useState(false);
+  const [isRedirectingToCheckout, setIsRedirectingToCheckout] = useState(false);
+  const [freeSessionsUsed, setFreeSessionsUsed] = useState(0);
   const [notification, setNotification] = useState<{
     title: string;
     message: string;
@@ -166,7 +170,8 @@ const App: React.FC = () => {
           const pendingPlan = localStorage.getItem('pending_plan');
           if (pendingPlan) {
             console.log("[App] initAuth: Redirecting to checkout for plan:", pendingPlan);
-            const checkoutUrl = `/api/checkout?user_id=${encodeURIComponent(user.id)}&plan=${pendingPlan}`;
+            const productId = pendingPlan === 'annual' ? 'annual_id_placeholder' : 'ccmqg';
+            const checkoutUrl = `https://ytterbiumlife.gumroad.com/l/${productId}?email=${encodeURIComponent(user.email || '')}&user_id=${user.id}`;
             window.location.href = checkoutUrl;
             return;
           }
@@ -838,45 +843,58 @@ const App: React.FC = () => {
         )}
       </AnimatePresence>
 
+      <AnimatePresence>
+        {isRedirectingToCheckout && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[1000] bg-black flex flex-col items-center justify-center space-y-4"
+          >
+            <div className="w-12 h-12 border-2 border-indigo-500/20 border-t-indigo-500 rounded-full animate-spin" />
+            <p className="text-sm text-zinc-400 font-medium tracking-widest uppercase">Preparing your checkout...</p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {!hasEntered ? (
         <LandingPage onEnter={async (data: any) => {
           console.log("[App] onEnter called from LandingPage. Intensity:", data?.intensity);
 
           if (data) {
             const userId = data.user?.id || currentUser?.id;
-            if (data.user) setCurrentUser(data.user);
+            const updatedUser = data.user || currentUser;
 
-            // 1. Prepare Environment
+            // 1. Prepare Environment State
             handleIntensityChange(data.intensity);
             setInsight(data.insight);
             setElapsed(0);
             setCurrentMetrics(null);
             setStatus(SessionStatus.IDLE);
-            setCurrentSessionId(null); // Ensure a fresh session is created
+            setCurrentSessionId(null);
             setPendingStartUserId(userId || null);
 
-            // 2. Set Entry State
-            setHasEntered(true);
+            // 2. Check for Paywall
+            const profile = userId ? await databaseService.getProfile(userId) : null;
+            const sessionsUsed = (profile as any)?.free_sessions_used || 0;
+            setFreeSessionsUsed(sessionsUsed);
 
-            // 3. Trigger Countdown via the restored global listener
-            console.log("[App] onEnter: Setting trigger flag.");
-            setShouldTriggerCountdown(true);
+            const needsPaywall = !isPremium && (!updatedUser || sessionsUsed >= 3);
 
-            await addTask(data.task, userId);
-          } else {
-            // No task data, but still trigger countdown for manual start
-            console.log("[App] onEnter: No task data, but triggering countdown anyway.");
-            setHasEntered(true);
-            setElapsed(0);
-            setCurrentMetrics(null);
-            setStatus(SessionStatus.IDLE);
-            setCurrentSessionId(null);
-            setShouldTriggerCountdown(true);
+            if (needsPaywall) {
+              setIsPaywallOpen(true);
+              setHasEntered(true); // Proceed to dashboard but show modal
+            } else {
+              // Standard Entry
+              setHasEntered(true);
+              setShouldTriggerCountdown(true);
+              await addTask(data.task, userId);
+            }
           }
         }} />
       ) : (
         <div
-          className={`h-screen bg-[#050505] text-gray-200 selection:bg-primary/30 relative overflow-hidden flex flex-col ${alienMode ? 'font-alien' : 'font-sans'}`}
+          className={`h-screen bg-[#050505] text-gray-200 selection:bg-primary/30 relative overflow-hidden flex flex-col ${alienMode ? 'font-alien' : 'font-sans'} ${isPaywallOpen ? 'pointer-events-none select-none' : ''}`}
         >
           <AIWhisper />
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-indigo-500/5 blur-[120px] rounded-full pointer-events-none z-0" />
@@ -1100,6 +1118,15 @@ const App: React.FC = () => {
           </main>
         </div>
       )}
+
+      {/* Paywall Gate */}
+      <PaywallModal
+        isOpen={isPaywallOpen}
+        onAuth={async (isAnnual) => {
+          localStorage.setItem('pending_plan', isAnnual ? 'annual' : 'monthly');
+          await authService.signInWithGoogle();
+        }}
+      />
       <MacNotification
         isVisible={!!notification}
         title={notification?.title || ''}

@@ -87,33 +87,15 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
     };
 
     const handleStartSession = async () => {
-        // 1. Check Limits (The Wall)
-        if (currentUser && !isPremium && freeSessionsUsed >= 3) {
-            setShowPricingModal(true);
-            return;
-        }
-
-        if (currentUser) {
-            // User is logged in, proceed to app
-            onEnter({
-                task,
-                intensity: analysisResult.intensity,
-                insight: analysisResult.insight,
-                focusMode: analysisResult.focusMode,
-                user: currentUser,
-            });
-        } else {
-            // Save session data to localStorage for restoration after auth
-            localStorage.setItem('pending_session', JSON.stringify({
-                task,
-                intensity: analysisResult.intensity,
-                insight: analysisResult.insight,
-                focusMode: analysisResult.focusMode,
-            }));
-
-            // Show auth modal (task will be restored after successful login)
-            setShowAuthModal(true);
-        }
+        // We always "Enter" the app now, App.tsx will handle the Paywall Gate
+        // if user is not premium or not logged in.
+        onEnter({
+            task,
+            intensity: analysisResult.intensity,
+            insight: analysisResult.insight,
+            focusMode: analysisResult.focusMode,
+            user: currentUser,
+        });
     };
 
     const handleGoogleSignUp = async () => {
