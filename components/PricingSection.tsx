@@ -19,17 +19,11 @@ export const PricingSection: React.FC<PricingSectionProps> = ({ currentUser, onA
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                         transition={{ duration: 0.8 }}
-                        className="relative w-full max-w-5xl border border-white/10 bg-[#09090b] overflow-visible"
+                        className="relative w-full max-w-5xl overflow-visible"
                     >
 
-                        {/* Corner Crosshairs */}
-                        <div className="absolute top-0 left-0 -translate-x-1/2 -translate-y-1/2 text-zinc-600 font-light text-xl select-none z-20">+</div>
-                        <div className="absolute top-0 right-0 translate-x-1/2 -translate-y-1/2 text-zinc-600 font-light text-xl select-none z-20">+</div>
-                        <div className="absolute bottom-0 left-0 -translate-x-1/2 translate-y-1/2 text-zinc-600 font-light text-xl select-none z-20">+</div>
-                        <div className="absolute bottom-0 right-0 translate-x-1/2 translate-y-1/2 text-zinc-600 font-light text-xl select-none z-20">+</div>
-
                         {/* Section Header */}
-                        <div className="relative z-10 text-center py-20 border-b border-white/10 overflow-hidden">
+                        <div className="relative z-10 text-center py-20 overflow-hidden">
                             {/* Clipped Grid Background (Now restricted to header) */}
                             <div className="absolute inset-0 pointer-events-none"
                                 style={{
