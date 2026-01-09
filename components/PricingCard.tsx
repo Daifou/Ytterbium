@@ -113,7 +113,7 @@ export const PricingCard: React.FC<PricingCardProps> = ({
         },
         {
             title: 'Hormone Protection',
-            benefit: 'Work hard without burning out.',
+            benefit: 'Balance your cortisol, protect your performance',
             icon: (
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.040L3 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622l-.382-3.016z" />
@@ -177,8 +177,7 @@ export const PricingCard: React.FC<PricingCardProps> = ({
                 {/* LEFT COLUMN: Features (45%) */}
                 <div className="w-full md:w-[45%] bg-[#09090b] border-b md:border-b-0 md:border-r border-white/10 flex flex-col relative z-10">
                     <div className="p-8 md:p-12 border-b border-white/10">
-                        <h3 className="text-white text-lg font-bold mb-1 uppercase tracking-tighter">Features</h3>
-                        <p className="text-zinc-500 text-[10px] uppercase tracking-widest font-bold">Standard on All Plans</p>
+                        <h3 className="text-white text-lg font-bold uppercase tracking-tighter">Everything You Get</h3>
                     </div>
 
                     <div className="flex-1">
@@ -217,8 +216,7 @@ export const PricingCard: React.FC<PricingCardProps> = ({
                 {/* RIGHT COLUMN: Action (55%) */}
                 <div className="flex-1 bg-[#050505] flex flex-col relative z-10">
                     <div className="p-8 md:p-12 border-b border-white/10 bg-[#09090b]">
-                        <h3 className="text-white text-lg font-bold mb-1 uppercase tracking-tighter">Configuration</h3>
-                        <p className="text-zinc-500 text-[11px] uppercase tracking-widest font-medium">Select Deployment Mode</p>
+                        <h3 className="text-white text-lg font-bold uppercase tracking-tighter">Choose Your Plan</h3>
                     </div>
 
                     <div className="p-8 md:p-12 flex-1 flex flex-col">
