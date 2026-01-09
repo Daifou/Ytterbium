@@ -102,27 +102,27 @@ export const PricingCard: React.FC<PricingCardProps> = ({
 
     return (
         <div className={`relative w-full max-w-xl mx-auto ${className}`}>
-            {/* Toggle Switch */}
-            <div className="flex justify-center mb-10">
-                <div className="p-1.5 bg-zinc-900/50 backdrop-blur-md rounded-full border border-white/5 flex items-center shadow-xl">
-                    <button
-                        onClick={() => setIsAnnual(false)}
-                        className={`px-6 py-2 rounded-full text-xs font-bold tracking-widest uppercase transition-all duration-300 ${!isAnnual ? 'bg-white text-black shadow-lg' : 'text-zinc-500 hover:text-white'}`}
-                    >
-                        Pay Monthly
-                    </button>
-                    <button
-                        onClick={() => setIsAnnual(true)}
-                        className={`px-6 py-2 rounded-full text-xs font-bold tracking-widest uppercase transition-all duration-300 ${isAnnual ? 'bg-white text-black shadow-lg' : 'text-zinc-500 hover:text-white'}`}
-                    >
-                        Pay Yearly
-                    </button>
-                </div>
-            </div>
-
             {/* Classic Pricing Card */}
             <div className="relative bg-[#09090b] border border-white/10 rounded-[32px] overflow-hidden shadow-[0_32px_64px_-16px_rgba(0,0,0,0.5)] transition-all duration-500 hover:border-indigo-500/30 group">
                 <div className="p-10 md:p-14 flex flex-col items-center">
+
+                    {/* Toggle Switch (Now Inside) */}
+                    <div className="flex justify-center mb-12">
+                        <div className="p-1.5 bg-zinc-900/50 backdrop-blur-md rounded-full border border-white/5 flex items-center shadow-inner">
+                            <button
+                                onClick={() => setIsAnnual(false)}
+                                className={`px-6 py-2 rounded-full text-[10px] font-black tracking-[0.15em] uppercase transition-all duration-300 ${!isAnnual ? 'bg-white text-black shadow-lg scale-105' : 'text-zinc-500 hover:text-white'}`}
+                            >
+                                Monthly
+                            </button>
+                            <button
+                                onClick={() => setIsAnnual(true)}
+                                className={`px-6 py-2 rounded-full text-[10px] font-black tracking-[0.15em] uppercase transition-all duration-300 ${isAnnual ? 'bg-white text-black shadow-lg scale-105' : 'text-zinc-500 hover:text-white'}`}
+                            >
+                                Yearly
+                            </button>
+                        </div>
+                    </div>
 
                     {/* Badge */}
                     {isAnnual && (
