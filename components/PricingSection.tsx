@@ -11,11 +11,6 @@ interface PricingSectionProps {
 export const PricingSection: React.FC<PricingSectionProps> = ({ currentUser, onAuthRequired }) => {
     return (
         <section id="pricing" className="relative py-24 md:py-32 w-full overflow-hidden bg-[#09090b] text-white">
-
-            {/* Background Gradients */}
-            <div className="absolute top-[20%] left-[10%] w-[500px] h-[500px] bg-indigo-900/10 rounded-full blur-[128px] pointer-events-none" />
-            <div className="absolute bottom-[20%] right-[10%] w-[500px] h-[500px] bg-violet-900/10 rounded-full blur-[128px] pointer-events-none" />
-
             <div className="max-w-6xl mx-auto px-6 relative z-10">
                 {/* Pricing Card Container with Grid */}
                 <div className="flex justify-center mb-24">
@@ -24,7 +19,7 @@ export const PricingSection: React.FC<PricingSectionProps> = ({ currentUser, onA
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                         transition={{ duration: 0.8 }}
-                        className="relative w-full max-w-[1000px] border border-white/10 bg-zinc-950/50 backdrop-blur-sm overflow-visible"
+                        className="relative w-full max-w-[1000px] border border-white/10 bg-[#09090b] overflow-visible"
                     >
                         {/* Clipped Grid Background */}
                         <div className="absolute inset-0 overflow-hidden">
