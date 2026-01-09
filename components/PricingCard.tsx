@@ -222,56 +222,58 @@ export const PricingCard: React.FC<PricingCardProps> = ({
                     </div>
 
                     <div className="p-8 md:p-12 flex-1 flex flex-col">
-                        {/* Radio Button Options (Table Look) */}
-                        <div className="border border-white/10 divide-y divide-white/10 mb-10 overflow-hidden">
-                            {/* Monthly Option */}
-                            <div
-                                onClick={() => setIsAnnual(false)}
-                                className={`p-8 transition-all duration-200 cursor-pointer group flex items-center justify-between ${!isAnnual ? 'bg-indigo-500/[0.03]' : 'hover:bg-zinc-900/40'}`}
-                            >
-                                <div className="flex items-center gap-6">
-                                    <div className={`w-4 h-4 border flex items-center justify-center ${!isAnnual ? 'border-indigo-500 bg-indigo-500' : 'border-zinc-700'}`}>
-                                        {!isAnnual && <div className="w-1.5 h-1.5 bg-white" />}
-                                    </div>
-                                    <div>
-                                        <h4 className={`text-sm font-bold uppercase tracking-widest ${!isAnnual ? 'text-white' : 'text-zinc-500'}`}>Monthly Access</h4>
-                                        <p className="text-[10px] text-zinc-600 uppercase mt-1">Flexible subscription</p>
-                                    </div>
-                                </div>
-                                <div className="text-right">
-                                    <span className="text-2xl font-black text-white">$5</span>
-                                    <span className="text-zinc-600 text-[10px] uppercase ml-1 block font-bold">Per month</span>
-                                </div>
-                            </div>
-
-                            {/* Annual Option */}
-                            <div
-                                onClick={() => setIsAnnual(true)}
-                                className={`p-8 transition-all duration-200 cursor-pointer group flex items-center justify-between ${isAnnual ? 'bg-indigo-500/[0.03]' : 'hover:bg-zinc-900/40'}`}
-                            >
-                                <div className="flex items-center gap-6">
-                                    <div className={`w-4 h-4 border flex items-center justify-center ${isAnnual ? 'border-indigo-500 bg-indigo-500' : 'border-zinc-700'}`}>
-                                        {isAnnual && <div className="w-1.5 h-1.5 bg-white" />}
-                                    </div>
-                                    <div>
-                                        <div className="flex items-center gap-3">
-                                            <h4 className={`text-sm font-bold uppercase tracking-widest ${isAnnual ? 'text-white' : 'text-zinc-500'}`}>Annual Access</h4>
-                                            {isAnnual && (
-                                                <span className="px-1.5 py-0.5 text-[9px] font-black uppercase bg-emerald-500 text-black">Optimal</span>
-                                            )}
+                        <div className="flex-1 flex flex-col justify-center">
+                            {/* Radio Button Options (Table Look) */}
+                            <div className="border border-white/10 divide-y divide-white/10 overflow-hidden">
+                                {/* Monthly Option */}
+                                <div
+                                    onClick={() => setIsAnnual(false)}
+                                    className={`p-8 transition-all duration-200 cursor-pointer group flex items-center justify-between ${!isAnnual ? 'bg-indigo-500/[0.03]' : 'hover:bg-zinc-900/40'}`}
+                                >
+                                    <div className="flex items-center gap-6">
+                                        <div className={`w-4 h-4 border flex items-center justify-center ${!isAnnual ? 'border-indigo-500 bg-indigo-500' : 'border-zinc-700'}`}>
+                                            {!isAnnual && <div className="w-1.5 h-1.5 bg-white" />}
                                         </div>
-                                        <p className="text-[10px] text-zinc-600 uppercase mt-1">Full year calibration</p>
+                                        <div>
+                                            <h4 className={`text-sm font-bold uppercase tracking-widest ${!isAnnual ? 'text-white' : 'text-zinc-500'}`}>Monthly Access</h4>
+                                            <p className="text-[10px] text-zinc-600 uppercase mt-1">Flexible subscription</p>
+                                        </div>
+                                    </div>
+                                    <div className="text-right">
+                                        <span className="text-2xl font-black text-white">$5</span>
+                                        <span className="text-zinc-600 text-[10px] uppercase ml-1 block font-bold">Per month</span>
                                     </div>
                                 </div>
-                                <div className="text-right">
-                                    <span className="text-2xl font-black text-white">$50</span>
-                                    <span className="text-zinc-600 text-[10px] uppercase ml-1 block font-bold">Per year</span>
+
+                                {/* Annual Option */}
+                                <div
+                                    onClick={() => setIsAnnual(true)}
+                                    className={`p-8 transition-all duration-200 cursor-pointer group flex items-center justify-between ${isAnnual ? 'bg-indigo-500/[0.03]' : 'hover:bg-zinc-900/40'}`}
+                                >
+                                    <div className="flex items-center gap-6">
+                                        <div className={`w-4 h-4 border flex items-center justify-center ${isAnnual ? 'border-indigo-500 bg-indigo-500' : 'border-zinc-700'}`}>
+                                            {isAnnual && <div className="w-1.5 h-1.5 bg-white" />}
+                                        </div>
+                                        <div>
+                                            <div className="flex items-center gap-3">
+                                                <h4 className={`text-sm font-bold uppercase tracking-widest ${isAnnual ? 'text-white' : 'text-zinc-500'}`}>Annual Access</h4>
+                                                {isAnnual && (
+                                                    <span className="px-1.5 py-0.5 text-[9px] font-black uppercase bg-emerald-500 text-black">Optimal</span>
+                                                )}
+                                            </div>
+                                            <p className="text-[10px] text-zinc-600 uppercase mt-1">Full year calibration</p>
+                                        </div>
+                                    </div>
+                                    <div className="text-right">
+                                        <span className="text-2xl font-black text-white">$50</span>
+                                        <span className="text-zinc-600 text-[10px] uppercase ml-1 block font-bold">Per year</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
                         {/* CTA Section */}
-                        <div className="mt-auto">
+                        <div className="mt-auto pt-8">
                             <motion.a
                                 href={checkoutUrl}
                                 data-gumroad-overlay="true"
