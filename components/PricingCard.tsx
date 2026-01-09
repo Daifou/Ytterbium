@@ -171,12 +171,8 @@ export const PricingCard: React.FC<PricingCardProps> = ({
         : '#';
 
     return (
-        <div className={`relative w-full max-w-5xl mx-auto ${className}`}>
-            <div className="relative w-full bg-[#09090b] border border-zinc-800 rounded-none overflow-hidden shadow-2xl flex flex-col md:flex-row min-h-[600px]">
-
-                {/* Subtle Grid Pattern Overlay */}
-                <div className="absolute inset-0 opacity-[0.03] pointer-events-none"
-                    style={{ backgroundImage: 'radial-gradient(circle, #ffffff 1px, transparent 1px)', backgroundSize: '32px 32px' }} />
+        <div className={`relative w-full mx-auto ${className}`}>
+            <div className="relative w-full bg-zinc-950/40 border border-white/5 rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl flex flex-col md:flex-row min-h-[600px] backdrop-blur-md">
 
                 {/* LEFT COLUMN: Features (40%) */}
                 <div className="w-full md:w-[45%] bg-zinc-900/10 border-b md:border-b-0 md:border-r border-zinc-800 flex flex-col relative z-10">

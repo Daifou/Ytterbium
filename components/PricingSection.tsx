@@ -39,16 +39,34 @@ export const PricingSection: React.FC<PricingSectionProps> = ({ currentUser, onA
                     </motion.div>
                 </div>
 
-                {/* Pricing Card */}
-                <motion.div
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.6, delay: 0.2 }}
-                    className="flex justify-center mb-24"
-                >
-                    <PricingCard currentUser={currentUser} onAuthRequired={onAuthRequired} />
-                </motion.div>
+                {/* Pricing Card Container with Grid */}
+                <div className="flex justify-center mb-24">
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.8 }}
+                        className="relative w-full max-w-[1000px] border border-white/5 rounded-[2rem] overflow-hidden bg-zinc-950/50 backdrop-blur-sm"
+                    >
+                        {/* Technical Grid Background */}
+                        <div
+                            className="absolute inset-0 pointer-events-none"
+                            style={{
+                                backgroundImage: `
+                                    linear-gradient(to right, rgba(255,255,255,0.04) 1px, transparent 1px),
+                                    linear-gradient(to bottom, rgba(255,255,255,0.04) 1px, transparent 1px)
+                                `,
+                                backgroundSize: '45px 45px',
+                                maskImage: 'radial-gradient(circle at center, black, transparent 90%)',
+                                WebkitMaskImage: 'radial-gradient(circle at center, black, transparent 90%)'
+                            }}
+                        />
+
+                        <div className="relative z-10 py-6">
+                            <PricingCard currentUser={currentUser} onAuthRequired={onAuthRequired} />
+                        </div>
+                    </motion.div>
+                </div>
 
                 {/* Testimonials / Social Proof */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8 border-t border-zinc-900 pt-16">
