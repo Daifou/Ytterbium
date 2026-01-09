@@ -53,6 +53,13 @@ export const Header: React.FC<HeaderProps> = ({ onGetStartedClick, onLoginClick,
                     ) : (
                         <a
                             href="#pricing"
+                            onClick={(e) => {
+                                e.preventDefault();
+                                document.getElementById('pricing')?.scrollIntoView({
+                                    behavior: 'smooth',
+                                    block: 'start'
+                                });
+                            }}
                             className="text-zinc-200 hover:text-white transition-colors duration-200 text-[11px] uppercase tracking-[0.03em] font-normal"
                         >
                             Pricing
