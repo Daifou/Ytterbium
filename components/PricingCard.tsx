@@ -172,11 +172,11 @@ export const PricingCard: React.FC<PricingCardProps> = ({
 
     return (
         <div className={`relative w-full mx-auto ${className}`}>
-            <div className="relative w-full bg-zinc-950/40 border border-white/5 rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl flex flex-col md:flex-row min-h-[600px] backdrop-blur-md">
+            <div className={`relative w-full bg-transparent overflow-hidden flex flex-col md:flex-row min-h-[600px]`}>
 
-                {/* LEFT COLUMN: Features (40%) */}
-                <div className="w-full md:w-[45%] bg-zinc-900/10 border-b md:border-b-0 md:border-r border-zinc-800 flex flex-col relative z-10">
-                    <div className="p-8 md:p-10 border-b border-zinc-800">
+                {/* LEFT COLUMN: Features (45%) */}
+                <div className="w-full md:w-[45%] bg-zinc-900/5 border-b md:border-b-0 md:border-r border-white/10 flex flex-col relative z-10">
+                    <div className="p-8 md:p-12 border-b border-white/10">
                         <h3 className="text-white text-lg font-bold mb-1 uppercase tracking-tighter">Features</h3>
                         <p className="text-zinc-500 text-[10px] uppercase tracking-widest font-bold">Standard on All Plans</p>
                     </div>
@@ -206,7 +206,7 @@ export const PricingCard: React.FC<PricingCardProps> = ({
                     </div>
 
                     {/* Meta Status */}
-                    <div className="p-6 border-t border-zinc-800 bg-black/40">
+                    <div className="p-6 border-t border-white/10 bg-black/40">
                         <div className="flex items-center gap-3">
                             <div className="w-1.5 h-1.5 bg-emerald-500 animate-pulse" />
                             <span className="text-[10px] text-zinc-500 uppercase tracking-[0.3em] font-bold">Calibration Active</span>
@@ -214,16 +214,16 @@ export const PricingCard: React.FC<PricingCardProps> = ({
                     </div>
                 </div>
 
-                {/* RIGHT COLUMN: Action (60%) */}
-                <div className="flex-1 bg-black/20 flex flex-col relative z-10">
-                    <div className="p-8 md:p-10 border-b border-zinc-800 bg-zinc-900/5">
+                {/* RIGHT COLUMN: Action (55%) */}
+                <div className="flex-1 bg-black/10 flex flex-col relative z-10">
+                    <div className="p-8 md:p-12 border-b border-white/10 bg-white/[0.02]">
                         <h3 className="text-white text-lg font-bold mb-1 uppercase tracking-tighter">Configuration</h3>
                         <p className="text-zinc-500 text-[11px] uppercase tracking-widest font-medium">Select Deployment Mode</p>
                     </div>
 
                     <div className="p-8 md:p-12 flex-1 flex flex-col">
                         {/* Radio Button Options (Table Look) */}
-                        <div className="border border-zinc-800 divide-y divide-zinc-800 mb-10 overflow-hidden">
+                        <div className="border border-white/10 divide-y divide-white/10 mb-10 overflow-hidden">
                             {/* Monthly Option */}
                             <div
                                 onClick={() => setIsAnnual(false)}
@@ -299,7 +299,7 @@ export const PricingCard: React.FC<PricingCardProps> = ({
                             </motion.a>
 
                             {/* Minimal Trust Grid */}
-                            <div className="mt-10 grid grid-cols-2 border border-zinc-800/60 divide-x divide-zinc-800/60">
+                            <div className="mt-10 grid grid-cols-2 border border-white/10 divide-x divide-white/10">
                                 <div className="p-4 flex flex-col items-center justify-center gap-1 bg-black/10">
                                     <span className="text-[9px] text-zinc-500 uppercase font-black tracking-widest">Trial Mode</span>
                                     <span className="text-[10px] text-white font-medium">7 Days Free</span>

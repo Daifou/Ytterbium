@@ -17,28 +17,6 @@ export const PricingSection: React.FC<PricingSectionProps> = ({ currentUser, onA
             <div className="absolute bottom-[20%] right-[10%] w-[500px] h-[500px] bg-violet-900/10 rounded-full blur-[128px] pointer-events-none" />
 
             <div className="max-w-6xl mx-auto px-6 relative z-10">
-
-                {/* Section Header */}
-                <div className="text-center mb-16 max-w-2xl mx-auto">
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.6 }}
-                    >
-                        <h2 className="text-4xl md:text-5xl font-black text-white tracking-tighter uppercase mb-6">
-                            Invest in your <br />
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 via-white to-indigo-300">
-                                Cognitive Capital.
-                            </span>
-                        </h2>
-                        <p className="text-lg text-zinc-400 font-light leading-relaxed">
-                            Stop burning out. Start working with biological precision.
-                            The cost of a coffee for a month of peak performance.
-                        </p>
-                    </motion.div>
-                </div>
-
                 {/* Pricing Card Container with Grid */}
                 <div className="flex justify-center mb-24">
                     <motion.div
@@ -46,10 +24,10 @@ export const PricingSection: React.FC<PricingSectionProps> = ({ currentUser, onA
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                         transition={{ duration: 0.8 }}
-                        className="relative w-full max-w-[1000px] border border-white/5 rounded-[2rem] bg-zinc-950/50 backdrop-blur-sm"
+                        className="relative w-full max-w-[1000px] border border-white/10 bg-zinc-950/50 backdrop-blur-sm overflow-visible"
                     >
                         {/* Clipped Grid Background */}
-                        <div className="absolute inset-0 overflow-hidden rounded-[2rem]">
+                        <div className="absolute inset-0 overflow-hidden">
                             <div
                                 className="absolute inset-0 pointer-events-none"
                                 style={{
@@ -57,27 +35,50 @@ export const PricingSection: React.FC<PricingSectionProps> = ({ currentUser, onA
                                         linear-gradient(to right, rgba(255,255,255,0.05) 1px, transparent 1px),
                                         linear-gradient(to bottom, rgba(255,255,255,0.05) 1px, transparent 1px)
                                     `,
-                                    backgroundSize: '40px 40px',
-                                    maskImage: 'radial-gradient(circle at center, black 30%, transparent 80%)',
-                                    WebkitMaskImage: 'radial-gradient(circle at center, black 30%, transparent 80%)'
+                                    backgroundSize: '50px 50px',
+                                    maskImage: 'radial-gradient(circle at center, black 50%, transparent 95%)',
+                                    WebkitMaskImage: 'radial-gradient(circle at center, black 50%, transparent 95%)'
                                 }}
                             />
                         </div>
 
-                        {/* Corner Crosshairs - Positioned exactly on the border intersections */}
+                        {/* Corner Crosshairs */}
                         <div className="absolute top-0 left-0 -translate-x-1/2 -translate-y-1/2 text-zinc-600 font-light text-xl select-none z-20">+</div>
                         <div className="absolute top-0 right-0 translate-x-1/2 -translate-y-1/2 text-zinc-600 font-light text-xl select-none z-20">+</div>
                         <div className="absolute bottom-0 left-0 -translate-x-1/2 translate-y-1/2 text-zinc-600 font-light text-xl select-none z-20">+</div>
                         <div className="absolute bottom-0 right-0 translate-x-1/2 translate-y-1/2 text-zinc-600 font-light text-xl select-none z-20">+</div>
 
-                        <div className="relative z-10 py-16 px-4 md:px-8">
-                            <PricingCard currentUser={currentUser} onAuthRequired={onAuthRequired} />
+                        {/* Section Header (Now inside the grid) */}
+                        <div className="relative z-10 text-center py-20 border-b border-white/10">
+                            <motion.div
+                                initial={{ opacity: 0, y: 10 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true }}
+                                transition={{ duration: 0.6 }}
+                                className="max-w-2xl mx-auto px-6"
+                            >
+                                <h2 className="text-4xl md:text-5xl font-black text-white tracking-tighter uppercase mb-6">
+                                    Invest in your <br />
+                                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 via-white to-indigo-300">
+                                        Cognitive Capital.
+                                    </span>
+                                </h2>
+                                <p className="text-lg text-zinc-400 font-light leading-relaxed">
+                                    Stop burning out. Start working with biological precision.
+                                    The cost of a coffee for a month of peak performance.
+                                </p>
+                            </motion.div>
+                        </div>
+
+                        {/* Pricing Card (Docked to the grid) */}
+                        <div className="relative z-10 w-full">
+                            <PricingCard currentUser={currentUser} onAuthRequired={onAuthRequired} className="!border-0 !rounded-none !bg-transparent" />
                         </div>
                     </motion.div>
                 </div>
 
                 {/* Testimonials / Social Proof */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 border-t border-zinc-900 pt-16">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 border-t border-zinc-900 pt-16 mt-24">
                     {[
                         {
                             quote: "Since using Ytterbium, my deep work blocks have doubled. It pays for itself in one morning.",
