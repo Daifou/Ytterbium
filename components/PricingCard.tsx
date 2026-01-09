@@ -175,28 +175,28 @@ export const PricingCard: React.FC<PricingCardProps> = ({
             <div className={`relative w-full bg-[#050505] border border-white/10 overflow-hidden flex flex-col md:flex-row min-h-[600px]`}>
 
                 {/* LEFT COLUMN: Features (45%) */}
-                <div className="w-full md:w-[45%] bg-[#09090b] border-b md:border-b-0 md:border-r border-white/10 flex flex-col relative z-10">
-                    <div className="p-8 md:p-12 border-b border-white/10">
-                        <h3 className="text-white text-lg font-bold uppercase tracking-tighter">Everything You Get</h3>
+                <div className="w-full md:w-[45%] bg-[#09090b] border-b md:border-b-0 md:border-r border-[#333] flex flex-col relative z-10 font-sans">
+                    <div className="p-8 md:p-12 border-b border-[#333]">
+                        <h3 className="text-white text-2xl font-semibold tracking-[-0.02em]">Everything You Get</h3>
                     </div>
 
-                    <div className="flex-1">
+                    <div className="flex-1 py-4">
                         {features.map((feature, i) => (
                             <motion.div
                                 key={i}
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
                                 transition={{ delay: 0.05 * i }}
-                                className={`flex items-start gap-4 px-8 py-6 border-b border-zinc-800/60 last:border-b-0 hover:bg-white/[0.02] transition-colors`}
+                                className={`flex items-start gap-4 px-8 md:px-12 py-8 border-b border-[#333]/50 last:border-b-0 hover:bg-white/[0.02] transition-colors`}
                             >
-                                <div className={`mt-0.5 flex items-center justify-center w-6 h-6 shrink-0 ${feature.active ? 'text-indigo-400' : 'text-zinc-800'}`}>
+                                <div className={`mt-1 flex items-center justify-center w-5 h-5 shrink-0 opacity-80 ${feature.active ? 'text-indigo-400' : 'text-zinc-600'}`}>
                                     {feature.icon}
                                 </div>
-                                <div className="space-y-1">
-                                    <span className={`text-[13px] font-bold tracking-tight block ${feature.active ? 'text-white' : 'text-zinc-600'}`}>
+                                <div className="space-y-2 text-left">
+                                    <span className={`text-[15px] font-semibold tracking-[-0.01em] block ${feature.active ? 'text-white' : 'text-zinc-500'}`}>
                                         {feature.title}
                                     </span>
-                                    <span className={`text-[12px] font-medium leading-relaxed block ${feature.active ? 'text-zinc-500' : 'text-zinc-800'}`}>
+                                    <span className={`text-[14px] font-normal leading-[1.6] block ${feature.active ? 'text-[#A1A1A6]' : 'text-zinc-800'}`}>
                                         {feature.benefit}
                                     </span>
                                 </div>
@@ -205,73 +205,73 @@ export const PricingCard: React.FC<PricingCardProps> = ({
                     </div>
 
                     {/* Meta Status */}
-                    <div className="p-6 border-t border-white/10 bg-black/40">
+                    <div className="p-8 border-t border-[#333] bg-black/40">
                         <div className="flex items-center gap-3">
-                            <div className="w-1.5 h-1.5 bg-emerald-500 animate-pulse" />
-                            <span className="text-[10px] text-zinc-500 uppercase tracking-[0.3em] font-bold">Calibration Active</span>
+                            <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+                            <span className="text-[11px] text-[#A1A1A6] font-medium tracking-tight">Calibration Active</span>
                         </div>
                     </div>
                 </div>
 
                 {/* RIGHT COLUMN: Action (55%) */}
-                <div className="flex-1 bg-[#050505] flex flex-col relative z-10">
-                    <div className="p-8 md:p-12 border-b border-white/10 bg-[#09090b]">
-                        <h3 className="text-white text-lg font-bold uppercase tracking-tighter">Choose Your Plan</h3>
+                <div className="flex-1 bg-[#050505] flex flex-col relative z-10 font-sans">
+                    <div className="p-8 md:p-12 border-b border-[#333] bg-[#09090b]">
+                        <h3 className="text-white text-2xl font-semibold tracking-[-0.02em]">Choose Your Plan</h3>
                     </div>
 
                     <div className="p-8 md:p-12 flex-1 flex flex-col">
                         <div className="flex-1 flex flex-col justify-center">
                             {/* Radio Button Options (Table Look) */}
-                            <div className="border border-white/10 divide-y divide-white/10 overflow-hidden">
+                            <div className="border border-[#333] divide-y divide-[#333] overflow-hidden rounded-xl bg-[#09090b]/50">
                                 {/* Monthly Option */}
                                 <div
                                     onClick={() => setIsAnnual(false)}
-                                    className={`p-8 transition-all duration-200 cursor-pointer group flex items-center justify-between ${!isAnnual ? 'bg-indigo-500/[0.03]' : 'hover:bg-zinc-900/40'}`}
+                                    className={`p-8 transition-all duration-300 cursor-pointer group flex items-center justify-between ${!isAnnual ? 'bg-indigo-500/[0.05]' : 'hover:bg-white/[0.02]'}`}
                                 >
                                     <div className="flex items-center gap-6">
-                                        <div className={`w-4 h-4 border flex items-center justify-center ${!isAnnual ? 'border-indigo-500 bg-indigo-500' : 'border-zinc-700'}`}>
-                                            {!isAnnual && <div className="w-1.5 h-1.5 bg-white" />}
+                                        <div className={`w-5 h-5 border rounded-full flex items-center justify-center transition-all ${!isAnnual ? 'border-indigo-500 bg-indigo-500' : 'border-[#333]'}`}>
+                                            {!isAnnual && <div className="w-2 h-2 bg-white rounded-full" />}
                                         </div>
-                                        <div>
-                                            <h4 className={`text-sm font-bold uppercase tracking-widest ${!isAnnual ? 'text-white' : 'text-zinc-500'}`}>Monthly Access</h4>
-                                            <p className="text-[10px] text-zinc-600 uppercase mt-1">Flexible subscription</p>
+                                        <div className="text-left">
+                                            <h4 className={`text-base font-semibold tracking-[-0.01em] ${!isAnnual ? 'text-white' : 'text-[#A1A1A6]'}`}>Monthly Access</h4>
+                                            <p className="text-[13px] text-[#A1A1A6] font-normal mt-1 leading-[1.6]">Flexible subscription</p>
                                         </div>
                                     </div>
                                     <div className="text-right">
-                                        <span className="text-2xl font-black text-white">$5</span>
-                                        <span className="text-zinc-600 text-[10px] uppercase ml-1 block font-bold">Per month</span>
+                                        <span className="text-2xl font-semibold text-white tracking-tight">$5</span>
+                                        <span className="text-[#A1A1A6] text-[12px] font-normal block">Per month</span>
                                     </div>
                                 </div>
 
                                 {/* Annual Option */}
                                 <div
                                     onClick={() => setIsAnnual(true)}
-                                    className={`p-8 transition-all duration-200 cursor-pointer group flex items-center justify-between ${isAnnual ? 'bg-indigo-500/[0.03]' : 'hover:bg-zinc-900/40'}`}
+                                    className={`p-8 transition-all duration-300 cursor-pointer group flex items-center justify-between ${isAnnual ? 'bg-indigo-500/[0.05]' : 'hover:bg-white/[0.02]'}`}
                                 >
                                     <div className="flex items-center gap-6">
-                                        <div className={`w-4 h-4 border flex items-center justify-center ${isAnnual ? 'border-indigo-500 bg-indigo-500' : 'border-zinc-700'}`}>
-                                            {isAnnual && <div className="w-1.5 h-1.5 bg-white" />}
+                                        <div className={`w-5 h-5 border rounded-full flex items-center justify-center transition-all ${isAnnual ? 'border-indigo-500 bg-indigo-500' : 'border-[#333]'}`}>
+                                            {isAnnual && <div className="w-2 h-2 bg-white rounded-full" />}
                                         </div>
-                                        <div>
+                                        <div className="text-left">
                                             <div className="flex items-center gap-3">
-                                                <h4 className={`text-sm font-bold uppercase tracking-widest ${isAnnual ? 'text-white' : 'text-zinc-500'}`}>Annual Access</h4>
+                                                <h4 className={`text-base font-semibold tracking-[-0.01em] ${isAnnual ? 'text-white' : 'text-[#A1A1A6]'}`}>Annual Access</h4>
                                                 {isAnnual && (
-                                                    <span className="px-1.5 py-0.5 text-[9px] font-black uppercase bg-emerald-500 text-black">Optimal</span>
+                                                    <span className="px-2 py-0.5 text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full">Save 15%</span>
                                                 )}
                                             </div>
-                                            <p className="text-[10px] text-zinc-600 uppercase mt-1">Full year calibration</p>
+                                            <p className="text-[13px] text-[#A1A1A6] font-normal mt-1 leading-[1.6]">Full year calibration</p>
                                         </div>
                                     </div>
                                     <div className="text-right">
-                                        <span className="text-2xl font-black text-white">$50</span>
-                                        <span className="text-zinc-600 text-[10px] uppercase ml-1 block font-bold">Per year</span>
+                                        <span className="text-2xl font-semibold text-white tracking-tight">$50</span>
+                                        <span className="text-[#A1A1A6] text-[12px] font-normal block">Per year</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
                         {/* CTA Section */}
-                        <div className="mt-auto pt-8">
+                        <div className="mt-auto pt-12">
                             <motion.a
                                 href={checkoutUrl}
                                 data-gumroad-overlay="true"
@@ -279,13 +279,13 @@ export const PricingCard: React.FC<PricingCardProps> = ({
                                 onClick={handleCheckout}
                                 whileHover={{ scale: 1.01 }}
                                 whileTap={{ scale: 0.99 }}
-                                className="gumroad-button w-full relative overflow-hidden group py-4.5 rounded-md bg-indigo-600 text-white font-bold uppercase tracking-widest text-[13px] shadow-[0_1px_2px_rgba(0,0,0,0.4)] hover:shadow-[0_4px_12px_rgba(99,102,241,0.3)] block text-center flex items-center justify-center cursor-pointer transition-all duration-300 hover:bg-indigo-500 border border-indigo-500/50"
+                                className="w-full relative overflow-hidden group py-5 rounded-full bg-white text-black font-semibold text-[15px] shadow-lg hover:shadow-xl block text-center flex items-center justify-center cursor-pointer transition-all duration-300 hover:bg-[#F2F2F7]"
                             >
-                                <div className="relative z-10 flex items-center justify-center gap-2">
-                                    {isLoading ? 'Processing' : (
+                                <div className="relative z-10 flex items-center justify-center gap-3">
+                                    {isLoading ? 'Processing...' : (
                                         <>
                                             Initiate 7-Day Protocol
-                                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <svg className="w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                                             </svg>
                                         </>
@@ -293,25 +293,25 @@ export const PricingCard: React.FC<PricingCardProps> = ({
                                 </div>
                                 {isLoading && (
                                     <div className="absolute inset-0 flex items-center justify-center">
-                                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                        <div className="w-5 h-5 border-2 border-black/20 border-t-black rounded-full animate-spin" />
                                     </div>
                                 )}
                             </motion.a>
 
                             {/* Minimal Trust Grid */}
-                            <div className="mt-10 grid grid-cols-2 border border-white/10 divide-x divide-white/10">
-                                <div className="p-4 flex flex-col items-center justify-center gap-1 bg-[#09090b]">
-                                    <span className="text-[9px] text-zinc-500 uppercase font-black tracking-widest">Trial Mode</span>
-                                    <span className="text-[10px] text-white font-medium">7 Days Free</span>
+                            <div className="mt-12 grid grid-cols-2 border border-[#333] divide-x divide-[#333] rounded-sm overflow-hidden">
+                                <div className="p-6 flex flex-col items-center justify-center gap-1.5 bg-[#09090b]">
+                                    <span className="text-[11px] text-[#A1A1A6] font-medium tracking-tight">Trial Mode</span>
+                                    <span className="text-[12px] text-white font-semibold">7 Days Free</span>
                                 </div>
-                                <div className="p-4 flex flex-col items-center justify-center gap-1 bg-[#09090b]">
-                                    <span className="text-[9px] text-zinc-500 uppercase font-black tracking-widest">Gateway</span>
-                                    <span className="text-[10px] text-white font-medium">SSL Encrypted</span>
+                                <div className="p-6 flex flex-col items-center justify-center gap-1.5 bg-[#09090b]">
+                                    <span className="text-[11px] text-[#A1A1A6] font-medium tracking-tight">Gateway</span>
+                                    <span className="text-[12px] text-white font-semibold">SSL Encrypted</span>
                                 </div>
                             </div>
 
-                            <p className="mt-6 text-center text-[9px] text-zinc-600 uppercase tracking-[0.4em] font-bold">
-                                No initial charge • Secure via Gumroad
+                            <p className="mt-8 text-center text-[12px] text-[#A1A1A6] font-normal leading-relaxed">
+                                No initial charge • Secure checkout via Gumroad
                             </p>
                         </div>
                     </div>
