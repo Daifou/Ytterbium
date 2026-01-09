@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, useAnimation } from 'framer-motion';
 import type { User } from '@supabase/supabase-js';
 
 // Extend Window interface for Gumroad
@@ -35,6 +35,7 @@ export const PricingCard: React.FC<PricingCardProps> = ({
     const [isAnnual, setIsAnnual] = useState(true); // Default to annual
     const [isLoading, setIsLoading] = useState(false);
     const [isCheckingOut, setIsCheckingOut] = useState(false);
+    const [isHovered, setIsHovered] = useState(false);
 
     useEffect(() => {
         if (window.GumroadOverlay) {
@@ -143,11 +144,38 @@ export const PricingCard: React.FC<PricingCardProps> = ({
     const period = isAnnual ? '/ year' : '/ month';
 
     return (
-        <div className={`relative w-full max-w-sm mx-auto ${className}`}>
-            {/* Professional Pricing Card (Vercel Aesthetic) */}
-            <div className="relative bg-black border border-white/10 rounded-[24px] overflow-hidden transition-all duration-500 hover:border-white/20 group text-left px-8 py-10 shadow-2xl">
+        <motion.div
+            initial={{ y: 0 }}
+            animate={isHovered ? { y: 0, scale: 1.02 } : { y: [0, -12, 0] }}
+            transition={isHovered ? { duration: 0.4, ease: "easeOut" } : { duration: 8, repeat: Infinity, ease: "easeInOut" }}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+            className={`relative w-full max-w-sm mx-auto group ${className}`}
+        >
+            {/* Animated Glow Backdrop */}
+            <motion.div
+                animate={isHovered ? { opacity: 0.4, scale: 1.1 } : { opacity: [0.1, 0.25, 0.1], scale: [1, 1.05, 1] }}
+                transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+                className="absolute inset-0 bg-indigo-500/20 blur-[80px] rounded-full -z-10"
+            />
 
-                <div className="flex flex-col h-full">
+            {/* Professional Pricing Card (Vercel Aesthetic) */}
+            <div className="relative bg-black border border-white/10 rounded-[24px] overflow-hidden transition-all duration-700 hover:border-white/30 text-left px-8 py-10 shadow-[0_0_50px_rgba(0,0,0,0.8)]">
+
+                {/* Orbital Border Beam (Mind Blowing Part) */}
+                <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden rounded-[24px]">
+                    <motion.div
+                        animate={isHovered ? { opacity: 0 } : { rotate: [0, 360], opacity: [0, 1, 0] }}
+                        transition={{
+                            rotate: { duration: 10, repeat: Infinity, ease: "linear" },
+                            opacity: { duration: 4, repeat: Infinity, ease: "easeInOut" }
+                        }}
+                        className="absolute -inset-[100%] bg-[conic-gradient(from_0deg,transparent_60%,rgba(99,102,241,0.6)_80%,transparent_100%)]"
+                        style={{ maskImage: 'radial-gradient(circle at center, transparent 65%, black 67%)', WebkitMaskImage: 'radial-gradient(circle at center, transparent 65%, black 67%)' }}
+                    />
+                </div>
+
+                <div className="relative z-10 flex flex-col h-full">
                     {/* Compact Mode/Toggle */}
                     <div className="flex items-center justify-between mb-8">
                         <div>
@@ -172,14 +200,19 @@ export const PricingCard: React.FC<PricingCardProps> = ({
                     {!isCompact && (
                         <div className="flex-1 space-y-4 mb-10">
                             {features.map((feature, i) => (
-                                <div key={i} className="flex items-center gap-3.5 group/item">
-                                    <div className="flex items-center justify-center w-5 h-5 text-white/90 shrink-0">
+                                <motion.div
+                                    key={i}
+                                    initial={{ opacity: 0.8 }}
+                                    whileHover={{ opacity: 1, x: 2 }}
+                                    className="flex items-center gap-3.5 group/item transition-all duration-300"
+                                >
+                                    <div className="flex items-center justify-center w-5 h-5 text-zinc-500 group-hover/item:text-white shrink-0 transition-colors">
                                         {feature.icon}
                                     </div>
                                     <span className="text-[14px] font-medium text-zinc-400 group-hover/item:text-zinc-200 transition-colors">
                                         {feature.text}
                                     </span>
-                                </div>
+                                </motion.div>
                             ))}
                         </div>
                     )}
@@ -188,10 +221,10 @@ export const PricingCard: React.FC<PricingCardProps> = ({
                     <motion.a
                         href={isAuthMode ? '#' : `https://ytterbiumlife.gumroad.com/l/${isAnnual ? 'annual_id_placeholder' : 'ccmqg'}?email=${encodeURIComponent(currentUser?.email || '')}&user_id=${currentUser?.id}`}
                         onClick={handleCheckout}
-                        whileHover={{ scale: 1.02 }}
+                        whileHover={{ scale: 1.02, boxShadow: "0 0 25px rgba(99, 102, 241, 0.3)" }}
                         whileTap={{ scale: 0.98 }}
                         className={`w-full py-3.5 rounded-full font-bold text-[13px] tracking-tight transition-all duration-300 flex items-center justify-center gap-3 mb-6 ${isAuthMode
-                            ? 'bg-white text-black hover:bg-zinc-200 shadow-xl shadow-white/5'
+                            ? 'bg-white text-black hover:bg-zinc-200'
                             : 'bg-indigo-600 text-white hover:bg-indigo-500 shadow-xl shadow-indigo-500/10'
                             }`}
                     >
@@ -236,6 +269,6 @@ export const PricingCard: React.FC<PricingCardProps> = ({
                     </div>
                 </div>
             </div>
-        </div>
+        </motion.div>
     );
 };
