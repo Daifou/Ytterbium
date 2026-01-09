@@ -19,7 +19,7 @@ export const PricingSection: React.FC<PricingSectionProps> = ({ currentUser, onA
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                         transition={{ duration: 0.8 }}
-                        className="relative w-full max-w-[1000px] border border-white/10 bg-[#09090b] overflow-visible"
+                        className="relative w-full max-w-5xl border border-white/10 bg-[#09090b] overflow-visible"
                     >
 
                         {/* Corner Crosshairs */}
