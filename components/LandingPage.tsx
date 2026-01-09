@@ -132,172 +132,179 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
     };
 
     return (
-        <div className="min-h-screen bg-black text-white relative overflow-x-hidden">
-            {/* Background Elements */}
-            <div className="fixed inset-0 bg-[#09090b]" />
+        <div className="fixed inset-0 bg-[#F5F5F7] overflow-hidden flex flex-col p-[10px]">
+            {/* The Frame Overlay (Ensures perfectly crisp edges if needed, but the padding + rounding on parent/child usually suffices) */}
 
-            {/* Header */}
-            <Header
-                onGetStartedClick={handleGetStarted}
-                onLoginClick={handleLogin}
-                isDashboard={stage !== 'hero'}
-                currentUser={currentUser}
-            />
+            {/* Inset Scrollable Content Area */}
+            <div className="flex-1 bg-black text-white relative overflow-y-auto overflow-x-hidden rounded-[12px] shadow-2xl custom-scrollbar border border-white/5">
+                {/* Background Elements (Moved inside scroll container to stay relative to content backgrounds if needed, or kept absolute) */}
+                <div className="absolute inset-0 bg-[#09090b] -z-20" />
 
-            {/* Main Content */}
-            <div className="relative z-10 min-h-screen flex items-center justify-center px-6 pt-12">
-                <AnimatePresence mode="wait">
-                    {/* Hero Section - Centered Input */}
-                    <AnimatePresence>
-                        {stage === 'hero' && (
-                            <motion.div
-                                initial={{ opacity: 0, scale: 1.02, filter: 'blur(8px)' }}
-                                animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
-                                exit={{ opacity: 0, scale: 0.98, filter: 'blur(8px)' }}
-                                transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                                className="relative z-10 w-full max-w-3xl px-6"
-                            >
-                                {/* Visual Hierarchy: Headline -> Subheadline */}
-                                <motion.div
-                                    initial={{ opacity: 0, y: 15 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-                                    className="text-center mb-16"
-                                >
-                                    <h1 className="flex flex-col items-center">
-                                        {/* Headline - The "Authority" */}
-                                        <span className="text-5xl md:text-[84px] font-instrument italic text-white tracking-tight leading-[0.9] max-w-4xl px-4">
-                                            You're Already <br /> Burning Out
-                                        </span>
+                {/* Header (Properly Inset) */}
+                <Header
+                    onGetStartedClick={handleGetStarted}
+                    onLoginClick={handleLogin}
+                    isDashboard={stage !== 'hero'}
+                    currentUser={currentUser}
+                />
 
-                                        {/* Subheadline - The "Clinical Detail" */}
-                                        <div className="mt-12 max-w-2xl mx-auto px-6">
-                                            <p className="text-zinc-400 text-base md:text-[18px] leading-relaxed font-light tracking-wide text-balance">
-                                                Blurred vision. Tension headaches. Mental fog. Your body is screaming warnings you've learned to ignore.
-                                            </p>
-                                        </div>
-                                    </h1>
-                                </motion.div>
-
-                                {/* Input Container */}
-                                <motion.div
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: 0.6, duration: 0.8, ease: "easeOut" }}
-                                    className="relative group mt-4 max-w-2xl mx-auto"
-                                >
-                                    <div className="relative bg-[#18181b] border border-zinc-800 rounded-2xl md:rounded-[36px] overflow-hidden shadow-2xl transition-all duration-500 group-hover:border-zinc-700/50 group-hover:shadow-indigo-500/5">
-                                        <form
-                                            onSubmit={(e) => {
-                                                e.preventDefault();
-                                                handleTaskSubmit(e);
-                                            }}
-                                            className="flex flex-col"
+                {/* Main Content Area */}
+                <div className="relative min-h-full">
+                    <div className="relative z-10 min-h-[calc(100vh-20px)] flex items-center justify-center px-6 pt-12">
+                        <AnimatePresence mode="wait">
+                            {/* Hero Section - Centered Input */}
+                            <AnimatePresence>
+                                {stage === 'hero' && (
+                                    <motion.div
+                                        initial={{ opacity: 0, scale: 1.02, filter: 'blur(8px)' }}
+                                        animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
+                                        exit={{ opacity: 0, scale: 0.98, filter: 'blur(8px)' }}
+                                        transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                                        className="relative z-10 w-full max-w-3xl px-6"
+                                    >
+                                        {/* Visual Hierarchy: Headline -> Subheadline */}
+                                        <motion.div
+                                            initial={{ opacity: 0, y: 15 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+                                            className="text-center mb-16"
                                         >
-                                            <textarea
-                                                ref={chatInputRef}
-                                                value={task}
-                                                onChange={(e) => setTask(e.target.value)}
-                                                onKeyDown={(e) => {
-                                                    if (e.key === 'Enter' && !e.shiftKey) {
+                                            <h1 className="flex flex-col items-center">
+                                                {/* Headline - The "Authority" */}
+                                                <span className="text-5xl md:text-[84px] font-instrument italic text-white tracking-tight leading-[0.9] max-w-4xl px-4">
+                                                    You're Already <br /> Burning Out
+                                                </span>
+
+                                                {/* Subheadline - The "Clinical Detail" */}
+                                                <div className="mt-12 max-w-2xl mx-auto px-6">
+                                                    <p className="text-zinc-400 text-base md:text-[18px] leading-relaxed font-light tracking-wide text-balance">
+                                                        Blurred vision. Tension headaches. Mental fog. Your body is screaming warnings you've learned to ignore.
+                                                    </p>
+                                                </div>
+                                            </h1>
+                                        </motion.div>
+
+                                        {/* Input Container */}
+                                        <motion.div
+                                            initial={{ opacity: 0, y: 20 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ delay: 0.6, duration: 0.8, ease: "easeOut" }}
+                                            className="relative group mt-4 max-w-2xl mx-auto"
+                                        >
+                                            <div className="relative bg-[#18181b] border border-zinc-800 rounded-2xl md:rounded-[36px] overflow-hidden shadow-2xl transition-all duration-500 group-hover:border-zinc-700/50 group-hover:shadow-indigo-500/5">
+                                                <form
+                                                    onSubmit={(e) => {
                                                         e.preventDefault();
                                                         handleTaskSubmit(e);
-                                                    }
-                                                }}
-                                                placeholder="Ask Ytterbium to analyze a task..."
-                                                className="w-full bg-transparent text-white placeholder-zinc-500 text-sm md:text-base px-8 pt-6 pb-16 focus:outline-none resize-none min-h-[100px] leading-relaxed font-sans"
-                                                style={{ caretColor: '#818cf8' }}
-                                                autoFocus
-                                            />
-
-                                            {/* Input Footer / Actions */}
-                                            <div className="absolute bottom-4 right-4 flex items-center justify-end">
-
-                                                {/* Submit Button */}
-                                                <button
-                                                    type="submit"
-                                                    disabled={!task.trim()}
-                                                    className={`p-2 rounded-full transition-all duration-300 ${task.trim()
-                                                        ? 'bg-zinc-50 text-zinc-950 translate-x-0 opacity-100 shadow-[0_0_20px_rgba(250,250,250,0.2)] hover:scale-105'
-                                                        : 'bg-zinc-900/50 text-zinc-600 translate-x-0 opacity-50 cursor-not-allowed border border-zinc-800'
-                                                        }`}
+                                                    }}
+                                                    className="flex flex-col"
                                                 >
-                                                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
-                                                    </svg>
-                                                </button>
+                                                    <textarea
+                                                        ref={chatInputRef}
+                                                        value={task}
+                                                        onChange={(e) => setTask(e.target.value)}
+                                                        onKeyDown={(e) => {
+                                                            if (e.key === 'Enter' && !e.shiftKey) {
+                                                                e.preventDefault();
+                                                                handleTaskSubmit(e);
+                                                            }
+                                                        }}
+                                                        placeholder="Ask Ytterbium to analyze a task..."
+                                                        className="w-full bg-transparent text-white placeholder-zinc-500 text-sm md:text-base px-8 pt-6 pb-16 focus:outline-none resize-none min-h-[100px] leading-relaxed font-sans"
+                                                        style={{ caretColor: '#818cf8' }}
+                                                        autoFocus
+                                                    />
+
+                                                    {/* Input Footer / Actions */}
+                                                    <div className="absolute bottom-4 right-4 flex items-center justify-end">
+
+                                                        {/* Submit Button */}
+                                                        <button
+                                                            type="submit"
+                                                            disabled={!task.trim()}
+                                                            className={`p-2 rounded-full transition-all duration-300 ${task.trim()
+                                                                ? 'bg-zinc-50 text-zinc-950 translate-x-0 opacity-100 shadow-[0_0_20px_rgba(250,250,250,0.2)] hover:scale-105'
+                                                                : 'bg-zinc-900/50 text-zinc-600 translate-x-0 opacity-50 cursor-not-allowed border border-zinc-800'
+                                                                }`}
+                                                        >
+                                                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                                                            </svg>
+                                                        </button>
+                                                    </div>
+                                                </form>
                                             </div>
-                                        </form>
-                                    </div>
 
-                                    {/* Sub-input subtle text */}
-                                    <p className="mt-4 text-center text-[11px] text-zinc-600 uppercase tracking-widest font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                                        Powered by biological AI calibration
-                                    </p>
-                                </motion.div>
+                                            {/* Sub-input subtle text */}
+                                            <p className="mt-4 text-center text-[11px] text-zinc-600 uppercase tracking-widest font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                                                Powered by biological AI calibration
+                                            </p>
+                                        </motion.div>
 
-                                {/* Suggestion Chips (Secondary Button Style) */}
-                                <div className="mt-2 flex flex-wrap items-center justify-center gap-3">
-                                    {['Deep Work Session', 'Study for Exam', 'Debug Code'].map((suggestion, i) => (
-                                        <motion.button
-                                            key={suggestion}
-                                            initial={{ opacity: 0, y: 10 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            transition={{ delay: 0.8 + (i * 0.1) }}
-                                            onClick={() => setTask(suggestion)}
-                                            className="px-5 py-2.5 rounded-full border border-zinc-800 bg-zinc-900/30 hover:bg-zinc-800/50 text-xs md:text-sm text-zinc-500 hover:text-zinc-200 transition-all duration-300 backdrop-blur-sm"
-                                        >
-                                            {suggestion}
-                                        </motion.button>
-                                    ))}
-                                </div>
+                                        {/* Suggestion Chips (Secondary Button Style) */}
+                                        <div className="mt-2 flex flex-wrap items-center justify-center gap-3">
+                                            {['Deep Work Session', 'Study for Exam', 'Debug Code'].map((suggestion, i) => (
+                                                <motion.button
+                                                    key={suggestion}
+                                                    initial={{ opacity: 0, y: 10 }}
+                                                    animate={{ opacity: 1, y: 0 }}
+                                                    transition={{ delay: 0.8 + (i * 0.1) }}
+                                                    onClick={() => setTask(suggestion)}
+                                                    className="px-5 py-2.5 rounded-full border border-zinc-800 bg-zinc-900/30 hover:bg-zinc-800/50 text-xs md:text-sm text-zinc-500 hover:text-zinc-200 transition-all duration-300 backdrop-blur-sm"
+                                                >
+                                                    {suggestion}
+                                                </motion.button>
+                                            ))}
+                                        </div>
 
-                            </motion.div>
-                        )}
+                                    </motion.div>
+                                )}
 
-                        {stage === 'analyzing' && (
-                            <AnalyzingState key="analyzing" />
-                        )}
+                                {stage === 'analyzing' && (
+                                    <AnalyzingState key="analyzing" />
+                                )}
 
-                        {stage === 'result' && analysisResult && (
-                            <ResultView
-                                key="result"
-                                task={task}
-                                result={analysisResult}
-                                onStartSession={handleStartSession}
-                                showLock={currentUser ? (!isPremium && freeSessionsUsed >= 3) : false}
-                            />
-                        )}
-                    </AnimatePresence>
+                                {stage === 'result' && analysisResult && (
+                                    <ResultView
+                                        key="result"
+                                        task={task}
+                                        result={analysisResult}
+                                        onStartSession={handleStartSession}
+                                        showLock={currentUser ? (!isPremium && freeSessionsUsed >= 3) : false}
+                                    />
+                                )}
+                            </AnimatePresence>
+                        </AnimatePresence>
+                    </div>
+
+                    {/* Pricing Section (Accessible via Scroll / Anchor) */}
+                    {stage === 'hero' && (
+                        <PricingSection
+                            currentUser={currentUser}
+                            onAuthRequired={() => setShowAuthModal(true)}
+                        />
+                    )}
+                </div>
+
+                {/* Auth Modal (Absolute to Inset Area) */}
+                <AnimatePresence>
+                    {showAuthModal && (
+                        <AuthModal onClose={() => setShowAuthModal(false)} onSignUp={handleGoogleSignUp} />
+                    )}
                 </AnimatePresence>
-            </div>
 
-            {/* Pricing Section (Accessible via Scroll / Anchor) */}
-            {stage === 'hero' && (
-                <PricingSection
+                {/* Pricing Modal (Absolute to Inset Area) */}
+                <PricingModal
+                    isOpen={showPricingModal}
+                    onClose={() => setShowPricingModal(false)}
                     currentUser={currentUser}
-                    onAuthRequired={() => setShowAuthModal(true)}
+                    onAuthRequired={() => {
+                        setShowPricingModal(false);
+                        setShowAuthModal(true);
+                    }}
                 />
-            )}
-
-            {/* Auth Modal */}
-            <AnimatePresence>
-                {showAuthModal && (
-                    <AuthModal onClose={() => setShowAuthModal(false)} onSignUp={handleGoogleSignUp} />
-                )}
-            </AnimatePresence>
-
-            {/* Pricing Modal */}
-            <PricingModal
-                isOpen={showPricingModal}
-                onClose={() => setShowPricingModal(false)}
-                currentUser={currentUser}
-                onAuthRequired={() => {
-                    setShowPricingModal(false);
-                    setShowAuthModal(true);
-                }}
-            />
-        </div >
+            </div>
+        </div>
     );
 };
 
