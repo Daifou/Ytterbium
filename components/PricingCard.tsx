@@ -172,10 +172,10 @@ export const PricingCard: React.FC<PricingCardProps> = ({
 
     return (
         <div className={`relative w-full mx-auto ${className}`}>
-            <div className={`relative w-full bg-transparent overflow-hidden flex flex-col md:flex-row min-h-[600px]`}>
+            <div className={`relative w-full bg-[#050505] border border-white/10 overflow-hidden flex flex-col md:flex-row min-h-[600px]`}>
 
                 {/* LEFT COLUMN: Features (45%) */}
-                <div className="w-full md:w-[45%] bg-zinc-900/5 border-b md:border-b-0 md:border-r border-white/10 flex flex-col relative z-10">
+                <div className="w-full md:w-[45%] bg-[#09090b] border-b md:border-b-0 md:border-r border-white/10 flex flex-col relative z-10">
                     <div className="p-8 md:p-12 border-b border-white/10">
                         <h3 className="text-white text-lg font-bold mb-1 uppercase tracking-tighter">Features</h3>
                         <p className="text-zinc-500 text-[10px] uppercase tracking-widest font-bold">Standard on All Plans</p>
@@ -215,8 +215,8 @@ export const PricingCard: React.FC<PricingCardProps> = ({
                 </div>
 
                 {/* RIGHT COLUMN: Action (55%) */}
-                <div className="flex-1 bg-black/10 flex flex-col relative z-10">
-                    <div className="p-8 md:p-12 border-b border-white/10 bg-white/[0.02]">
+                <div className="flex-1 bg-[#050505] flex flex-col relative z-10">
+                    <div className="p-8 md:p-12 border-b border-white/10 bg-[#09090b]">
                         <h3 className="text-white text-lg font-bold mb-1 uppercase tracking-tighter">Configuration</h3>
                         <p className="text-zinc-500 text-[11px] uppercase tracking-widest font-medium">Select Deployment Mode</p>
                     </div>
@@ -300,11 +300,11 @@ export const PricingCard: React.FC<PricingCardProps> = ({
 
                             {/* Minimal Trust Grid */}
                             <div className="mt-10 grid grid-cols-2 border border-white/10 divide-x divide-white/10">
-                                <div className="p-4 flex flex-col items-center justify-center gap-1 bg-black/10">
+                                <div className="p-4 flex flex-col items-center justify-center gap-1 bg-[#09090b]">
                                     <span className="text-[9px] text-zinc-500 uppercase font-black tracking-widest">Trial Mode</span>
                                     <span className="text-[10px] text-white font-medium">7 Days Free</span>
                                 </div>
-                                <div className="p-4 flex flex-col items-center justify-center gap-1 bg-black/10">
+                                <div className="p-4 flex flex-col items-center justify-center gap-1 bg-[#09090b]">
                                     <span className="text-[9px] text-zinc-500 uppercase font-black tracking-widest">Gateway</span>
                                     <span className="text-[10px] text-white font-medium">SSL Encrypted</span>
                                 </div>

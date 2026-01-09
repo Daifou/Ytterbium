@@ -66,8 +66,8 @@ export const PricingSection: React.FC<PricingSectionProps> = ({ currentUser, onA
                         </div>
 
                         {/* Pricing Card (Docked to the grid) */}
-                        <div className="relative z-10 w-full">
-                            <PricingCard currentUser={currentUser} onAuthRequired={onAuthRequired} className="!border-0 !rounded-none !bg-transparent" />
+                        <div className="relative z-10 w-full bg-[#050505]">
+                            <PricingCard currentUser={currentUser} onAuthRequired={onAuthRequired} className="!border-0 !rounded-none" />
                         </div>
                     </motion.div>
                 </div>
