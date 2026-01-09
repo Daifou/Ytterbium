@@ -117,7 +117,7 @@ export const PricingCard: React.FC<PricingCardProps> = ({
                         </div>
                         <h3 className="text-4xl md:text-5xl font-semibold text-white tracking-tighter mb-4">Pro Access</h3>
                         <p className="text-zinc-500 text-[15px] leading-relaxed max-w-[300px] font-normal">
-                            The complete biological calibration system. Designed for elite focus.
+                            The cost of a coffee for a month of peak performance.
                         </p>
                     </div>
 

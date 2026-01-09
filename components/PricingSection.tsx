@@ -53,19 +53,6 @@ export const PricingSection: React.FC<PricingSectionProps> = ({ currentUser, onA
                             </motion.div>
                         </div>
 
-                        {/* Subtitle Section */}
-                        <div className="relative z-10 pt-16 pb-8 text-center">
-                            <motion.p
-                                initial={{ opacity: 0, y: 10 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true }}
-                                transition={{ duration: 0.6, delay: 0.2 }}
-                                className="max-w-xl mx-auto px-6 text-lg text-zinc-400 font-light leading-relaxed"
-                            >
-                                Stop burning out. Start working with biological precision. <br />
-                                <strong className="font-bold text-white">The cost of a coffee for a month of peak performance.</strong>
-                            </motion.p>
-                        </div>
 
                         {/* Pricing Card Section */}
                         <div className="relative z-10 w-full pb-24 flex justify-center">
