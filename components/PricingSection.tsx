@@ -69,7 +69,7 @@ export const PricingSection: React.FC<PricingSectionProps> = ({ currentUser, onA
                                 className="max-w-xl mx-auto px-6 text-lg text-zinc-400 font-light leading-relaxed"
                             >
                                 Stop burning out. Start working with biological precision. <br />
-                                The cost of a coffee for a month of peak performance.
+                                <strong className="font-bold text-white">The cost of a coffee for a month of peak performance.</strong>
                             </motion.p>
                         </div>
 
