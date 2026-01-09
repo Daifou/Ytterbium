@@ -221,7 +221,7 @@ export const PricingCard: React.FC<PricingCardProps> = ({
                                     whileHover={{ opacity: 1, x: 2 }}
                                     className="flex items-center gap-3.5 group/item transition-all duration-300"
                                 >
-                                    <div className="flex items-center justify-center w-5 h-5 text-zinc-500 group-hover/item:text-white shrink-0 transition-colors">
+                                    <div className="flex items-center justify-center w-5 h-5 text-white/90 shrink-0 transition-colors">
                                         {feature.icon}
                                     </div>
                                     <span className="text-[14px] font-medium text-zinc-400 group-hover/item:text-zinc-200 transition-colors">
