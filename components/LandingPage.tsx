@@ -319,7 +319,7 @@ const AnalyzingState: React.FC = () => {
 
                     {/* AI Message Skeleton */}
                     <div className="flex items-center gap-2 mb-1">
-                        <div className="w-8 h-8 flex items-center justify-center text-indigo-500">
+                        <div className="w-12 h-12 flex items-center justify-center text-indigo-500">
                             <Logo className="w-full h-full" />
                         </div>
                         <span className="text-[10px] text-zinc-500 uppercase tracking-widest">Thinking...</span>
@@ -334,43 +334,41 @@ const AnalyzingState: React.FC = () => {
                         </div>
                     </div>
                 </div>
-            </div>
-
-            <div className="p-4 border-t border-zinc-800 bg-[#0d0d0e]">
-                <div className="bg-zinc-900/50 border border-zinc-800/50 rounded-none px-4 py-3 opacity-30 select-none">
-                    <span className="text-zinc-600 text-sm">Ask Ytterbium...</span>
-                </div>
-            </div>
-        </div>
-
-            {/* Right Main Content (65%) - Stacked Card Skeleton */ }
-    <div className="flex-1 flex flex-col items-center justify-center p-12 pb-24 relative bg-[#09090b]">
-        {/* Status Pill */}
-        <div className="absolute top-8 flex items-center gap-2 px-4 py-1.5 rounded-full bg-zinc-900 border border-zinc-800 shadow-sm">
-            <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse shadow-[0_0_8px_rgba(99,102,241,0.8)]" />
-            <span className="text-[11px] font-medium text-zinc-400 uppercase tracking-widest">{messages[messageIndex]}</span>
-        </div>
-
-        {/* Stacked Card Skeleton Effect */}
-        <div className="relative w-full max-w-[340px] aspect-[4/5] flex flex-col items-center justify-center opacity-50">
-            <div className="absolute top-[-10px] w-[95%] aspect-[4/5] bg-zinc-900/40 border border-zinc-800/50 rounded-sm -z-10" />
-            <div className="w-full h-full rounded-sm border border-zinc-800 bg-[#121214] flex flex-col overflow-hidden">
-                <div className="flex-1 bg-[#0a0a0b] flex items-center justify-center relative overflow-hidden">
-                    {/* Technical Grid Overlay */}
-                    <div className="absolute inset-0 opacity-[0.05]" style={{ backgroundImage: 'linear-gradient(zinc-800 1px, transparent 1px), linear-gradient(90deg, zinc-800 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
-                    <div className="w-16 h-16 rounded-full bg-zinc-900/50 border border-zinc-800 flex items-center justify-center animate-pulse z-10">
-                        <div className="w-8 h-8 rounded-full border-2 border-indigo-500/20 border-t-indigo-500 animate-spin" />
+                <div className="p-4 border-t border-zinc-800 bg-[#0d0d0e]">
+                    <div className="bg-zinc-900/50 border border-zinc-800/50 rounded-none px-4 py-3 opacity-30 select-none">
+                        <span className="text-zinc-600 text-sm">Ask Ytterbium...</span>
                     </div>
                 </div>
-                <div className="p-8 space-y-4">
-                    <div className="h-4 bg-zinc-800/50 rounded-sm w-3/4 animate-pulse" />
-                    <div className="h-4 bg-zinc-800/50 rounded-sm w-1/2 animate-pulse" />
-                    <div className="pt-4 h-12 bg-zinc-800/30 rounded-sm w-full animate-pulse" />
+            </div>
+
+            {/* Right Main Content (65%) - Stacked Card Skeleton */}
+            <div className="flex-1 flex flex-col items-center justify-center p-12 pb-24 relative bg-[#09090b]">
+                {/* Status Pill */}
+                <div className="absolute top-8 flex items-center gap-2 px-4 py-1.5 rounded-full bg-zinc-900 border border-zinc-800 shadow-sm">
+                    <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse shadow-[0_0_8px_rgba(99,102,241,0.8)]" />
+                    <span className="text-[11px] font-medium text-zinc-400 uppercase tracking-widest">{messages[messageIndex]}</span>
+                </div>
+
+                {/* Stacked Card Skeleton Effect */}
+                <div className="relative w-full max-w-[340px] aspect-[4/5] flex flex-col items-center justify-center opacity-50">
+                    <div className="absolute top-[-10px] w-[95%] aspect-[4/5] bg-zinc-900/40 border border-zinc-800/50 rounded-sm -z-10" />
+                    <div className="w-full h-full rounded-sm border border-zinc-800 bg-[#121214] flex flex-col overflow-hidden">
+                        <div className="flex-1 bg-[#0a0a0b] flex items-center justify-center relative overflow-hidden">
+                            {/* Technical Grid Overlay */}
+                            <div className="absolute inset-0 opacity-[0.05]" style={{ backgroundImage: 'linear-gradient(zinc-800 1px, transparent 1px), linear-gradient(90deg, zinc-800 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
+                            <div className="w-16 h-16 rounded-full bg-zinc-900/50 border border-zinc-800 flex items-center justify-center animate-pulse z-10">
+                                <div className="w-8 h-8 rounded-full border-2 border-indigo-500/20 border-t-indigo-500 animate-spin" />
+                            </div>
+                        </div>
+                        <div className="p-8 space-y-4">
+                            <div className="h-4 bg-zinc-800/50 rounded-sm w-3/4 animate-pulse" />
+                            <div className="h-4 bg-zinc-800/50 rounded-sm w-1/2 animate-pulse" />
+                            <div className="pt-4 h-12 bg-zinc-800/30 rounded-sm w-full animate-pulse" />
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
-        </motion.div >
+        </motion.div>
     );
 };
 
@@ -404,7 +402,7 @@ const ResultView: React.FC<ResultViewProps> = ({ task, result, onStartSession, s
                     {/* AI Message */}
                     <div className="flex flex-col items-start space-y-2">
                         <div className="flex items-center gap-2 mb-1">
-                            <div className="w-8 h-8 flex items-center justify-center text-indigo-500">
+                            <div className="w-12 h-12 flex items-center justify-center text-indigo-500">
                                 <Logo className="w-full h-full" />
                             </div>
                             <span className="text-[10px] text-zinc-500 uppercase tracking-[0.2em] font-bold font-sans">Ytterbium</span>
@@ -580,7 +578,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose, onSignUp }) => {
                 <div className="space-y-8">
                     {/* Top Left Logo Identity */}
                     <div className="flex justify-start">
-                        <div className="w-12 h-12 flex items-center justify-center text-indigo-500">
+                        <div className="w-20 h-20 flex items-center justify-center text-indigo-500">
                             <Logo className="w-full h-full" />
                         </div>
                     </div>

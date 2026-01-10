@@ -41,7 +41,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentMode, setMode, onSignOu
         {/* 1. TOP SECTION: SidebarHeader */}
         <header className="px-6 py-8">
           <div className="flex items-center gap-2">
-            <Logo className="w-14 h-14 text-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)]" />
+            <Logo className="w-24 h-24 text-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.5)]" />
             <span className="text-[12px] font-semibold text-[#EAEAEA] tracking-[0.2em] uppercase opacity-90">
               Ytterbium
             </span>
