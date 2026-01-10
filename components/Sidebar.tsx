@@ -10,6 +10,7 @@ import {
 import type { User } from '@supabase/supabase-js';
 
 import { SystemReadout } from './SystemReadout';
+import { Logo } from './Logo';
 
 interface SidebarProps {
   currentMode: AppMode;
@@ -40,7 +41,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentMode, setMode, onSignOu
         {/* 1. TOP SECTION: SidebarHeader */}
         <header className="px-6 py-8">
           <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)]" />
+            <Logo className="w-4 h-4 text-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)]" />
             <span className="text-[12px] font-semibold text-[#EAEAEA] tracking-[0.2em] uppercase opacity-90">
               Ytterbium
             </span>

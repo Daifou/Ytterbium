@@ -9,6 +9,8 @@ interface HeaderProps {
     currentUser?: User | null;
 }
 
+import { Logo } from './Logo';
+
 export const Header: React.FC<HeaderProps> = ({ onGetStartedClick, onLoginClick, isDashboard = false, currentUser }) => {
     // Get initials from current user or fallback
     const initials = currentUser?.email
@@ -26,18 +28,7 @@ export const Header: React.FC<HeaderProps> = ({ onGetStartedClick, onLoginClick,
                 {/* Logo Section */}
                 <div className="md:px-8 md:border-r border-zinc-800 h-full flex items-center">
                     <div className="flex items-center gap-2">
-                        <svg
-                            width="24"
-                            height="24"
-                            viewBox="0 0 28 28"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="text-zinc-50"
-                        >
-                            <circle cx="14" cy="14" r="12" stroke="currentColor" strokeWidth="1.5" opacity="0.6" />
-                            <circle cx="14" cy="14" r="6" fill="currentColor" opacity="0.9" />
-                            <circle cx="14" cy="14" r="3" fill="currentColor" />
-                        </svg>
+                        <Logo className="w-6 h-6 text-zinc-50" />
                         <span className="text-zinc-50 font-semibold text-base tracking-tight">Ytterbium</span>
                     </div>
                 </div>

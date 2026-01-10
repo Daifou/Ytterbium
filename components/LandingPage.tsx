@@ -9,6 +9,7 @@ import { PricingModal } from './PricingModal';
 import { PricingSection } from './PricingSection';
 import { authService } from '../services/authService';
 import { useSubscription } from '../hooks/useSubscription';
+import { Logo } from './Logo';
 
 interface LandingPageProps {
     onEnter: (data: any) => void;
@@ -320,11 +321,7 @@ const AnalyzingState: React.FC = () => {
                     <div className="flex flex-col items-start space-y-2">
                         <div className="flex items-center gap-2 mb-1">
                             <div className="w-5 h-5 flex items-center justify-center text-indigo-500">
-                                <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
-                                    <circle cx="14" cy="14" r="12" stroke="currentColor" strokeWidth="1.5" opacity="0.6" />
-                                    <circle cx="14" cy="14" r="6" fill="currentColor" opacity="0.9" />
-                                    <circle cx="14" cy="14" r="3" fill="currentColor" />
-                                </svg>
+                                <Logo className="w-full h-full" />
                             </div>
                             <span className="text-[10px] text-zinc-500 uppercase tracking-widest">Thinking...</span>
                         </div>
@@ -409,11 +406,7 @@ const ResultView: React.FC<ResultViewProps> = ({ task, result, onStartSession, s
                     <div className="flex flex-col items-start space-y-2">
                         <div className="flex items-center gap-2 mb-1">
                             <div className="w-5 h-5 flex items-center justify-center text-indigo-500">
-                                <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
-                                    <circle cx="14" cy="14" r="12" stroke="currentColor" strokeWidth="1.5" opacity="0.6" />
-                                    <circle cx="14" cy="14" r="6" fill="currentColor" opacity="0.9" />
-                                    <circle cx="14" cy="14" r="3" fill="currentColor" />
-                                </svg>
+                                <Logo className="w-full h-full" />
                             </div>
                             <span className="text-[10px] text-zinc-500 uppercase tracking-[0.2em] font-bold font-sans">Ytterbium</span>
                         </div>
@@ -589,11 +582,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose, onSignUp }) => {
                     {/* Top Left Logo Identity */}
                     <div className="flex justify-start">
                         <div className="w-10 h-10 flex items-center justify-center text-indigo-500">
-                            <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
-                                <circle cx="14" cy="14" r="12" stroke="currentColor" strokeWidth="1.5" opacity="0.6" />
-                                <circle cx="14" cy="14" r="6" fill="currentColor" opacity="0.9" />
-                                <circle cx="14" cy="14" r="3" fill="currentColor" />
-                            </svg>
+                            <Logo className="w-full h-full" />
                         </div>
                     </div>
 
