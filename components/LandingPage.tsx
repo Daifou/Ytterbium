@@ -147,17 +147,6 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
                                     transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
                                     className="text-center mb-16"
                                 >
-                                    <motion.div
-                                        initial={{ opacity: 0, scale: 0.8 }}
-                                        animate={{ opacity: 1, scale: 1 }}
-                                        transition={{ duration: 1, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-                                        className="mb-10 flex justify-center"
-                                    >
-                                        <div className="w-20 h-20 md:w-28 md:h-28 text-indigo-500 relative group">
-                                            <div className="absolute inset-0 bg-indigo-500/10 blur-3xl rounded-full group-hover:bg-indigo-500/20 transition-all duration-700" />
-                                            <Logo className="w-full h-full relative z-10 drop-shadow-[0_0_15px_rgba(99,102,241,0.3)]" />
-                                        </div>
-                                    </motion.div>
                                     <h1 className="flex flex-col items-center">
                                         {/* Headline - The "Authority" */}
                                         <span className="text-5xl md:text-[84px] font-instrument italic text-white tracking-tight leading-[0.9] max-w-4xl px-4">
