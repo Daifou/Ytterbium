@@ -178,14 +178,9 @@ const App: React.FC = () => {
           setCurrentUser(user);
           const pendingPlan = localStorage.getItem('pending_plan');
           if (pendingPlan) {
-            console.log("[App] initAuth: Redirecting to checkout for plan:", pendingPlan);
-            const productId = pendingPlan === 'annual' ? 'annual_id_placeholder' : 'ccmqg';
-            const appUrl = window.location.origin;
-            const redirectUrl = `${appUrl}/?payment_success=true`;
-            const checkoutUrl = `https://ytterbiumlife.gumroad.com/l/${productId}?email=${encodeURIComponent(user.email || '')}&user_id=${user.id}&redirect_url=${encodeURIComponent(redirectUrl)}`;
-            localStorage.removeItem('pending_plan');
-            window.location.href = checkoutUrl;
-            return;
+            console.log("[App] initAuth: Detected pending plan, entering app to show checkout:", pendingPlan);
+            setHasEntered(true);
+            // The PaywallModal will now show the embedded checkout instead.
           }
 
           // [CHANGE] Do NOT automatically bypass landing page just because user is auth'd.
@@ -295,23 +290,9 @@ const App: React.FC = () => {
 
         // CHECK FOR PENDING PLAN REDIRECT (Race Condition Fix)
         const pendingPlan = localStorage.getItem('pending_plan');
-        console.log("[App] Pending Plan Check:", pendingPlan);
-
         if (pendingPlan) {
-          const msg = `[DEBUG] Redirecting to checkout for plan: ${pendingPlan}`;
-          console.log(msg);
-          // alert(msg); // Uncomment to force pause if needed
-
-          // Redirect to checkout if they just signed up and intend to pay
-          const productId = pendingPlan === 'annual' ? 'annual_id_placeholder' : 'ccmqg';
-          const appUrl = window.location.origin;
-          const redirectUrl = `${appUrl}/?payment_success=true`;
-          const checkoutUrl = `https://ytterbiumlife.gumroad.com/l/${productId}?email=${encodeURIComponent(user.email || '')}&user_id=${user.id}&redirect_url=${encodeURIComponent(redirectUrl)}`;
-
-          // Clear it to avoid loops, though redirect unloads page anyway
-          localStorage.removeItem('pending_plan');
-          window.location.href = checkoutUrl;
-          return;
+          console.log("[App] onAuthStateChange: Detected pending plan, entering app to show checkout:", pendingPlan);
+          setHasEntered(true);
         }
 
         // HANDSHAKE: If a user just logged in and we have a ghost session, claim it
@@ -1181,6 +1162,7 @@ const App: React.FC = () => {
       {/* Paywall Gate */}
       <PaywallModal
         isOpen={isPaywallOpen}
+        currentUser={currentUser}
         onAuth={async (isAnnual) => {
           localStorage.setItem('pending_plan', isAnnual ? 'annual' : 'monthly');
           await authService.signInWithGoogle();

@@ -38,10 +38,19 @@ export const PricingCard: React.FC<PricingCardProps> = ({
         if (window.GumroadOverlay) {
             window.GumroadOverlay.init();
         }
+
+        // Auto-trigger checkout if user just signed up with a pending plan
+        const pendingPlan = localStorage.getItem('pending_plan');
+        if (currentUser && pendingPlan) {
+            console.log("[PricingCard] Auto-triggering checkout for pending plan:", pendingPlan);
+            setIsAnnual(pendingPlan === 'annual');
+            setIsCheckingOut(true);
+            localStorage.removeItem('pending_plan');
+        }
     }, [currentUser]);
 
     const handleCheckout = (e: React.MouseEvent) => {
-        if (isAuthMode && onAuth) {
+        if (isAuthMode && onAuth && !currentUser) {
             e.preventDefault();
             onAuth(isAnnual);
             return;
@@ -60,6 +69,7 @@ export const PricingCard: React.FC<PricingCardProps> = ({
             return;
         }
 
+        // For compact mode (paywall), show embedded checkout instead of redirecting
         e.preventDefault();
         setIsCheckingOut(true);
     };
@@ -79,7 +89,13 @@ export const PricingCard: React.FC<PricingCardProps> = ({
                         </button>
                     </div>
                     <div className="flex-1 flex items-center justify-center">
-                        <div key={productId} className="gumroad-product-embed w-full" data-gumroad-product-id={productId} data-gumroad-single-product="true">
+                        <div
+                            key={productId}
+                            className="gumroad-product-embed w-full"
+                            data-gumroad-product-id={productId}
+                            data-gumroad-single-product="true"
+                            data-gumroad-params={`email=${encodeURIComponent(currentUser.email || '')}&user_id=${currentUser.id}`}
+                        >
                             <a href={`https://gumroad.com/l/${productId}`} className="text-zinc-500 hover:text-white transition-colors">Loading Gumroad Checkout...</a>
                         </div>
                     </div>
@@ -179,6 +195,8 @@ export const PricingCard: React.FC<PricingCardProps> = ({
                         >
                             {isLoading ? (
                                 <div className="w-4 h-4 border-2 border-zinc-400 border-t-zinc-900 rounded-full animate-spin" />
+                            ) : currentUser ? (
+                                "Apply Membership"
                             ) : (
                                 <>
                                     <svg className="w-5 h-5" viewBox="0 0 24 24">

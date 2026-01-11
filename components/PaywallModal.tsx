@@ -1,13 +1,15 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { User } from '@supabase/supabase-js';
 import { PricingCard } from './PricingCard';
 
 interface PaywallModalProps {
     isOpen: boolean;
     onAuth: (isAnnual: boolean) => void;
+    currentUser: User | null;
 }
 
-export const PaywallModal: React.FC<PaywallModalProps> = ({ isOpen, onAuth }) => {
+export const PaywallModal: React.FC<PaywallModalProps> = ({ isOpen, onAuth, currentUser }) => {
     return (
         <AnimatePresence>
             {isOpen && (
@@ -32,6 +34,7 @@ export const PaywallModal: React.FC<PaywallModalProps> = ({ isOpen, onAuth }) =>
                             isCompact={true}
                             isAuthMode={true}
                             onAuth={onAuth}
+                            currentUser={currentUser}
                             className="!shadow-2xl"
                         />
                     </motion.div>
