@@ -149,19 +149,12 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
                                 >
                                     <h1 className="flex flex-col items-center">
                                         {/* Headline - The "Authority" */}
-                                        <span className="text-5xl md:text-[90px] font-instrument italic text-white tracking-tight leading-none max-w-5xl px-4 flex flex-col items-center gap-y-2">
-                                            <span className="opacity-95">You're Already</span>
-                                            <div className="flex items-center justify-center gap-x-6 md:gap-x-8">
-                                                <div className="inline-flex items-center h-[0.8em]">
-                                                    <img
-                                                        src="/burning_typography.png"
-                                                        alt="Burning"
-                                                        className="h-[1.8em] md:h-[2.2em] w-auto mix-blend-screen brightness-150 select-none pointer-events-none"
-                                                        style={{ imageRendering: 'pixelated', marginTop: '-0.1em' }}
-                                                    />
-                                                </div>
-                                                <span className="opacity-95">Out</span>
-                                            </div>
+                                        <span className="text-5xl md:text-[84px] font-instrument italic text-white tracking-tight leading-[0.9] max-w-4xl px-4 text-center">
+                                            You're Already <br />
+                                            <span className="inline-flex items-center gap-x-4 mt-2">
+                                                <span className="font-pixel italic text-white/90 tracking-[0.1em] text-[0.8em] transform -skew-x-6">Burning</span>
+                                                <span>Out</span>
+                                            </span>
                                         </span>
 
                                         {/* Subheadline - The "Clinical Detail" */}
