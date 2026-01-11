@@ -180,7 +180,10 @@ const App: React.FC = () => {
           if (pendingPlan) {
             console.log("[App] initAuth: Redirecting to checkout for plan:", pendingPlan);
             const productId = pendingPlan === 'annual' ? 'annual_id_placeholder' : 'ccmqg';
-            const checkoutUrl = `https://ytterbiumlife.gumroad.com/l/${productId}?email=${encodeURIComponent(user.email || '')}&user_id=${user.id}`;
+            const appUrl = window.location.origin;
+            const redirectUrl = `${appUrl}/?payment_success=true`;
+            const checkoutUrl = `https://ytterbiumlife.gumroad.com/l/${productId}?email=${encodeURIComponent(user.email || '')}&user_id=${user.id}&redirect_url=${encodeURIComponent(redirectUrl)}`;
+            localStorage.removeItem('pending_plan');
             window.location.href = checkoutUrl;
             return;
           }
@@ -301,7 +304,9 @@ const App: React.FC = () => {
 
           // Redirect to checkout if they just signed up and intend to pay
           const productId = pendingPlan === 'annual' ? 'annual_id_placeholder' : 'ccmqg';
-          const checkoutUrl = `https://ytterbiumlife.gumroad.com/l/${productId}?email=${encodeURIComponent(user.email || '')}&user_id=${user.id}`;
+          const appUrl = window.location.origin;
+          const redirectUrl = `${appUrl}/?payment_success=true`;
+          const checkoutUrl = `https://ytterbiumlife.gumroad.com/l/${productId}?email=${encodeURIComponent(user.email || '')}&user_id=${user.id}&redirect_url=${encodeURIComponent(redirectUrl)}`;
 
           // Clear it to avoid loops, though redirect unloads page anyway
           localStorage.removeItem('pending_plan');
@@ -322,10 +327,43 @@ const App: React.FC = () => {
     });
 
 
+
     return () => {
       subscription.unsubscribe();
     };
   }, []);
+
+  // Handle payment success redirect from Gumroad
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const paymentSuccess = urlParams.get('payment_success');
+
+    if (paymentSuccess === 'true' && currentUser) {
+      console.log("[App] Payment success detected, entering app...");
+
+      // Clean up URL
+      window.history.replaceState({}, '', window.location.pathname);
+
+      // Show success notification
+      setNotification({
+        title: "Payment Successful!",
+        message: "Welcome to Ytterbium Pro. Your subscription is now active.",
+        action: {
+          label: "Start Focus Session",
+          onClick: () => {
+            setHasEntered(true);
+            setNotification(null);
+          }
+        }
+      });
+
+      // Auto-enter app after short delay
+      setTimeout(() => {
+        setHasEntered(true);
+        setNotification(null);
+      }, 3000);
+    }
+  }, [currentUser]);
 
   // --- 1. TIMER LOGIC (Preserved) ---
   useEffect(() => {
