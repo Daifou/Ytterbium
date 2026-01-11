@@ -84,7 +84,7 @@ export const Header: React.FC<HeaderProps> = ({ onGetStartedClick, onLoginClick,
                                     onClick={onGetStartedClick}
                                     whileHover={{ scale: 1.02 }}
                                     whileTap={{ scale: 0.98 }}
-                                    className="bg-white text-zinc-950 px-6 py-2.5 rounded-full font-semibold text-sm hover:bg-zinc-100 transition-all duration-200 shadow-[0_2px_10px_rgba(255,255,255,0.1)]"
+                                    className="bg-white text-zinc-950 px-10 py-3 rounded-2xl font-medium text-[15px] hover:bg-zinc-100 transition-all duration-200 shadow-sm"
                                 >
                                     Get started
                                 </motion.button>
