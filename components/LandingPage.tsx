@@ -149,18 +149,18 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
                                 >
                                     <h1 className="flex flex-col items-center">
                                         {/* Headline - The "Authority" */}
-                                        <span className="text-5xl md:text-[84px] font-instrument italic text-white tracking-tight leading-[0.9] max-w-4xl px-4 flex flex-col items-center">
-                                            <span>You're Already</span>
-                                            <div className="flex items-center justify-center gap-x-4">
-                                                <div className="inline-flex items-center h-[1em]">
+                                        <span className="text-5xl md:text-[90px] font-instrument italic text-white tracking-tight leading-none max-w-5xl px-4 flex flex-col items-center gap-y-2">
+                                            <span className="opacity-95">You're Already</span>
+                                            <div className="flex items-center justify-center gap-x-6 md:gap-x-8">
+                                                <div className="inline-flex items-center h-[0.8em]">
                                                     <img
                                                         src="/burning_typography.png"
                                                         alt="Burning"
-                                                        className="h-[1.4em] w-auto mix-blend-screen brightness-200"
-                                                        style={{ imageRendering: 'pixelated' }}
+                                                        className="h-[1.8em] md:h-[2.2em] w-auto mix-blend-screen brightness-150 select-none pointer-events-none"
+                                                        style={{ imageRendering: 'pixelated', marginTop: '-0.1em' }}
                                                     />
                                                 </div>
-                                                <span>Out</span>
+                                                <span className="opacity-95">Out</span>
                                             </div>
                                         </span>
 
