@@ -22,13 +22,13 @@ export const Header: React.FC<HeaderProps> = ({ onGetStartedClick, onLoginClick,
             initial={{ y: -20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-            className="fixed top-0 left-0 right-0 z-[200] border-b border-zinc-800 bg-zinc-950/70 backdrop-blur-md"
+            className="fixed top-0 left-0 right-0 z-[200] border-b border-zinc-800 bg-zinc-950/70 backdrop-blur-md h-16"
         >
             <div className="max-w-6xl mx-auto h-full flex items-center justify-between px-4 md:px-0">
                 {/* Logo Section */}
                 <div className="md:px-8 md:border-r border-zinc-800 h-full flex items-center">
                     <div className="flex items-center gap-2">
-                        <Logo className="w-20 h-20 text-zinc-50" />
+                        <Logo className="w-10 h-10 text-zinc-50" />
                         <span className="text-zinc-50 font-semibold text-base tracking-tight">Ytterbium</span>
                     </div>
                 </div>

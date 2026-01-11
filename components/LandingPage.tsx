@@ -128,7 +128,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
             />
 
             {/* Main Content */}
-            <div className="relative z-10 min-h-screen flex items-center justify-center px-6 pt-12">
+            <div className="relative z-10 min-h-screen flex items-center justify-center px-6 pt-24">
                 <AnimatePresence mode="wait">
                     {/* Hero Section - Centered Input */}
                     <AnimatePresence>
