@@ -149,14 +149,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
                                 >
                                     <h1 className="flex flex-col items-center">
                                         {/* Headline - The "Authority" */}
-                                        <span className="text-5xl md:text-[84px] font-instrument italic text-white tracking-tight leading-[0.9] max-w-4xl px-4 text-center">
-                                            You're Already <br />
-                                            <span className="inline-flex items-center gap-x-3 md:gap-x-5 mt-2">
-                                                <span className="font-sans not-italic font-bold tracking-[-0.04em] bg-gradient-to-br from-orange-400 via-orange-500 to-orange-600 bg-clip-text text-transparent drop-shadow-[0_2px_10px_rgba(249,115,22,0.2)]">
-                                                    Burning
-                                                </span>
-                                                <span className="italic">Out</span>
-                                            </span>
+                                        <span className="text-5xl md:text-[84px] font-instrument italic text-white tracking-tight leading-[0.9] max-w-4xl px-4">
+                                            You're Already <br /> Burning Out
                                         </span>
 
                                         {/* Subheadline - The "Clinical Detail" */}
