@@ -150,7 +150,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
                                     <h1 className="flex flex-col items-center">
                                         {/* Headline - The "Authority" */}
                                         <span className="text-5xl md:text-[84px] font-instrument italic text-white tracking-tight leading-[0.9] max-w-4xl px-4">
-                                            You're Already <br /> <span className="font-pixel text-orange-500">Burning</span> Out
+                                            You're Already <br /> <span className="font-pixel italic text-white tracking-wide">Burning</span> Out
                                         </span>
 
                                         {/* Subheadline - The "Clinical Detail" */}
