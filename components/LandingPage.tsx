@@ -117,7 +117,13 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
     return (
         <div className="min-h-screen bg-black text-white relative overflow-x-hidden">
             {/* Background Elements */}
-            <div className="fixed inset-0 bg-[#09090b]" />
+            <div
+                className="fixed inset-0 bg-[#09090b]"
+                style={{
+                    backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(255,255,255,0.03) 1px, transparent 0)',
+                    backgroundSize: '32px 32px'
+                }}
+            />
 
             {/* Header */}
             <Header
@@ -149,13 +155,19 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
                                 >
                                     <h1 className="flex flex-col items-center">
                                         {/* Headline - The "Authority" */}
-                                        <span className="text-5xl md:text-[84px] font-instrument italic text-white tracking-tight leading-[0.9] max-w-4xl px-4">
-                                            You're Already <br /> Burning Out
-                                        </span>
+                                        <div className="relative">
+                                            {/* Subtle gradient glow behind text */}
+                                            <div className="absolute -inset-x-20 -inset-y-10 bg-indigo-500/5 blur-[120px] rounded-full -z-10" />
+
+                                            <span className="block text-6xl md:text-[120px] font-instrument text-white tracking-[-0.03em] leading-[0.85] max-w-5xl px-4 text-center">
+                                                You're <span className="italic font-light opacity-90">Already</span> <br />
+                                                Burning Out.
+                                            </span>
+                                        </div>
 
                                         {/* Subheadline - The "Clinical Detail" */}
-                                        <div className="mt-12 max-w-2xl mx-auto px-6">
-                                            <p className="text-zinc-400 text-base md:text-[18px] leading-relaxed font-light tracking-wide text-balance">
+                                        <div className="mt-16 max-w-xl mx-auto px-6">
+                                            <p className="text-zinc-500 text-base md:text-[19px] leading-relaxed font-light tracking-wide text-balance">
                                                 Blurred vision. Tension headaches. Mental fog. Your body is screaming warnings you've learned to ignore.
                                             </p>
                                         </div>
