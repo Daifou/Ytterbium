@@ -78,9 +78,12 @@ export const PricingCard: React.FC<PricingCardProps> = ({
         const productId = isAnnual ? 'annual_id_placeholder' : 'ccmqg';
         return (
             <div className={`relative w-full h-full min-h-[500px] animate-in fade-in zoom-in duration-500 ease-out ${className}`}>
-                <div className="relative w-full h-full bg-[#0a0a0b] border border-white/5 rounded-3xl overflow-hidden flex flex-col p-8">
+                <div className="relative w-full h-full bg-[#0a0a0b] border border-zinc-700 rounded-3xl flex flex-col p-8 shadow-2xl">
                     <div className="flex items-center justify-between mb-8">
-                        <h3 className="text-zinc-400 font-medium text-xs tracking-wide uppercase">Secure Checkout</h3>
+                        <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                            <h3 className="text-zinc-400 font-medium text-xs tracking-wide uppercase">Secure Checkout</h3>
+                        </div>
                         <button onClick={() => setIsCheckingOut(false)} className="text-zinc-500 hover:text-white transition-colors">
                             <span className="sr-only">Close</span>
                             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -88,7 +91,7 @@ export const PricingCard: React.FC<PricingCardProps> = ({
                             </svg>
                         </button>
                     </div>
-                    <div className="flex-1 flex items-center justify-center">
+                    <div className="flex-1 min-h-[400px]">
                         <div
                             key={productId}
                             className="gumroad-product-embed w-full"
@@ -118,15 +121,15 @@ export const PricingCard: React.FC<PricingCardProps> = ({
                 className={`w-full max-w-sm mx-auto ${className}`}
             >
                 {/* Compact Card - Dark Zinc/Gray Aesthetic */}
-                <div className="relative rounded-3xl bg-zinc-800 border border-zinc-700/50 shadow-2xl overflow-hidden">
+                <div className="relative rounded-3xl bg-zinc-900 border border-zinc-700 shadow-2xl overflow-hidden">
                     {/* Subtle gradient overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-zinc-700/20 to-transparent pointer-events-none" />
+                    <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none" />
 
                     <div className="relative p-8 space-y-6">
                         {/* Header Section */}
                         <div className="text-center space-y-3">
-                            <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-sm mb-2">
-                                <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-zinc-800 border border-zinc-700 mb-2">
+                                <svg className="w-6 h-6 text-zinc-100" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                                 </svg>
                             </div>

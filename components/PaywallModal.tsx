@@ -13,7 +13,7 @@ export const PaywallModal: React.FC<PaywallModalProps> = ({ isOpen, onAuth, curr
     return (
         <AnimatePresence>
             {isOpen && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-6 overflow-y-auto">
                     {/* Backdrop with heavy blur */}
                     <motion.div
                         initial={{ opacity: 0 }}
@@ -28,7 +28,7 @@ export const PaywallModal: React.FC<PaywallModalProps> = ({ isOpen, onAuth, curr
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95, y: 20 }}
                         transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                        className="relative z-10 w-full max-w-md"
+                        className="relative z-10 w-full max-w-md my-auto"
                     >
                         <PricingCard
                             isCompact={true}
