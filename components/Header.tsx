@@ -28,7 +28,7 @@ export const Header: React.FC<HeaderProps> = ({ onGetStartedClick, onLoginClick,
                 {/* Logo Section */}
                 <div className="md:px-8 md:border-r border-zinc-800 h-full flex items-center">
                     <div className="flex items-center gap-2">
-                        <Logo className="w-10 h-10 text-zinc-50" />
+                        <Logo className="w-10 h-10" />
                         <span className="text-zinc-50 font-semibold text-base tracking-tight">Ytterbium</span>
                     </div>
                 </div>

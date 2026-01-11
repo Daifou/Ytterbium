@@ -402,7 +402,7 @@ const ResultView: React.FC<ResultViewProps> = ({ task, result, onStartSession, s
                     {/* AI Message */}
                     <div className="flex flex-col items-start space-y-2">
                         <div className="flex items-center gap-2 mb-1">
-                            <div className="w-12 h-12 flex items-center justify-center text-indigo-500">
+                            <div className="w-12 h-12 flex items-center justify-center">
                                 <Logo className="w-full h-full" />
                             </div>
                             <span className="text-[10px] text-zinc-500 uppercase tracking-[0.2em] font-bold font-sans">Ytterbium</span>
@@ -578,7 +578,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose, onSignUp }) => {
                 <div className="space-y-8">
                     {/* Top Left Logo Identity */}
                     <div className="flex justify-start">
-                        <div className="w-12 h-12 flex items-center justify-center text-indigo-500">
+                        <div className="w-12 h-12 flex items-center justify-center">
                             <Logo className="w-full h-full" />
                         </div>
                     </div>
