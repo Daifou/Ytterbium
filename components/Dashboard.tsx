@@ -23,7 +23,7 @@ import { MacNotification } from './MacNotification';
 import { Moon } from 'lucide-react';
 import type { User } from '@supabase/supabase-js';
 import { useSubscription } from '../hooks/useSubscription';
-// import { useNavigate } from 'react-router-dom'; // We might need this later
+import { useLocation } from 'react-router-dom';
 
 const DEFAULT_DURATION = 25 * 60; // 25 min default
 const SCALE_FACTOR = 1.05;
@@ -39,8 +39,22 @@ const INTENSITY_TIME_CAPS: Record<number, number> = {
     1: 70, 2: 80, 3: 90, 4: 50, 5: 55, 6: 60, 7: 65, 8: 30, 9: 35, 10: 5 / 60,
 };
 
+const LoadingPercentage = () => {
+    const [progress, setProgress] = useState(0);
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setProgress(p => {
+                if (p < 98) return p + Math.floor(Math.random() * 8) + 1;
+                return p;
+            });
+        }, 100);
+        return () => clearInterval(interval);
+    }, []);
+    return <div className="text-[9px] text-zinc-600 font-mono tracking-widest">({Math.min(99, progress)}%)</div>;
+};
+
 export const Dashboard: React.FC = () => {
-    // const navigate = useNavigate(); // For redirecting out if needed
+    const location = useLocation();
     const [mode, setMode] = useState<AppMode>(AppMode.FOCUS);
     const [status, setStatus] = useState<SessionStatus>(SessionStatus.IDLE);
     const [duration, setDuration] = useState(DEFAULT_DURATION);
@@ -113,6 +127,27 @@ export const Dashboard: React.FC = () => {
         }
     }, [currentUser, isPremium, isJustPaid]);
 
+
+    // Handle Whop Success / "Just Paid" state persistence
+    useEffect(() => {
+        const params = new URLSearchParams(location.search);
+        if (params.get('checkout') === 'success') {
+            console.log("[Dashboard] Whop success detected.");
+            setIsJustPaid(true);
+            localStorage.setItem('ytterbium_just_paid', 'true');
+            // Clean URL
+            window.history.replaceState({}, document.title, window.location.pathname);
+
+            setNotification({
+                title: "Access Granted",
+                message: "Your neural environment is now fully unlocked. Welcome to Pro.",
+            });
+            setTimeout(() => setNotification(null), 5000);
+        } else if (localStorage.getItem('ytterbium_just_paid') === 'true') {
+            // Keep it active for 5 mins after payment to allow webhook sync
+            setIsJustPaid(true);
+        }
+    }, [location]);
 
     // Initialize Auth & Session
     useEffect(() => {
@@ -450,9 +485,28 @@ export const Dashboard: React.FC = () => {
 
     if (isAuthLoading) {
         return (
-            <div className="min-h-screen bg-[#09090b] flex flex-col items-center justify-center space-y-4">
-                <div className="w-12 h-12 border-2 border-indigo-500/20 border-t-indigo-500 rounded-full animate-spin" />
-                <p className="text-[10px] text-zinc-500 uppercase tracking-[0.2em] animate-pulse">Synchronizing environment...</p>
+            <div className="min-h-screen bg-[#050505] flex flex-col items-center justify-center">
+                <div className="relative flex flex-col items-center space-y-16 w-full max-w-sm px-10">
+                    {/* Image-accurate Minimalist Logo/Text */}
+                    <div className="flex items-center justify-center space-x-6 w-full">
+                        <div className="h-[1px] bg-zinc-800/50 flex-1" />
+                        <span className="text-[12px] font-medium tracking-[0.5em] uppercase text-zinc-500 font-sans whitespace-nowrap">
+                            ytterbium // bio
+                        </span>
+                        <div className="h-[1px] bg-zinc-800/50 w-8" /> {/* Offset line like the screenshot */}
+                    </div>
+
+                    {/* Status & Animated percentage */}
+                    <div className="flex flex-col items-center space-y-3">
+                        <div className="text-[9px] text-zinc-700 font-mono tracking-[0.3em] uppercase opacity-70">
+                            Neural Calibration Active
+                        </div>
+                        <LoadingPercentage />
+                    </div>
+                </div>
+
+                {/* Subtle Glow like landing page */}
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-indigo-500/[0.03] blur-[120px] rounded-full pointer-events-none" />
             </div>
         );
     }
