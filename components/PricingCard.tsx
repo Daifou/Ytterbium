@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { User } from '@supabase/supabase-js';
 import { WhopCheckoutEmbed } from "@whop/checkout/react";
@@ -63,22 +63,52 @@ export const PricingCard: React.FC<PricingCardProps> = ({
         setIsCheckingOut(true);
     };
 
+    const checkoutRef = useRef<any>(null);
+
     if (isCheckingOut && currentUser) {
         return (
             <div className={`relative w-full h-[600px] md:h-[700px] animate-in fade-in zoom-in duration-500 ease-out ${className}`}>
                 <div className="relative w-full h-full bg-[#0a0a0b] border border-zinc-700 rounded-3xl flex flex-col shadow-2xl overflow-hidden">
-                    <button
-                        onClick={() => setIsCheckingOut(false)}
-                        className="absolute top-4 right-4 text-zinc-500 hover:text-white z-50 text-xs px-2 py-1 bg-zinc-900/80 rounded backdrop-blur-sm border border-white/10"
-                    >
-                        Back to Plans
-                    </button>
 
-                    {/* Whop Checkout Embed */}
-                    <WhopCheckoutEmbed
-                        planId="plan_8CWnEKzsQpVQh"
-                        returnUrl={window.location.origin + '/dashboard'}
-                    />
+                    {/* Header Control */}
+                    <div className="absolute top-0 right-0 left-0 p-4 z-50 flex justify-end pointer-events-none">
+                        <button
+                            onClick={() => setIsCheckingOut(false)}
+                            className="pointer-events-auto text-zinc-500 hover:text-white text-xs px-3 py-1.5 bg-zinc-900/80 rounded-full backdrop-blur-sm border border-white/10 transition-colors"
+                        >
+                            Cancel
+                        </button>
+                    </div>
+
+                    {/* Whop Checkout Embed - Scrollable Wrapper */}
+                    <div className="flex-1 overflow-y-auto pt-10 pb-4 scrollbar-hide">
+                        <div className="px-4">
+                            <WhopCheckoutEmbed
+                                ref={checkoutRef}
+                                planId="plan_8CWnEKzsQpVQh"
+                                returnUrl={window.location.origin + '/dashboard'}
+                            />
+                        </div>
+                    </div>
+
+                    {/* Manual Submit Button (Fallback) */}
+                    <div className="p-4 border-t border-zinc-800 bg-[#0a0a0b] z-40">
+                        <button
+                            onClick={() => {
+                                console.log("Attempting manual submit via ref...", checkoutRef.current);
+                                checkoutRef.current?.submit?.();
+                            }}
+                            className="w-full py-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-[15px] tracking-tight transition-all shadow-lg shadow-indigo-500/20 flex items-center justify-center gap-2"
+                        >
+                            <span>Complete Payment</span>
+                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                            </svg>
+                        </button>
+                        <p className="mt-3 text-center text-[10px] text-zinc-600">
+                            Secured by Whop Payments
+                        </p>
+                    </div>
                 </div>
             </div>
         );
