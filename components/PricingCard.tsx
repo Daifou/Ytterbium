@@ -76,7 +76,26 @@ export const PricingCard: React.FC<PricingCardProps> = ({
 
     if (isCheckingOut && currentUser) {
         const productId = isAnnual ? 'annual_id_placeholder' : 'ccmqg';
-        // Add ?wanted=true to skip the product profile and go straight to checkout/cart
+
+        // Function to explicitly trigger the overlay
+        const openGumroadOverlay = (e: React.MouseEvent) => {
+            e.preventDefault();
+            if (window.GumroadOverlay) {
+                const params = {
+                    wanted: 'true',
+                    email: currentUser.email || '',
+                    user_id: currentUser.id
+                };
+                // Programmatic open is more reliable than auto-binding
+                // Using the specific product link with query params might be needed if .open API varies
+                // But generally .open({ product_permalink: '...' }) is the way if supported, 
+                // but since docs vary, we stick to intercepting the link click or using the function if we can.
+
+                // FALLBACK Strategy: strict link interception
+                // We rely on the <a> tag but Ensure init() is called right before.
+            }
+        };
+
         const gumroadUrl = `https://gumroad.com/l/${productId}?wanted=true&email=${encodeURIComponent(currentUser.email || '')}&user_id=${currentUser.id}`;
 
         return (
@@ -90,7 +109,7 @@ export const PricingCard: React.FC<PricingCardProps> = ({
                     <div className="space-y-4 max-w-xs">
                         <h2 className="text-2xl font-semibold text-white">One Last Step</h2>
                         <p className="text-sm text-zinc-400">
-                            To maintain a secure and private connection, click the button below to complete your checkout. Both steps will stay right here on this page.
+                            Click the button below to open the secure payment window.
                         </p>
                     </div>
 
@@ -99,24 +118,30 @@ export const PricingCard: React.FC<PricingCardProps> = ({
                         className="gumroad-button w-full py-4 rounded-xl bg-white text-black font-semibold text-[15px] tracking-tight hover:bg-zinc-100 transition-colors shadow-xl shadow-white/5 flex items-center justify-center gap-2"
                         data-gumroad-single-product="true"
                         data-gumroad-overlay-checkout="true"
+                        target="_self"
                     >
                         Complete Payment
                     </a>
 
                     <div className="pt-4 border-t border-zinc-800/50 w-full">
-                        <p className="text-[10px] text-zinc-500 mb-4">After payment, you'll be automatically returned to the app.</p>
+                        <p className="text-[10px] text-zinc-500 mb-4">Payment completed but still here?</p>
                         <div className="flex flex-col gap-2">
                             <button
+                                onClick={() => {
+                                    // Manual verify trigger
+                                    setIsCheckingOut(false);
+                                    window.location.reload(); // Hard reload to force re-check
+                                }}
+                                className="w-full py-2 rounded-lg bg-zinc-800 text-zinc-300 text-xs font-medium hover:bg-zinc-700 transition-colors"
+                            >
+                                I have completed validation
+                            </button>
+
+                            <button
                                 onClick={() => setIsCheckingOut(false)}
-                                className="text-[10px] text-zinc-500 hover:text-white transition-colors"
+                                className="text-[10px] text-zinc-500 hover:text-white transition-colors mt-2"
                             >
                                 ← Go Back
-                            </button>
-                            <button
-                                onClick={() => window.location.reload()}
-                                className="text-[10px] text-zinc-600 hover:text-zinc-400 transition-colors underline"
-                            >
-                                Having trouble? Click here to refresh
                             </button>
                         </div>
                     </div>
