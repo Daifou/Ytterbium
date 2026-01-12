@@ -76,42 +76,47 @@ export const PricingCard: React.FC<PricingCardProps> = ({
 
     if (isCheckingOut && currentUser) {
         const productId = isAnnual ? 'annual_id_placeholder' : 'ccmqg';
+        const gumroadUrl = `https://gumroad.com/l/${productId}?email=${encodeURIComponent(currentUser.email || '')}&user_id=${currentUser.id}`;
+
         return (
-            <div className={`relative w-full h-full min-h-[500px] animate-in fade-in zoom-in duration-500 ease-out ${className}`}>
-                <div className="relative w-full h-full bg-[#0a0a0b] border border-zinc-700 rounded-3xl flex flex-col p-8 shadow-2xl overflow-hidden">
-                    <div className="flex items-center justify-between mb-8">
-                        <div className="flex items-center gap-2">
-                            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                            <h3 className="text-zinc-400 font-medium text-xs tracking-wide uppercase">Secure Checkout</h3>
-                        </div>
-                        <button onClick={() => setIsCheckingOut(false)} className="text-zinc-500 hover:text-white transition-colors">
-                            <span className="sr-only">Close</span>
-                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                        </button>
+            <div className={`relative w-full h-full min-h-[400px] animate-in fade-in zoom-in duration-500 ease-out ${className}`}>
+                <div className="relative w-full h-full bg-[#0a0a0b] border border-zinc-700 rounded-3xl flex flex-col p-8 shadow-2xl overflow-hidden items-center justify-center text-center space-y-6">
+                    <div className="flex items-center gap-2 mb-2">
+                        <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                        <h3 className="text-zinc-400 font-medium text-xs tracking-wide uppercase">Finalize Membership</h3>
                     </div>
 
-                    <div className="flex-1 min-h-[400px] relative overflow-y-auto custom-scrollbar">
-                        <div
-                            key={productId}
-                            className="gumroad-product-embed w-full min-h-[400px]"
-                            data-gumroad-product-id={productId}
-                            data-gumroad-single-product="true"
-                            data-gumroad-params={`email=${encodeURIComponent(currentUser.email || '')}&user_id=${currentUser.id}`}
-                        >
-                            <a href={`https://gumroad.com/l/${productId}`} className="text-zinc-500 hover:text-white transition-colors">Loading Gumroad Checkout...</a>
-                        </div>
+                    <div className="space-y-4 max-w-xs">
+                        <h2 className="text-2xl font-semibold text-white">One Last Step</h2>
+                        <p className="text-sm text-zinc-400">
+                            To maintain a secure and private connection, click the button below to complete your checkout. Both steps will stay right here on this page.
+                        </p>
                     </div>
 
-                    <div className="mt-6 pt-4 border-t border-zinc-800/50 flex flex-col items-center">
-                        <p className="text-[10px] text-zinc-500 mb-2">After payment, you will be automatically returned to the app.</p>
-                        <button
-                            onClick={() => window.location.reload()}
-                            className="text-[10px] text-zinc-600 hover:text-zinc-400 transition-colors underline"
-                        >
-                            Having trouble? Click here to refresh
-                        </button>
+                    <a
+                        href={gumroadUrl}
+                        className="gumroad-button w-full py-4 rounded-xl bg-white text-black font-semibold text-[15px] tracking-tight hover:bg-zinc-100 transition-colors shadow-xl shadow-white/5 flex items-center justify-center gap-2"
+                        data-gumroad-single-product="true"
+                    >
+                        Complete Payment
+                    </a>
+
+                    <div className="pt-4 border-t border-zinc-800/50 w-full">
+                        <p className="text-[10px] text-zinc-500 mb-4">After payment, you'll be automatically returned to the app.</p>
+                        <div className="flex flex-col gap-2">
+                            <button
+                                onClick={() => setIsCheckingOut(false)}
+                                className="text-[10px] text-zinc-500 hover:text-white transition-colors"
+                            >
+                                ← Go Back
+                            </button>
+                            <button
+                                onClick={() => window.location.reload()}
+                                className="text-[10px] text-zinc-600 hover:text-zinc-400 transition-colors underline"
+                            >
+                                Having trouble? Click here to refresh
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
