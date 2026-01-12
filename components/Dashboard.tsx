@@ -104,23 +104,12 @@ export const Dashboard: React.FC = () => {
     }, [currentUser]);
 
     // Security: Paywall Enforcer
+    // Security: Paywall Enforcer
     useEffect(() => {
-        // Only enforce if we have a user and they aren't premium and NOT just paid
+        // Enforce paywall if user is logged in, not active premium, and hasn't just completed payment
         if (currentUser && !isPremium && !isJustPaid) {
-            // We might want to be more lenient here or enforce strict "3 free sessions"
-            // For now, let's keep the logic but simpler:
-            // Trigger paywall if they try to do premium things or if they've used up free sessions.
-            // The original logic relied on `hasEntered`. Since Dashboard implies entered:
-            // Check free sessions used?
-            const checkPaywall = async () => {
-                const profile = await databaseService.getProfile(currentUser.id);
-                const sessions = (profile as any)?.free_sessions_used || 0;
-                if (sessions >= 3) {
-                    console.log("[Dashboard] Security: User is non-premium and used free sessions. Enforcing paywall.");
-                    setIsPaywallOpen(true);
-                }
-            };
-            checkPaywall();
+            console.log("[Dashboard] Security: User is non-premium. Enforcing paywall.");
+            setIsPaywallOpen(true);
         }
     }, [currentUser, isPremium, isJustPaid]);
 
