@@ -1,14 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { User } from '@supabase/supabase-js';
-
-declare global {
-    interface Window {
-        GumroadOverlay?: {
-            init: () => void;
-        };
-    }
-}
+import { WhopCheckoutEmbed } from "@whop/checkout/react";
 
 interface PricingCardProps {
     className?: string;
@@ -35,10 +28,6 @@ export const PricingCard: React.FC<PricingCardProps> = ({
     const [isHovered, setIsHovered] = useState(false);
 
     useEffect(() => {
-        if (window.GumroadOverlay) {
-            window.GumroadOverlay.init();
-        }
-
         // Auto-trigger checkout if user just signed up with a pending plan
         const pendingPlan = localStorage.getItem('pending_plan');
         if (currentUser && pendingPlan) {
@@ -69,82 +58,27 @@ export const PricingCard: React.FC<PricingCardProps> = ({
             return;
         }
 
-        // For compact mode (paywall), show embedded checkout instead of redirecting
+        // For compact mode (paywall) or logged in users, show embedded checkout
         e.preventDefault();
         setIsCheckingOut(true);
     };
 
     if (isCheckingOut && currentUser) {
-        const productId = isAnnual ? 'annual_id_placeholder' : 'ccmqg';
-
-        // Function to explicitly trigger the overlay
-        const openGumroadOverlay = (e: React.MouseEvent) => {
-            e.preventDefault();
-            if (window.GumroadOverlay) {
-                const params = {
-                    wanted: 'true',
-                    email: currentUser.email || '',
-                    user_id: currentUser.id
-                };
-                // Programmatic open is more reliable than auto-binding
-                // Using the specific product link with query params might be needed if .open API varies
-                // But generally .open({ product_permalink: '...' }) is the way if supported, 
-                // but since docs vary, we stick to intercepting the link click or using the function if we can.
-
-                // FALLBACK Strategy: strict link interception
-                // We rely on the <a> tag but Ensure init() is called right before.
-            }
-        };
-
-        const gumroadUrl = `https://gumroad.com/l/${productId}?wanted=true&email=${encodeURIComponent(currentUser.email || '')}&user_id=${currentUser.id}`;
-
         return (
-            <div className={`relative w-full h-full min-h-[400px] animate-in fade-in zoom-in duration-500 ease-out ${className}`}>
-                <div className="relative w-full h-full bg-[#0a0a0b] border border-zinc-700 rounded-3xl flex flex-col p-8 shadow-2xl overflow-hidden items-center justify-center text-center space-y-6">
-                    <div className="flex items-center gap-2 mb-2">
-                        <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                        <h3 className="text-zinc-400 font-medium text-xs tracking-wide uppercase">Finalize Membership</h3>
-                    </div>
-
-                    <div className="space-y-4 max-w-xs">
-                        <h2 className="text-2xl font-semibold text-white">One Last Step</h2>
-                        <p className="text-sm text-zinc-400">
-                            Click the button below to open the secure payment window.
-                        </p>
-                    </div>
-
-                    <a
-                        href={gumroadUrl}
-                        className="gumroad-button w-full py-4 rounded-xl bg-white text-black font-semibold text-[15px] tracking-tight hover:bg-zinc-100 transition-colors shadow-xl shadow-white/5 flex items-center justify-center gap-2"
-                        data-gumroad-single-product="true"
-                        data-gumroad-overlay-checkout="true"
-                        target="_self"
+            <div className={`relative w-full h-[600px] md:h-[700px] animate-in fade-in zoom-in duration-500 ease-out ${className}`}>
+                <div className="relative w-full h-full bg-[#0a0a0b] border border-zinc-700 rounded-3xl flex flex-col shadow-2xl overflow-hidden">
+                    <button
+                        onClick={() => setIsCheckingOut(false)}
+                        className="absolute top-4 right-4 text-zinc-500 hover:text-white z-50 text-xs px-2 py-1 bg-zinc-900/80 rounded backdrop-blur-sm border border-white/10"
                     >
-                        Complete Payment
-                    </a>
+                        Back to Plans
+                    </button>
 
-                    <div className="pt-4 border-t border-zinc-800/50 w-full">
-                        <p className="text-[10px] text-zinc-500 mb-4">Payment completed but still here?</p>
-                        <div className="flex flex-col gap-2">
-                            <button
-                                onClick={() => {
-                                    // Manual verify trigger
-                                    setIsCheckingOut(false);
-                                    window.location.reload(); // Hard reload to force re-check
-                                }}
-                                className="w-full py-2 rounded-lg bg-zinc-800 text-zinc-300 text-xs font-medium hover:bg-zinc-700 transition-colors"
-                            >
-                                I have completed validation
-                            </button>
-
-                            <button
-                                onClick={() => setIsCheckingOut(false)}
-                                className="text-[10px] text-zinc-500 hover:text-white transition-colors mt-2"
-                            >
-                                ← Go Back
-                            </button>
-                        </div>
-                    </div>
+                    {/* Whop Checkout Embed */}
+                    <WhopCheckoutEmbed
+                        planId="plan_8CWnEKzsQpVQh"
+                        returnUrl={window.location.origin + '/dashboard'}
+                    />
                 </div>
             </div>
         );
@@ -258,7 +192,7 @@ export const PricingCard: React.FC<PricingCardProps> = ({
 
                         {/* Footer Text */}
                         <p className="text-[10px] text-zinc-500 text-center leading-relaxed">
-                            Secure billing via Gumroad
+                            Secure billing via Whop
                         </p>
                     </div>
                 </div>
@@ -353,7 +287,7 @@ export const PricingCard: React.FC<PricingCardProps> = ({
                             )}
                         </motion.button>
                         <p className="mt-5 text-center text-[10px] text-zinc-600 font-medium tracking-wide">
-                            Secure billing via Gumroad
+                            Secure billing via Whop
                         </p>
                     </div>
                 </div>
