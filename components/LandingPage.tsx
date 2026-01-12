@@ -10,8 +10,6 @@ import { PricingSection } from './PricingSection';
 import { authService } from '../services/authService';
 import { useSubscription } from '../hooks/useSubscription';
 import { Logo } from './Logo';
-import { ScrollShowcase } from './ScrollShowcase';
-import Lenis from 'lenis';
 
 interface LandingPageProps {
     onEnter: (data: any) => void;
@@ -31,19 +29,6 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
 
     // Check for existing user & usage stats
     useEffect(() => {
-        const lenis = new Lenis({
-            duration: 1.2,
-            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-            touchMultiplier: 2,
-        });
-
-        function raf(time: number) {
-            lenis.raf(time);
-            requestAnimationFrame(raf);
-        }
-
-        requestAnimationFrame(raf);
-
         const checkUser = async () => {
             const { data: { user } } = await supabase.auth.getUser();
             setCurrentUser(user);
@@ -250,9 +235,6 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
                                     ))}
                                 </div>
 
-                                {/* SCROLL SHOWCASE - ANTIGRAVITY STYLE */}
-                                <ScrollShowcase />
-
                             </motion.div>
                         )}
 
@@ -272,9 +254,6 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
                     </AnimatePresence>
                 </AnimatePresence>
             </div>
-
-            {/* SCROLL SHOWCASE - ANTIGRAVITY STYLE */}
-            {stage === 'hero' && <ScrollShowcase />}
 
             {/* Pricing Section (Accessible via Scroll / Anchor) */}
             {stage === 'hero' && (
