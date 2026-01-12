@@ -63,8 +63,6 @@ export const PricingCard: React.FC<PricingCardProps> = ({
         setIsCheckingOut(true);
     };
 
-    const checkoutRef = useRef<any>(null);
-
     if (isCheckingOut && currentUser) {
         return (
             <div className={`relative w-full h-[600px] md:h-[700px] animate-in fade-in zoom-in duration-500 ease-out ${className}`}>
@@ -84,30 +82,10 @@ export const PricingCard: React.FC<PricingCardProps> = ({
                     <div className="flex-1 overflow-y-auto pt-10 pb-4 scrollbar-hide">
                         <div className="px-4">
                             <WhopCheckoutEmbed
-                                ref={checkoutRef}
                                 planId="plan_8CWnEKzsQpVQh"
                                 returnUrl={window.location.origin + '/dashboard?checkout=success'}
                             />
                         </div>
-                    </div>
-
-                    {/* Manual Submit Button (Fallback) */}
-                    <div className="p-4 border-t border-zinc-800 bg-[#0a0a0b] z-40">
-                        <button
-                            onClick={() => {
-                                console.log("Attempting manual submit via ref...", checkoutRef.current);
-                                checkoutRef.current?.submit?.();
-                            }}
-                            className="w-full py-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-[15px] tracking-tight transition-all shadow-lg shadow-indigo-500/20 flex items-center justify-center gap-2"
-                        >
-                            <span>Complete Payment</span>
-                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                            </svg>
-                        </button>
-                        <p className="mt-3 text-center text-[10px] text-zinc-600">
-                            Secured by Whop Payments
-                        </p>
                     </div>
                 </div>
             </div>
