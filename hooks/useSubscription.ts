@@ -57,10 +57,10 @@ export function useSubscription() {
 
         // Subscribe to changes for Real-time Resilience
         const subscriptionChannel = supabase
-            .channel('polar_sync_changes')
+            .channel('gumroad_sync_changes')
             .on(
                 'postgres_changes',
-                { event: '*', schema: 'public', table: 'polar_subscriptions' },
+                { event: '*', schema: 'public', table: 'gumroad_subscriptions' },
                 () => fetchSubscription()
             )
             .subscribe();

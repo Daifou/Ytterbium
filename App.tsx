@@ -100,6 +100,7 @@ const App: React.FC = () => {
   const [pendingStartUserId, setPendingStartUserId] = useState<string | null>(null);
   const [shouldTriggerCountdown, setShouldTriggerCountdown] = useState(false); // [NEW] Centralized trigger flag
   const [isPaywallOpen, setIsPaywallOpen] = useState(false);
+  const [isJustPaid, setIsJustPaid] = useState(false); // [NEW] Temporary bypass
   const [isRedirectingToCheckout, setIsRedirectingToCheckout] = useState(false);
   const [freeSessionsUsed, setFreeSessionsUsed] = useState(0);
   const [notification, setNotification] = useState<{
@@ -147,11 +148,12 @@ const App: React.FC = () => {
   // [SECURITY] Enforce Paywall State
   useEffect(() => {
     // If user is logged in AND not premium, and has entered the app, FORCE paywall open
-    if (currentUser && hasEntered && !isPremium) {
+    // [FIX] Bypassed if user just paid (isJustPaid)
+    if (currentUser && hasEntered && !isPremium && !isJustPaid) {
       console.log("[App] Security: User is non-premium. Enforcing paywall.");
       setIsPaywallOpen(true);
     }
-  }, [currentUser, hasEntered, isPremium]);
+  }, [currentUser, hasEntered, isPremium, isJustPaid]);
 
   // --- 4. AUTH & SESSION INITIALIZATION ---
   useEffect(() => {
@@ -312,6 +314,36 @@ const App: React.FC = () => {
     return () => {
       subscription.unsubscribe();
     };
+  }, []);
+
+  // [NEW] Listen for Gumroad payment completion events (for embedded checkout)
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      // Check for Gumroad message
+      if (typeof event.data === 'string' && event.data.includes('gumroad.payment_complete')) {
+        console.log("[App] Detected gumroad.payment_complete via postMessage!");
+        setIsJustPaid(true); // Bypass paywall
+        setIsPaywallOpen(false); // Close modal
+
+        setNotification({
+          title: "Payment Successful!",
+          message: "Welcome to Ytterbium Pro. Your subscription is activating.",
+          action: {
+            label: "Start Now",
+            onClick: () => {
+              setHasEntered(true);
+              setNotification(null);
+            }
+          }
+        });
+
+        // Optional: Auto-clear notification
+        setTimeout(() => setNotification(null), 5000);
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
   }, []);
 
   // Handle payment success redirect from Gumroad

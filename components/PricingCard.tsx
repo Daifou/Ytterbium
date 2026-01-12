@@ -78,7 +78,7 @@ export const PricingCard: React.FC<PricingCardProps> = ({
         const productId = isAnnual ? 'annual_id_placeholder' : 'ccmqg';
         return (
             <div className={`relative w-full h-full min-h-[500px] animate-in fade-in zoom-in duration-500 ease-out ${className}`}>
-                <div className="relative w-full h-full bg-[#0a0a0b] border border-zinc-700 rounded-3xl flex flex-col p-8 shadow-2xl">
+                <div className="relative w-full h-full bg-[#0a0a0b] border border-zinc-700 rounded-3xl flex flex-col p-8 shadow-2xl overflow-hidden">
                     <div className="flex items-center justify-between mb-8">
                         <div className="flex items-center gap-2">
                             <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
@@ -91,16 +91,27 @@ export const PricingCard: React.FC<PricingCardProps> = ({
                             </svg>
                         </button>
                     </div>
-                    <div className="flex-1 min-h-[400px]">
+
+                    <div className="flex-1 min-h-[400px] relative overflow-y-auto custom-scrollbar">
                         <div
                             key={productId}
-                            className="gumroad-product-embed w-full"
+                            className="gumroad-product-embed w-full min-h-[400px]"
                             data-gumroad-product-id={productId}
                             data-gumroad-single-product="true"
                             data-gumroad-params={`email=${encodeURIComponent(currentUser.email || '')}&user_id=${currentUser.id}`}
                         >
                             <a href={`https://gumroad.com/l/${productId}`} className="text-zinc-500 hover:text-white transition-colors">Loading Gumroad Checkout...</a>
                         </div>
+                    </div>
+
+                    <div className="mt-6 pt-4 border-t border-zinc-800/50 flex flex-col items-center">
+                        <p className="text-[10px] text-zinc-500 mb-2">After payment, you will be automatically returned to the app.</p>
+                        <button
+                            onClick={() => window.location.reload()}
+                            className="text-[10px] text-zinc-600 hover:text-zinc-400 transition-colors underline"
+                        >
+                            Having trouble? Click here to refresh
+                        </button>
                     </div>
                 </div>
             </div>
