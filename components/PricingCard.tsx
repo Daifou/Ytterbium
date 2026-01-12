@@ -76,7 +76,8 @@ export const PricingCard: React.FC<PricingCardProps> = ({
 
     if (isCheckingOut && currentUser) {
         const productId = isAnnual ? 'annual_id_placeholder' : 'ccmqg';
-        const gumroadUrl = `https://gumroad.com/l/${productId}?email=${encodeURIComponent(currentUser.email || '')}&user_id=${currentUser.id}`;
+        // Add ?wanted=true to skip the product profile and go straight to checkout/cart
+        const gumroadUrl = `https://gumroad.com/l/${productId}?wanted=true&email=${encodeURIComponent(currentUser.email || '')}&user_id=${currentUser.id}`;
 
         return (
             <div className={`relative w-full h-full min-h-[400px] animate-in fade-in zoom-in duration-500 ease-out ${className}`}>
@@ -97,6 +98,7 @@ export const PricingCard: React.FC<PricingCardProps> = ({
                         href={gumroadUrl}
                         className="gumroad-button w-full py-4 rounded-xl bg-white text-black font-semibold text-[15px] tracking-tight hover:bg-zinc-100 transition-colors shadow-xl shadow-white/5 flex items-center justify-center gap-2"
                         data-gumroad-single-product="true"
+                        data-gumroad-overlay-checkout="true"
                     >
                         Complete Payment
                     </a>
