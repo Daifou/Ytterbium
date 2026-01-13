@@ -1,269 +1,193 @@
-import React, { useRef } from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
+"use client";
+import React, { useRef, useState } from "react";
+import { useMotionValueEvent, useScroll, motion } from "framer-motion";
+import { cn } from "../lib/utils";
 
-const steps = [
+const content = [
     {
-        number: 1,
-        title: 'Input',
-        description: 'Describe your task and Ytterbium instantly calibrates the optimal focus environment'
+        title: "Input",
+        description: "Describe your task and Ytterbium instantly calibrates the optimal focus environment",
     },
     {
-        number: 2,
-        title: 'Analyze',
-        description: 'AI classifies cognitive load and recommends the perfect intensity level for peak performance'
+        title: "Analyze",
+        description: "AI classifies cognitive load and recommends the perfect intensity level for peak performance",
     },
     {
-        number: 3,
-        title: 'Focus',
-        description: 'Enter your personalized environment with adaptive timers and biometric rest prompts'
+        title: "Focus",
+        description: "Enter your personalized environment with adaptive timers and biometric rest prompts",
     },
     {
-        number: 4,
-        title: 'Complete',
-        description: 'Track progress through sessions and unlock deeper focus states over time'
-    }
+        title: "Complete",
+        description: "Track progress through sessions and unlock deeper focus states over time",
+    },
 ];
 
-export const StickyScroll: React.FC = () => {
-    const containerRef = useRef<HTMLDivElement>(null);
-
-    // 1. Create a tall scrollable container (300vh) to drive the animation
+export const StickyScroll = () => {
+    const [activeCard, setActiveCard] = React.useState(0);
+    const ref = useRef<any>(null);
     const { scrollYProgress } = useScroll({
-        target: containerRef,
-        offset: ['start start', 'end end']
+        container: ref,
+        offset: ["start start", "end end"], // Adjusted for fuller scroll coverage
     });
+    const cardLength = content.length;
 
-    // 2. Map scroll progress (0 to 1) to an active step index (0 to 3)
-    // We use a slight "plateau" logic so the user "locks" onto a step for a moment before switching
-    const activeStepIndex = useTransform(
-        scrollYProgress,
-        [0, 0.25, 0.5, 0.75, 1], // Input range (scroll progress)
-        [0, 1, 2, 3, 3]          // Output range (active index)
-    );
-
-    return (
-        <section ref={containerRef} className="relative bg-[#09090b] h-[300vh]">
-            {/* Sticky Wrapper: This locks the view to the screen while we scroll through the 300vh parent */}
-            <div className="sticky top-0 h-screen flex items-center overflow-hidden">
-                <div className="max-w-7xl mx-auto px-6 w-full">
-
-                    {/* The Grid Layout: Visual on Left, Compact List on Right */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-20 items-center">
-
-                        {/* Left Column: Visual (Stays Fixed & Centered) */}
-                        <div className="hidden md:flex items-center justify-center h-full">
-                            <StickyVisual activeStepIndex={activeStepIndex} />
-                        </div>
-
-                        {/* Right Column: The "ProSE" Compact Accordion */}
-                        <div className="flex flex-col justify-center relative">
-                            {/* Top Border for the first item to complete the grid look */}
-                            <div className="w-full h-px bg-white/10 mb-0" />
-
-                            {steps.map((step, index) => (
-                                <Step
-                                    key={step.number}
-                                    step={step}
-                                    index={index}
-                                    activeStepIndex={activeStepIndex}
-                                />
-                            ))}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-    );
-};
-
-// ------------------------------------------------------------------
-// Sub-Components (Preserved & Updated logic)
-// ------------------------------------------------------------------
-
-interface StepProps {
-    step: typeof steps[0];
-    index: number;
-    activeStepIndex: any; // Using 'any' for the MotionValue to simplify types in this snippet
-}
-
-const Step: React.FC<StepProps> = ({ step, index, activeStepIndex }) => {
-    // We create a custom "isActive" generic boolean transform for opacity/colors
-    // This value is 1 when we are on this step, and 0 when we are not.
-    // We use a small buffer (+/- 0.5) to decide when to switch.
-    const isActiveValue = useTransform(activeStepIndex, (current: number) => {
-        // Precise switching point
-        return Math.round(current) === index ? 1 : 0;
+    useMotionValueEvent(scrollYProgress, "change", (latest) => {
+        const cardsBreakpoints = content.map((_, index) => index / cardLength);
+        const closestBreakpointIndex = cardsBreakpoints.reduce(
+            (acc, breakpoint, index) => {
+                const distance = Math.abs(latest - breakpoint);
+                if (distance < Math.abs(latest - cardsBreakpoints[acc])) {
+                    return index;
+                }
+                return acc;
+            },
+            0
+        );
+        setActiveCard(closestBreakpointIndex);
     });
-
-    const isInactiveOpacity = useTransform(isActiveValue, [0, 1], [0.3, 1]);
-    const numberBg = useTransform(isActiveValue, [0, 1], ['rgba(255,255,255,0)', 'rgba(255,255,255,1)']);
-    const numberText = useTransform(isActiveValue, [0, 1], ['#71717a', '#000000']); // Zinc-500 to Black
-    const contentHeight = useTransform(isActiveValue, [0, 1], [0, 100]); // Collapsed vs Expanded height (approx px)
 
     return (
         <motion.div
-            className="w-full border-b border-white/10"
+            className="h-[40rem] overflow-y-auto flex justify-center relative space-x-10 rounded-md p-10 bg-[#09090b]"
+            ref={ref}
             style={{
-                opacity: isInactiveOpacity,
+                scrollbarWidth: 'none', /* Firefox */
+                msOverflowStyle: 'none', /* IE/Edge */
             }}
         >
-            <div className="py-6 group cursor-pointer transition-all duration-500">
-                <div className="flex items-start gap-6">
-                    {/* Number Box */}
-                    <motion.div
-                        className="flex-shrink-0 w-10 h-10 rounded flex items-center justify-center text-sm font-bold border border-white/10"
-                        style={{
-                            backgroundColor: numberBg,
-                            color: numberText,
-                            borderColor: useTransform(isActiveValue, [0, 1], ['rgba(255,255,255,0.1)', 'rgba(255,255,255,0)'])
-                        }}
-                    >
-                        {step.number}
-                    </motion.div>
+            <style>
+                {`
+                /* Hide scrollbar for Chrome, Safari and Opera */
+                div::-webkit-scrollbar {
+                    display: none;
+                }
+                `}
+            </style>
 
-                    <div className="flex-1">
-                        {/* Title */}
-                        <h3 className="text-xl md:text-2xl font-semibold text-white mb-2">
-                            {step.title}
-                        </h3>
+            {/* Visual Column (Sticky) - Placed First for Left Alignment */}
+            <div
+                className={cn(
+                    "hidden lg:block h-[30rem] w-[30rem] sticky top-10 overflow-hidden rounded-md",
+                )}
+            >
+                {/* Persistent Visual Component that morphs based on activeCard */}
+                <StickyVisual activeIndex={activeCard} />
+            </div>
 
-                        {/* Description (Accordion Expanding) */}
-                        <motion.div
-                            style={{
-                                height: contentHeight,
-                                opacity: isActiveValue
-                            }}
-                            className="overflow-hidden"
-                        >
-                            <p className="text-zinc-400 text-sm leading-relaxed pb-2 max-w-sm">
-                                {step.description}
-                            </p>
-                        </motion.div>
-                    </div>
+            {/* Text Column (Scrollable) */}
+            <div className="div relative flex items-start px-4">
+                <div className="max-w-2xl">
+                    {content.map((item, index) => (
+                        <div key={item.title + index} className="my-20 flex flex-col justify-center min-h-[15rem]">
+                            <motion.h2
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: activeCard === index ? 1 : 0.3 }}
+                                className="text-3xl font-bold text-slate-100 mb-4"
+                            >
+                                {item.title}
+                            </motion.h2>
+                            <motion.p
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: activeCard === index ? 1 : 0.3 }}
+                                className="text-lg text-slate-300 max-w-sm leading-relaxed"
+                            >
+                                {item.description}
+                            </motion.p>
+                        </div>
+                    ))}
+                    <div className="h-40" />
                 </div>
             </div>
         </motion.div>
     );
 };
 
-// ------------------------------------------------------------------
-// Visual Component (Preserved your exact SVG logic)
-// ------------------------------------------------------------------
-
-interface StickyVisualProps {
-    activeStepIndex: any;
-}
-
-const StickyVisual: React.FC<StickyVisualProps> = ({ activeStepIndex }) => {
-    // Smooth continuous rotation mapped to total scroll
-    const rotation = useTransform(activeStepIndex, [0, 3], [0, 180]);
-    // Subtle breathing scale effect
-    const scale = useTransform(activeStepIndex, [0, 1.5, 3], [1, 1.1, 1]);
-
+// Adapted StickyVisual that accepts an integer index and uses layout animations/springs
+const StickyVisual = ({ activeIndex }: { activeIndex: number }) => {
     return (
-        <div className="relative w-full max-w-md aspect-square flex items-center justify-center">
-            {/* Background glow */}
-            <motion.div
-                className="absolute inset-0 bg-gradient-radial from-indigo-500/10 via-transparent to-transparent blur-3xl"
-                style={{ scale }}
-            />
+        <div className="relative w-full h-full flex items-center justify-center bg-[#09090b]">
+            <div className="relative w-full max-w-[20rem] aspect-square flex items-center justify-center">
 
-            {/* 3D Ring Structure - EXACTLY AS PROVIDED */}
-            <motion.svg
-                viewBox="0 0 400 400"
-                className="w-full h-full"
-                style={{ rotate: rotation }}
-            >
-                {/* Outer ring */}
-                <motion.ellipse
-                    cx="200"
-                    cy="200"
-                    rx="150"
-                    ry="60"
-                    fill="none"
-                    stroke="url(#gradient1)"
-                    strokeWidth="1"
-                    opacity={0.5}
+                {/* Background Glow */}
+                <motion.div
+                    animate={{
+                        scale: activeIndex % 2 === 0 ? 1 : 1.1,
+                        opacity: 0.5
+                    }}
+                    transition={{ duration: 0.5 }}
+                    className="absolute inset-0 bg-gradient-radial from-indigo-500/10 via-transparent to-transparent blur-3xl"
                 />
 
-                {/* Inner rotating spheres Group */}
-                <motion.g style={{
-                    rotate: useTransform(rotation, (r) => -r * 2), // Counter-rotate inner elements for 3D effect
-                    originX: '200px',
-                    originY: '200px'
-                }}>
-                    {/* Sphere 1 - Top */}
+                {/* 3D Ring Structure */}
+                <motion.svg
+                    viewBox="0 0 400 400"
+                    className="w-full h-full"
+                    animate={{ rotate: activeIndex * 90 }} // Rotate 90deg per step
+                    transition={{ type: "spring", stiffness: 50, damping: 20 }}
+                >
+                    {/* Outer Ring */}
+                    <ellipse
+                        cx="200"
+                        cy="200"
+                        rx="150"
+                        ry="60"
+                        fill="none"
+                        stroke="url(#gradient1)"
+                        strokeWidth="1"
+                        opacity="0.5"
+                    />
+
+                    {/* Inner Rotating Spheres Group */}
+                    <motion.g
+                        animate={{ rotate: -(activeIndex * 90) * 2 }} // Counter-rotate
+                        transition={{ type: "spring", stiffness: 50, damping: 20 }}
+                        style={{ originX: "200px", originY: "200px" }}
+                    >
+                        <circle cx="200" cy="140" r="12" fill="url(#sphereGradient1)" />
+                        <circle cx="260" cy="200" r="16" fill="url(#sphereGradient2)" />
+                        <circle cx="200" cy="260" r="14" fill="url(#sphereGradient3)" />
+                        <circle cx="140" cy="200" r="12" fill="url(#sphereGradient4)" />
+                    </motion.g>
+
+                    {/* Center Core */}
                     <motion.circle
                         cx="200"
-                        cy="140"
-                        r="12"
-                        fill="url(#sphereGradient1)"
-                    />
-                    {/* Sphere 2 - Right */}
-                    <motion.circle
-                        cx="260"
                         cy="200"
-                        r="16"
-                        fill="url(#sphereGradient2)"
+                        r="20"
+                        fill="url(#coreGradient)"
+                        animate={{ scale: activeIndex % 2 === 0 ? 1 : 1.2 }}
+                        transition={{ duration: 0.3 }}
                     />
-                    {/* Sphere 3 - Bottom */}
-                    <motion.circle
-                        cx="200"
-                        cy="260"
-                        r="14"
-                        fill="url(#sphereGradient3)"
-                    />
-                    {/* Sphere 4 - Left */}
-                    <motion.circle
-                        cx="140"
-                        cy="200"
-                        r="12"
-                        fill="url(#sphereGradient4)"
-                    />
-                </motion.g>
 
-                {/* Center core */}
-                <motion.circle
-                    cx="200"
-                    cy="200"
-                    r="20"
-                    fill="url(#coreGradient)"
-                    style={{ scale }}
-                />
-
-                {/* Gradients Definitions */}
-                <defs>
-                    <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.6" />
-                        <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0.3" />
-                    </linearGradient>
-
-                    <radialGradient id="sphereGradient1">
-                        <stop offset="0%" stopColor="#60a5fa" />
-                        <stop offset="100%" stopColor="#3b82f6" />
-                    </radialGradient>
-
-                    <radialGradient id="sphereGradient2">
-                        <stop offset="0%" stopColor="#818cf8" />
-                        <stop offset="100%" stopColor="#6366f1" />
-                    </radialGradient>
-
-                    <radialGradient id="sphereGradient3">
-                        <stop offset="0%" stopColor="#a78bfa" />
-                        <stop offset="100%" stopColor="#8b5cf6" />
-                    </radialGradient>
-
-                    <radialGradient id="sphereGradient4">
-                        <stop offset="0%" stopColor="#c4b5fd" />
-                        <stop offset="100%" stopColor="#a78bfa" />
-                    </radialGradient>
-
-                    <radialGradient id="coreGradient">
-                        <stop offset="0%" stopColor="#e0e7ff" />
-                        <stop offset="100%" stopColor="#818cf8" />
-                    </radialGradient>
-                </defs>
-            </motion.svg>
+                    {/* Gradients */}
+                    <defs>
+                        <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.6" />
+                            <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0.3" />
+                        </linearGradient>
+                        <radialGradient id="sphereGradient1">
+                            <stop offset="0%" stopColor="#60a5fa" />
+                            <stop offset="100%" stopColor="#3b82f6" />
+                        </radialGradient>
+                        <radialGradient id="sphereGradient2">
+                            <stop offset="0%" stopColor="#818cf8" />
+                            <stop offset="100%" stopColor="#6366f1" />
+                        </radialGradient>
+                        <radialGradient id="sphereGradient3">
+                            <stop offset="0%" stopColor="#a78bfa" />
+                            <stop offset="100%" stopColor="#8b5cf6" />
+                        </radialGradient>
+                        <radialGradient id="sphereGradient4">
+                            <stop offset="0%" stopColor="#c4b5fd" />
+                            <stop offset="100%" stopColor="#a78bfa" />
+                        </radialGradient>
+                        <radialGradient id="coreGradient">
+                            <stop offset="0%" stopColor="#e0e7ff" />
+                            <stop offset="100%" stopColor="#818cf8" />
+                        </radialGradient>
+                    </defs>
+                </motion.svg>
+            </div>
         </div>
     );
 };
