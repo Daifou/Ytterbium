@@ -4,8 +4,14 @@
 -- ==================== PROFILES TABLE ====================
 CREATE TABLE IF NOT EXISTS profiles (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
-  email TEXT NOT NULL,
+  email TEXT NOT NULL UNIQUE,
   full_name TEXT,
+  subscription_status TEXT DEFAULT 'free',
+  plan_type TEXT,
+  current_period_end TIMESTAMP WITH TIME ZONE,
+  is_premium BOOLEAN DEFAULT FALSE,
+  total_reserve INTEGER DEFAULT 0,
+  free_sessions_used INTEGER DEFAULT 0,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -25,7 +31,7 @@ CREATE POLICY "Users can update their own profile"
 -- ==================== SESSIONS TABLE ====================
 CREATE TABLE IF NOT EXISTS sessions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
   start_time TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   end_time TIMESTAMP WITH TIME ZONE,
   duration_seconds INTEGER NOT NULL,
@@ -43,24 +49,24 @@ ALTER TABLE sessions ENABLE ROW LEVEL SECURITY;
 -- Sessions policies
 CREATE POLICY "Users can view their own sessions"
   ON sessions FOR SELECT
-  USING (auth.uid() = user_id);
+  USING (auth.uid() = user_id OR user_id IS NULL);
 
 CREATE POLICY "Users can create their own sessions"
   ON sessions FOR INSERT
-  WITH CHECK (auth.uid() = user_id);
+  WITH CHECK (auth.uid() = user_id OR user_id IS NULL);
 
 CREATE POLICY "Users can update their own sessions"
   ON sessions FOR UPDATE
-  USING (auth.uid() = user_id);
+  USING (auth.uid() = user_id OR user_id IS NULL);
 
 CREATE POLICY "Users can delete their own sessions"
   ON sessions FOR DELETE
-  USING (auth.uid() = user_id);
+  USING (auth.uid() = user_id OR user_id IS NULL);
 
 -- ==================== TASKS TABLE ====================
 CREATE TABLE IF NOT EXISTS tasks (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
   session_id UUID REFERENCES sessions(id) ON DELETE SET NULL,
   title TEXT NOT NULL,
   completed BOOLEAN NOT NULL DEFAULT FALSE,
@@ -75,19 +81,20 @@ ALTER TABLE tasks ENABLE ROW LEVEL SECURITY;
 -- Tasks policies
 CREATE POLICY "Users can view their own tasks"
   ON tasks FOR SELECT
-  USING (auth.uid() = user_id);
+  USING (auth.uid() = user_id OR user_id IS NULL);
 
 CREATE POLICY "Users can create their own tasks"
   ON tasks FOR INSERT
-  WITH CHECK (auth.uid() = user_id);
+  WITH CHECK (auth.uid() = user_id OR user_id IS NULL);
 
 CREATE POLICY "Users can update their own tasks"
   ON tasks FOR UPDATE
-  USING (auth.uid() = user_id);
+  USING (auth.uid() = user_id OR user_id IS NULL);
 
+-- Users can delete their own tasks
 CREATE POLICY "Users can delete their own tasks"
   ON tasks FOR DELETE
-  USING (auth.uid() = user_id);
+  USING (auth.uid() = user_id OR user_id IS NULL);
 
 -- ==================== FATIGUE METRICS TABLE ====================
 CREATE TABLE IF NOT EXISTS fatigue_metrics (
@@ -113,7 +120,7 @@ CREATE POLICY "Users can view metrics for their own sessions"
     EXISTS (
       SELECT 1 FROM sessions
       WHERE sessions.id = fatigue_metrics.session_id
-      AND sessions.user_id = auth.uid()
+      AND (sessions.user_id = auth.uid() OR sessions.user_id IS NULL)
     )
   );
 
@@ -123,21 +130,25 @@ CREATE POLICY "Users can create metrics for their own sessions"
     EXISTS (
       SELECT 1 FROM sessions
       WHERE sessions.id = fatigue_metrics.session_id
-      AND sessions.user_id = auth.uid()
+      AND (sessions.user_id = auth.uid() OR sessions.user_id IS NULL)
     )
   );
 
 -- ==================== INDEXES FOR PERFORMANCE ====================
-CREATE INDEX IF NOT EXISTS idx_sessions_user_id ON sessions(user_id);
+-- Essential indexes for frequent queries
+CREATE INDEX IF NOT EXISTS idx_profiles_email ON profiles(email);
+CREATE INDEX IF NOT EXISTS idx_profiles_subscription_status ON profiles(subscription_status);
+
+-- Composite indexes for session lookups (Dashboard stats)
+CREATE INDEX IF NOT EXISTS idx_sessions_user_status_type ON sessions(user_id, status, type);
 CREATE INDEX IF NOT EXISTS idx_sessions_created_at ON sessions(created_at DESC);
-CREATE INDEX IF NOT EXISTS idx_sessions_status ON sessions(status);
 
-CREATE INDEX IF NOT EXISTS idx_tasks_user_id ON tasks(user_id);
+-- Tasks lookups
+CREATE INDEX IF NOT EXISTS idx_tasks_user_id_completed ON tasks(user_id, completed);
 CREATE INDEX IF NOT EXISTS idx_tasks_session_id ON tasks(session_id);
-CREATE INDEX IF NOT EXISTS idx_tasks_completed ON tasks(completed);
 
+-- Metrics
 CREATE INDEX IF NOT EXISTS idx_fatigue_metrics_session_id ON fatigue_metrics(session_id);
-CREATE INDEX IF NOT EXISTS idx_fatigue_metrics_timestamp ON fatigue_metrics(timestamp);
 
 -- ==================== FUNCTIONS ====================
 
@@ -180,3 +191,14 @@ DROP TRIGGER IF EXISTS update_tasks_updated_at ON tasks;
 CREATE TRIGGER update_tasks_updated_at
   BEFORE UPDATE ON tasks
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+-- Function for atomic reserve increment
+CREATE OR REPLACE FUNCTION increment_reserve(user_id_param UUID, amount_param INTEGER)
+RETURNS VOID AS $$
+BEGIN
+  UPDATE profiles
+  SET total_reserve = total_reserve + amount_param,
+      updated_at = NOW()
+  WHERE id = user_id_param;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;

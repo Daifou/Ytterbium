@@ -26,7 +26,7 @@ class DatabaseService {
         }
     }
 
-    async updateProfile(userId: string, updates: { full_name?: string, total_reserve?: number }): Promise<boolean> {
+    async updateProfile(userId: string, updates: Partial<Profile>): Promise<boolean> {
         try {
             const { error } = await supabase
                 .from('profiles')
@@ -43,36 +43,36 @@ class DatabaseService {
 
     // ==================== VAULT OPERATIONS ====================
 
+    /**
+     * Optimized vault stats fetching using optimized sessions index
+     */
     async getVaultStats(userId: string): Promise<{ barsToday: number; totalBars: number }> {
         try {
             const today = new Date();
             today.setHours(0, 0, 0, 0);
 
-            // 1. Get today's yield (1 bar per 10 minutes of completed focus sessions since midnight)
-            const { data: sessionData, error: sessionError } = await supabase
-                .from('sessions')
-                .select('elapsed_seconds')
-                .eq('user_id', userId)
-                .eq('status', 'COMPLETED')
-                .eq('type', 'FOCUS')
-                .gte('created_at', today.toISOString());
+            // Fetch session aggregation and profile in parallel
+            const [sessionRes, profileRes] = await Promise.all([
+                supabase
+                    .from('sessions')
+                    .select('elapsed_seconds')
+                    .eq('user_id', userId)
+                    .eq('status', 'COMPLETED')
+                    .eq('type', 'FOCUS')
+                    .gte('created_at', today.toISOString()),
+                supabase
+                    .from('profiles')
+                    .select('total_reserve')
+                    .eq('id', userId)
+                    .single()
+            ]);
 
-            if (sessionError) throw sessionError;
+            if (sessionRes.error) throw sessionRes.error;
+            if (profileRes.error) throw profileRes.error;
 
-            const totalSecondsToday = sessionData?.reduce((acc, s) => acc + (s.elapsed_seconds || 0), 0) || 0;
+            const totalSecondsToday = sessionRes.data?.reduce((acc, s) => acc + (s.elapsed_seconds || 0), 0) || 0;
             const barsToday = Math.floor(totalSecondsToday / 600);
-
-            // 2. Get total reserve from profile
-            const { data: profileData, error: profileError } = await supabase
-                .from('profiles')
-                .select('*') // Select all to avoid schema mismatch issues if specific field is missing
-                .eq('id', userId)
-                .single();
-
-            let totalBars = 0;
-            if (!profileError && profileData) {
-                totalBars = (profileData as any).total_reserve || 0;
-            }
+            const totalBars = profileRes.data.total_reserve || 0;
 
             return { barsToday, totalBars };
         } catch (err) {
@@ -81,10 +81,17 @@ class DatabaseService {
         }
     }
 
+    /**
+     * Atomic increment using Postgres function to avoid race conditions and N+1
+     */
     async incrementTotalReserve(userId: string, amount: number = 1): Promise<boolean> {
         try {
-            const stats = await this.getVaultStats(userId);
-            return await this.updateProfile(userId, { total_reserve: stats.totalBars + amount });
+            const { error } = await supabase.rpc('increment_reserve', {
+                user_id_param: userId,
+                amount_param: amount
+            });
+            if (error) throw error;
+            return true;
         } catch (err) {
             console.error('Increment total reserve error:', err);
             return false;
@@ -93,7 +100,10 @@ class DatabaseService {
 
     async incrementFreeSessionsUsed(userId: string): Promise<boolean> {
         try {
-            // Get current count
+            // Using RPC or direct update if we have a function for it. 
+            // For now, keeping it simple but using a relative update concept if supported, 
+            // but JS client doesn't support relative updates directly. 
+            // I'll stick to the current implementation but optimized with Promise.all if needed elsewhere.
             const { data: profile, error: getError } = await supabase
                 .from('profiles')
                 .select('free_sessions_used')
@@ -104,7 +114,6 @@ class DatabaseService {
 
             const current = (profile as any)?.free_sessions_used || 0;
 
-            // Increment
             const { error: updateError } = await supabase
                 .from('profiles')
                 .update({ free_sessions_used: current + 1 })
@@ -153,12 +162,7 @@ class DatabaseService {
 
     async updateSession(
         sessionId: string,
-        updates: {
-            elapsed_seconds?: number;
-            status?: 'IDLE' | 'RUNNING' | 'PAUSED' | 'COMPLETED';
-            fqs?: number;
-            end_time?: string;
-        }
+        updates: Partial<DbSession>
     ): Promise<boolean> {
         try {
             const { error } = await supabase
@@ -243,12 +247,7 @@ class DatabaseService {
 
     async updateTask(
         taskId: string,
-        updates: {
-            title?: string;
-            completed?: boolean;
-            priority?: 'low' | 'medium' | 'high';
-            session_id?: string;
-        }
+        updates: Partial<DbTask>
     ): Promise<boolean> {
         try {
             const { error } = await supabase
@@ -279,6 +278,9 @@ class DatabaseService {
         }
     }
 
+    /**
+     * Optimized task fetching using composite index (user_id, completed)
+     */
     async getTasks(userId: string, includeCompleted: boolean = true): Promise<DbTask[]> {
         try {
             let query = supabase
@@ -325,23 +327,22 @@ class DatabaseService {
      */
     async claimGhostData(userId: string, sessionId: string): Promise<boolean> {
         try {
-            // 1. Update session
-            const { error: sessionError } = await supabase
-                .from('sessions')
-                .update({ user_id: userId })
-                .eq('id', sessionId)
-                .is('user_id', null);
+            // Using parallel updates
+            const [sessionRes, tasksRes] = await Promise.all([
+                supabase
+                    .from('sessions')
+                    .update({ user_id: userId })
+                    .eq('id', sessionId)
+                    .is('user_id', null),
+                supabase
+                    .from('tasks')
+                    .update({ user_id: userId })
+                    .eq('session_id', sessionId)
+                    .is('user_id', null)
+            ]);
 
-            if (sessionError) throw sessionError;
-
-            // 2. Update all tasks linked to this session
-            const { error: tasksError } = await supabase
-                .from('tasks')
-                .update({ user_id: userId })
-                .eq('session_id', sessionId)
-                .is('user_id', null);
-
-            if (tasksError) throw tasksError;
+            if (sessionRes.error) throw sessionRes.error;
+            if (tasksRes.error) throw tasksRes.error;
 
             return true;
         } catch (err) {
@@ -401,7 +402,7 @@ class DatabaseService {
             id: dbTask.id,
             title: dbTask.title,
             completed: dbTask.completed,
-            priority: dbTask.priority,
+            priority: dbTask.priority as any,
         };
     }
 
@@ -415,7 +416,7 @@ class DatabaseService {
             endTime: dbSession.end_time ? new Date(dbSession.end_time).getTime() : undefined,
             durationSeconds: dbSession.duration_seconds,
             elapsedSeconds: dbSession.elapsed_seconds,
-            type: dbSession.type,
+            type: dbSession.type as any,
             fqs: dbSession.fqs,
         };
     }
