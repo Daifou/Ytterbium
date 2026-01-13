@@ -75,9 +75,9 @@ interface StepProps {
 }
 
 const Step: React.FC<StepProps> = ({ step, index, activeStepIndex }) => {
-    // Widen the active window to +/- 0.5 to create a seamless "handoff"
-    // When one is at 0.5 (halfway out), the next is at -0.5 (halfway in)
-    const activeRange = [index - 0.5, index, index + 0.5];
+    // Range +/- 1.0 ensures that as Step N fades out (0 -> 1), Step N+1 fades in (0 -> 1).
+    // They cross at 0.5 where both are at 50% opacity/height.
+    const activeRange = [index - 1, index, index + 1];
 
     return (
         <motion.div
@@ -90,7 +90,7 @@ const Step: React.FC<StepProps> = ({ step, index, activeStepIndex }) => {
                     style={{
                         backgroundColor: useTransform(
                             activeStepIndex,
-                            activeRange, // Use widened range
+                            activeRange,
                             ['transparent', '#ffffff', 'transparent']
                         ),
                         color: useTransform(
@@ -129,14 +129,15 @@ const Step: React.FC<StepProps> = ({ step, index, activeStepIndex }) => {
                         {step.title}
                     </motion.h3>
 
-                    {/* Description - Only Active Step */}
+                    {/* Description - Accordion Effect */}
+                    {/* Note: 'auto' is not interpolatable by useTransform. We use a fixed max-height approx. */}
                     <motion.div
                         className="overflow-hidden"
                         style={{
                             height: useTransform(
                                 activeStepIndex,
                                 activeRange,
-                                ['0px', 'auto', '0px']
+                                ['0px', '100px', '0px'] // Sufficient height for the description
                             ),
                             opacity: useTransform(
                                 activeStepIndex,
