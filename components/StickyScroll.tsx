@@ -51,7 +51,7 @@ export const StickyScroll = () => {
     });
 
     return (
-        <div className="flex justify-center pt-40 pb-10 bg-[#09090b] font-['Helvetica_World','Helvetica_Neue',sans-serif] tracking-tight">
+        <div className="flex justify-center pt-40 pb-10 bg-[#09090b] font-['SF_Pro_Display','-apple-system','BlinkMacSystemFont','Segoe_UI',Roboto,sans-serif] tracking-tight">
             <div className="max-w-6xl w-full mx-auto px-4">
                 {/* 
                   The "Box" Container 
