@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { motion, useScroll, useTransform, useInView } from 'framer-motion';
+import { motion, useScroll, useTransform } from 'framer-motion';
 
 const steps = [
     {
@@ -31,36 +31,46 @@ export const StickyScroll: React.FC = () => {
         offset: ['start start', 'end end']
     });
 
-    // Transform scroll progress to visual states (0-3 for 4 steps)
-    const visualState = useTransform(scrollYProgress, [0, 0.25, 0.5, 0.75, 1], [0, 1, 2, 3, 3]);
+    // Map scroll progress to active step index (0-3)
+    const activeStepIndex = useTransform(scrollYProgress, [0, 0.25, 0.5, 0.75, 1], [0, 1, 2, 3, 3]);
 
     return (
-        <section ref={containerRef} className="relative bg-[#09090b] py-24 md:py-32">
-            <div className="max-w-7xl mx-auto px-6">
+        <section ref={containerRef} className="relative bg-[#09090b]">
+            {/* Spacer to create scroll distance for the sticky effect */}
+            <div className="h-[400vh]">
                 {/* Mobile: Stacked Layout */}
-                <div className="block md:hidden space-y-16">
-                    {steps.map((step) => (
-                        <MobileStep key={step.number} step={step} />
-                    ))}
+                <div className="block md:hidden">
+                    <div className="sticky top-0 min-h-screen py-24 px-6">
+                        {steps.map((step) => (
+                            <MobileStep key={step.number} step={step} />
+                        ))}
+                    </div>
                 </div>
 
-                {/* Desktop: 2-Column Grid */}
-                <div className="hidden md:grid md:grid-cols-2 md:gap-16 lg:gap-24">
-                    {/* Left Column - Sticky Visual */}
-                    <div className="sticky top-0 h-screen flex items-center justify-center">
-                        <StickyVisual visualState={visualState} />
-                    </div>
+                {/* Desktop: Sticky 2-Column Grid */}
+                <div className="hidden md:block">
+                    <div className="sticky top-0 min-h-screen py-24">
+                        <div className="max-w-7xl mx-auto px-6">
+                            <div className="grid grid-cols-2 gap-16 lg:gap-24 h-full">
+                                {/* Left Column - Sticky Visual */}
+                                <div className="flex items-center justify-center">
+                                    <StickyVisual activeStepIndex={activeStepIndex} />
+                                </div>
 
-                    {/* Right Column - Scrolling Steps */}
-                    <div className="space-y-0">
-                        {steps.map((step, index) => (
-                            <DesktopStep
-                                key={step.number}
-                                step={step}
-                                index={index}
-                                isLast={index === steps.length - 1}
-                            />
-                        ))}
+                                {/* Right Column - Compact Steps (All Visible) */}
+                                <div className="flex flex-col justify-center space-y-0">
+                                    {steps.map((step, index) => (
+                                        <DesktopStep
+                                            key={step.number}
+                                            step={step}
+                                            index={index}
+                                            activeStepIndex={activeStepIndex}
+                                            isLast={index === steps.length - 1}
+                                        />
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -68,62 +78,96 @@ export const StickyScroll: React.FC = () => {
     );
 };
 
-// Desktop Step Component
+// Desktop Step Component with Accordion Behavior
 interface DesktopStepProps {
     step: typeof steps[0];
     index: number;
+    activeStepIndex: any;
     isLast: boolean;
 }
 
-const DesktopStep: React.FC<DesktopStepProps> = ({ step, index, isLast }) => {
-    const ref = useRef<HTMLDivElement>(null);
-    const isInView = useInView(ref, {
-        margin: '-50% 0px -50% 0px' // Triggers when step is centered
-    });
-
+const DesktopStep: React.FC<DesktopStepProps> = ({ step, index, activeStepIndex, isLast }) => {
     return (
         <motion.div
-            ref={ref}
-            className={`min-h-screen flex items-center ${!isLast ? 'border-b border-zinc-800/30' : ''}`}
-            initial={{ opacity: 0.2 }}
-            animate={{
-                opacity: isInView ? 1 : 0.2,
-                transition: {
-                    type: 'spring',
-                    stiffness: 100,
-                    damping: 30
-                }
+            className={`py-6 ${!isLast ? 'border-b border-zinc-800/30' : ''}`}
+            style={{
+                opacity: useTransform(
+                    activeStepIndex,
+                    [index - 0.5, index, index + 0.5],
+                    [0.2, 1, 0.2]
+                )
             }}
         >
-            <div className="py-16 w-full">
-                <div className="flex items-start gap-6">
-                    {/* Number Box */}
+            <div className="flex items-start gap-6">
+                {/* Number Box */}
+                <motion.div
+                    className="flex-shrink-0 w-12 h-12 rounded-lg flex items-center justify-center text-lg font-bold"
+                    style={{
+                        backgroundColor: useTransform(
+                            activeStepIndex,
+                            [index - 0.3, index, index + 0.3],
+                            ['transparent', '#ffffff', 'transparent']
+                        ),
+                        color: useTransform(
+                            activeStepIndex,
+                            [index - 0.3, index, index + 0.3],
+                            ['#3f3f46', '#000000', '#3f3f46']
+                        ),
+                        borderWidth: useTransform(
+                            activeStepIndex,
+                            [index - 0.3, index, index + 0.3],
+                            ['2px', '0px', '2px']
+                        ),
+                        borderColor: useTransform(
+                            activeStepIndex,
+                            [index - 0.3, index, index + 0.3],
+                            ['#27272a', '#ffffff', '#27272a']
+                        ),
+                        scale: useTransform(
+                            activeStepIndex,
+                            [index - 0.3, index, index + 0.3],
+                            [0.95, 1, 0.95]
+                        )
+                    }}
+                    transition={{
+                        type: 'spring',
+                        stiffness: 120,
+                        damping: 40
+                    }}
+                >
+                    {step.number}
+                </motion.div>
+
+                {/* Content */}
+                <div className="flex-1 space-y-2 overflow-hidden">
+                    <h3 className="text-2xl md:text-3xl font-bold text-white tracking-tight">
+                        {step.title}
+                    </h3>
+
+                    {/* Accordion Description */}
                     <motion.div
-                        className={`flex-shrink-0 w-12 h-12 rounded-lg flex items-center justify-center text-lg font-bold transition-all duration-300 ${isInView
-                                ? 'bg-white text-black shadow-[0_0_20px_rgba(255,255,255,0.1)]'
-                                : 'border-2 border-zinc-800 text-zinc-700'
-                            }`}
-                        animate={{
-                            scale: isInView ? 1 : 0.95,
-                            transition: {
-                                type: 'spring',
-                                stiffness: 120,
-                                damping: 40
-                            }
+                        style={{
+                            height: useTransform(
+                                activeStepIndex,
+                                [index - 0.3, index, index + 0.3],
+                                ['0px', 'auto', '0px']
+                            ),
+                            opacity: useTransform(
+                                activeStepIndex,
+                                [index - 0.3, index, index + 0.3],
+                                [0, 1, 0]
+                            )
+                        }}
+                        transition={{
+                            type: 'spring',
+                            stiffness: 100,
+                            damping: 30
                         }}
                     >
-                        {step.number}
-                    </motion.div>
-
-                    {/* Content */}
-                    <div className="flex-1 space-y-3">
-                        <h3 className="text-3xl md:text-4xl font-bold text-white tracking-tight">
-                            {step.title}
-                        </h3>
-                        <p className="text-base md:text-lg text-zinc-400 leading-relaxed max-w-md">
+                        <p className="text-base text-zinc-400 leading-relaxed max-w-md pt-2">
                             {step.description}
                         </p>
-                    </div>
+                    </motion.div>
                 </div>
             </div>
         </motion.div>
@@ -137,7 +181,7 @@ interface MobileStepProps {
 
 const MobileStep: React.FC<MobileStepProps> = ({ step }) => {
     return (
-        <div className="space-y-6">
+        <div className="mb-12 space-y-6">
             {/* Visual for this step */}
             <div className="flex items-center justify-center py-8">
                 <div className="w-64 h-64">
@@ -165,13 +209,13 @@ const MobileStep: React.FC<MobileStepProps> = ({ step }) => {
 
 // Sticky Visual with animated 3D effect
 interface StickyVisualProps {
-    visualState: any;
+    activeStepIndex: any;
 }
 
-const StickyVisual: React.FC<StickyVisualProps> = ({ visualState }) => {
-    // Transform visual state to rotation and colors
-    const rotation = useTransform(visualState, [0, 3], [0, 360]);
-    const scale = useTransform(visualState,
+const StickyVisual: React.FC<StickyVisualProps> = ({ activeStepIndex }) => {
+    // Transform active step to rotation and scale
+    const rotation = useTransform(activeStepIndex, [0, 3], [0, 360]);
+    const scale = useTransform(activeStepIndex,
         [0, 0.5, 1, 1.5, 2, 2.5, 3],
         [1, 1.1, 1, 1.1, 1, 1.1, 1]
     );
@@ -215,7 +259,7 @@ const StickyVisual: React.FC<StickyVisualProps> = ({ visualState }) => {
                         r="15"
                         fill="url(#sphereGradient1)"
                         style={{
-                            scale: useTransform(visualState, [0, 1, 2, 3], [1, 1.3, 1, 1.3])
+                            scale: useTransform(activeStepIndex, [0, 1, 2, 3], [1, 1.3, 1, 1.3])
                         }}
                     />
 
@@ -226,7 +270,7 @@ const StickyVisual: React.FC<StickyVisualProps> = ({ visualState }) => {
                         r="20"
                         fill="url(#sphereGradient2)"
                         style={{
-                            scale: useTransform(visualState, [0, 1, 2, 3], [1, 1, 1.3, 1])
+                            scale: useTransform(activeStepIndex, [0, 1, 2, 3], [1, 1, 1.3, 1])
                         }}
                     />
 
@@ -237,7 +281,7 @@ const StickyVisual: React.FC<StickyVisualProps> = ({ visualState }) => {
                         r="18"
                         fill="url(#sphereGradient3)"
                         style={{
-                            scale: useTransform(visualState, [0, 1, 2, 3], [1.3, 1, 1, 1.3])
+                            scale: useTransform(activeStepIndex, [0, 1, 2, 3], [1.3, 1, 1, 1.3])
                         }}
                     />
 
@@ -248,7 +292,7 @@ const StickyVisual: React.FC<StickyVisualProps> = ({ visualState }) => {
                         r="16"
                         fill="url(#sphereGradient4)"
                         style={{
-                            scale: useTransform(visualState, [0, 1, 2, 3], [1, 1.3, 1.3, 1])
+                            scale: useTransform(activeStepIndex, [0, 1, 2, 3], [1, 1.3, 1.3, 1])
                         }}
                     />
                 </motion.g>
