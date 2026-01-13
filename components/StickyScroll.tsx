@@ -49,15 +49,14 @@ export const StickyScroll: React.FC = () => {
                             <StickyVisual activeStepIndex={activeStepIndex} />
                         </div>
 
-                        {/* Right Column - All 4 Steps (Always Visible) */}
-                        <div className="flex flex-col justify-center">
+                        {/* Right Column - All 4 Steps (Sequential Reveal) */}
+                        <div className="flex flex-col justify-center space-y-1">
                             {steps.map((step, index) => (
                                 <Step
                                     key={step.number}
                                     step={step}
                                     index={index}
                                     activeStepIndex={activeStepIndex}
-                                    isFirst={index === 0}
                                 />
                             ))}
                         </div>
@@ -68,94 +67,94 @@ export const StickyScroll: React.FC = () => {
     );
 };
 
-// Individual Step Component
+// Individual Step Component - Natural Height (No flex-1)
 interface StepProps {
     step: typeof steps[0];
     index: number;
     activeStepIndex: any;
-    isFirst: boolean;
 }
 
-const Step: React.FC<StepProps> = ({ step, index, activeStepIndex, isFirst }) => {
+const Step: React.FC<StepProps> = ({ step, index, activeStepIndex }) => {
     return (
         <motion.div
-            className={`flex-1 flex flex-col justify-center ${!isFirst ? 'border-t border-white/10' : ''}`}
-            style={{
-                opacity: useTransform(
-                    activeStepIndex,
-                    [index - 0.5, index, index + 0.5],
-                    [0.2, 1, 0.2]
-                )
-            }}
+            className="py-4 border-b border-white/10 last:border-b-0"
         >
-            <div className="py-6">
-                <div className="flex items-start gap-5">
-                    {/* Number Box */}
-                    <motion.div
-                        className="flex-shrink-0 w-11 h-11 rounded-lg flex items-center justify-center text-base font-bold"
+            <div className="flex items-start gap-5">
+                {/* Number Box */}
+                <motion.div
+                    className="flex-shrink-0 w-11 h-11 rounded-lg flex items-center justify-center text-base font-bold"
+                    style={{
+                        backgroundColor: useTransform(
+                            activeStepIndex,
+                            [index - 0.2, index, index + 0.2],
+                            ['transparent', '#ffffff', 'transparent']
+                        ),
+                        color: useTransform(
+                            activeStepIndex,
+                            [index - 0.2, index, index + 0.2],
+                            ['#71717a', '#000000', '#71717a']
+                        ),
+                        borderWidth: useTransform(
+                            activeStepIndex,
+                            [index - 0.2, index, index + 0.2],
+                            ['2px', '0px', '2px']
+                        ),
+                        borderColor: useTransform(
+                            activeStepIndex,
+                            [index - 0.2, index, index + 0.2],
+                            ['#3f3f46', '#ffffff', '#3f3f46']
+                        )
+                    }}
+                    transition={{
+                        type: 'spring',
+                        stiffness: 120,
+                        damping: 40
+                    }}
+                >
+                    {step.number}
+                </motion.div>
+
+                {/* Content */}
+                <div className="flex-1 min-h-0">
+                    {/* Title - Always Visible */}
+                    <motion.h3
+                        className="text-2xl md:text-3xl font-bold text-white tracking-tight mb-2"
                         style={{
-                            backgroundColor: useTransform(
+                            opacity: useTransform(
                                 activeStepIndex,
                                 [index - 0.3, index, index + 0.3],
-                                ['transparent', '#ffffff', 'transparent']
+                                [0.3, 1, 0.3]
+                            )
+                        }}
+                    >
+                        {step.title}
+                    </motion.h3>
+
+                    {/* Description - Only Active Step */}
+                    <motion.div
+                        className="overflow-hidden"
+                        style={{
+                            height: useTransform(
+                                activeStepIndex,
+                                [index - 0.2, index, index + 0.2],
+                                ['0px', 'auto', '0px']
                             ),
-                            color: useTransform(
+                            opacity: useTransform(
                                 activeStepIndex,
-                                [index - 0.3, index, index + 0.3],
-                                ['#71717a', '#000000', '#71717a']
-                            ),
-                            borderWidth: useTransform(
-                                activeStepIndex,
-                                [index - 0.3, index, index + 0.3],
-                                ['2px', '0px', '2px']
-                            ),
-                            borderColor: useTransform(
-                                activeStepIndex,
-                                [index - 0.3, index, index + 0.3],
-                                ['#3f3f46', '#ffffff', '#3f3f46']
+                                [index - 0.2, index, index + 0.2],
+                                [0, 1, 0]
                             )
                         }}
                         transition={{
                             type: 'spring',
-                            stiffness: 120,
-                            damping: 40
+                            stiffness: 100,
+                            damping: 30
                         }}
                     >
-                        {step.number}
+                        <p className="text-sm md:text-base text-zinc-400 leading-relaxed max-w-md">
+                            {step.description}
+                        </p>
                     </motion.div>
-
-                    {/* Content */}
-                    <div className="flex-1 min-h-0">
-                        <h3 className="text-2xl md:text-3xl font-bold text-white tracking-tight mb-2">
-                            {step.title}
-                        </h3>
-
-                        {/* Accordion Description */}
-                        <motion.div
-                            className="overflow-hidden"
-                            style={{
-                                height: useTransform(
-                                    activeStepIndex,
-                                    [index - 0.3, index, index + 0.3],
-                                    ['0px', 'auto', '0px']
-                                ),
-                                opacity: useTransform(
-                                    activeStepIndex,
-                                    [index - 0.3, index, index + 0.3],
-                                    [0, 1, 0]
-                                )
-                            }}
-                            transition={{
-                                type: 'spring',
-                                stiffness: 100,
-                                damping: 30
-                            }}
-                        >
-                            <p className="text-sm md:text-base text-zinc-400 leading-relaxed max-w-md pt-1">
-                                {step.description}
-                            </p>
-                        </motion.div>
-                    </div>
                 </div>
             </div>
         </motion.div>
