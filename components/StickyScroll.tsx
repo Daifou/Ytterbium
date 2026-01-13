@@ -26,50 +26,40 @@ const steps = [
 
 export const StickyScroll: React.FC = () => {
     const containerRef = useRef<HTMLDivElement>(null);
+
+    // Monitor scroll progress through the 400vh parent
     const { scrollYProgress } = useScroll({
         target: containerRef,
         offset: ['start start', 'end end']
     });
 
-    // Map scroll progress to active step index (0-3)
-    const activeStepIndex = useTransform(scrollYProgress, [0, 0.25, 0.5, 0.75, 1], [0, 1, 2, 3, 3]);
+    // Map scroll progress (0-1) to active step index (0-3)
+    const activeStepIndex = useTransform(scrollYProgress, [0, 0.33, 0.66, 1], [0, 1, 2, 3]);
 
     return (
-        <section ref={containerRef} className="relative bg-[#09090b]">
-            {/* Spacer to create scroll distance for the sticky effect */}
-            <div className="h-[400vh]">
-                {/* Mobile: Stacked Layout */}
-                <div className="block md:hidden">
-                    <div className="sticky top-0 min-h-screen py-24 px-6">
-                        {steps.map((step) => (
-                            <MobileStep key={step.number} step={step} />
-                        ))}
-                    </div>
-                </div>
+        // 400vh parent for scroll room
+        <section ref={containerRef} className="relative bg-[#09090b] h-[400vh]">
+            {/* Sticky h-screen wrapper - stays locked */}
+            <div className="sticky top-0 h-screen">
+                <div className="max-w-7xl mx-auto px-6 h-full">
+                    {/* 2-Column Grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-16 h-full">
+                        {/* Left Column - Centered Visual */}
+                        <div className="hidden md:flex items-center justify-center">
+                            <StickyVisual activeStepIndex={activeStepIndex} />
+                        </div>
 
-                {/* Desktop: Sticky 2-Column Grid */}
-                <div className="hidden md:block">
-                    <div className="sticky top-0 min-h-screen py-24">
-                        <div className="max-w-7xl mx-auto px-6">
-                            <div className="grid grid-cols-2 gap-16 lg:gap-24 h-full">
-                                {/* Left Column - Sticky Visual */}
-                                <div className="flex items-center justify-center">
-                                    <StickyVisual activeStepIndex={activeStepIndex} />
-                                </div>
-
-                                {/* Right Column - Compact Steps (All Visible) */}
-                                <div className="flex flex-col justify-center space-y-0">
-                                    {steps.map((step, index) => (
-                                        <DesktopStep
-                                            key={step.number}
-                                            step={step}
-                                            index={index}
-                                            activeStepIndex={activeStepIndex}
-                                            isLast={index === steps.length - 1}
-                                        />
-                                    ))}
-                                </div>
-                            </div>
+                        {/* Right Column - All 4 Steps (Always Visible) */}
+                        <div className="flex flex-col justify-center">
+                            {steps.map((step, index) => (
+                                <Step
+                                    key={step.number}
+                                    step={step}
+                                    index={index}
+                                    activeStepIndex={activeStepIndex}
+                                    isFirst={index === 0}
+                                />
+                            ))}
                         </div>
                     </div>
                 </div>
@@ -78,18 +68,18 @@ export const StickyScroll: React.FC = () => {
     );
 };
 
-// Desktop Step Component with Accordion Behavior
-interface DesktopStepProps {
+// Individual Step Component
+interface StepProps {
     step: typeof steps[0];
     index: number;
     activeStepIndex: any;
-    isLast: boolean;
+    isFirst: boolean;
 }
 
-const DesktopStep: React.FC<DesktopStepProps> = ({ step, index, activeStepIndex, isLast }) => {
+const Step: React.FC<StepProps> = ({ step, index, activeStepIndex, isFirst }) => {
     return (
         <motion.div
-            className={`py-6 ${!isLast ? 'border-b border-zinc-800/30' : ''}`}
+            className={`flex-1 flex flex-col justify-center ${!isFirst ? 'border-t border-white/10' : ''}`}
             style={{
                 opacity: useTransform(
                     activeStepIndex,
@@ -98,126 +88,90 @@ const DesktopStep: React.FC<DesktopStepProps> = ({ step, index, activeStepIndex,
                 )
             }}
         >
-            <div className="flex items-start gap-6">
-                {/* Number Box */}
-                <motion.div
-                    className="flex-shrink-0 w-12 h-12 rounded-lg flex items-center justify-center text-lg font-bold"
-                    style={{
-                        backgroundColor: useTransform(
-                            activeStepIndex,
-                            [index - 0.3, index, index + 0.3],
-                            ['transparent', '#ffffff', 'transparent']
-                        ),
-                        color: useTransform(
-                            activeStepIndex,
-                            [index - 0.3, index, index + 0.3],
-                            ['#3f3f46', '#000000', '#3f3f46']
-                        ),
-                        borderWidth: useTransform(
-                            activeStepIndex,
-                            [index - 0.3, index, index + 0.3],
-                            ['2px', '0px', '2px']
-                        ),
-                        borderColor: useTransform(
-                            activeStepIndex,
-                            [index - 0.3, index, index + 0.3],
-                            ['#27272a', '#ffffff', '#27272a']
-                        ),
-                        scale: useTransform(
-                            activeStepIndex,
-                            [index - 0.3, index, index + 0.3],
-                            [0.95, 1, 0.95]
-                        )
-                    }}
-                    transition={{
-                        type: 'spring',
-                        stiffness: 120,
-                        damping: 40
-                    }}
-                >
-                    {step.number}
-                </motion.div>
-
-                {/* Content */}
-                <div className="flex-1 space-y-2 overflow-hidden">
-                    <h3 className="text-2xl md:text-3xl font-bold text-white tracking-tight">
-                        {step.title}
-                    </h3>
-
-                    {/* Accordion Description */}
+            <div className="py-6">
+                <div className="flex items-start gap-5">
+                    {/* Number Box */}
                     <motion.div
+                        className="flex-shrink-0 w-11 h-11 rounded-lg flex items-center justify-center text-base font-bold"
                         style={{
-                            height: useTransform(
+                            backgroundColor: useTransform(
                                 activeStepIndex,
                                 [index - 0.3, index, index + 0.3],
-                                ['0px', 'auto', '0px']
+                                ['transparent', '#ffffff', 'transparent']
                             ),
-                            opacity: useTransform(
+                            color: useTransform(
                                 activeStepIndex,
                                 [index - 0.3, index, index + 0.3],
-                                [0, 1, 0]
+                                ['#71717a', '#000000', '#71717a']
+                            ),
+                            borderWidth: useTransform(
+                                activeStepIndex,
+                                [index - 0.3, index, index + 0.3],
+                                ['2px', '0px', '2px']
+                            ),
+                            borderColor: useTransform(
+                                activeStepIndex,
+                                [index - 0.3, index, index + 0.3],
+                                ['#3f3f46', '#ffffff', '#3f3f46']
                             )
                         }}
                         transition={{
                             type: 'spring',
-                            stiffness: 100,
-                            damping: 30
+                            stiffness: 120,
+                            damping: 40
                         }}
                     >
-                        <p className="text-base text-zinc-400 leading-relaxed max-w-md pt-2">
-                            {step.description}
-                        </p>
+                        {step.number}
                     </motion.div>
+
+                    {/* Content */}
+                    <div className="flex-1 min-h-0">
+                        <h3 className="text-2xl md:text-3xl font-bold text-white tracking-tight mb-2">
+                            {step.title}
+                        </h3>
+
+                        {/* Accordion Description */}
+                        <motion.div
+                            className="overflow-hidden"
+                            style={{
+                                height: useTransform(
+                                    activeStepIndex,
+                                    [index - 0.3, index, index + 0.3],
+                                    ['0px', 'auto', '0px']
+                                ),
+                                opacity: useTransform(
+                                    activeStepIndex,
+                                    [index - 0.3, index, index + 0.3],
+                                    [0, 1, 0]
+                                )
+                            }}
+                            transition={{
+                                type: 'spring',
+                                stiffness: 100,
+                                damping: 30
+                            }}
+                        >
+                            <p className="text-sm md:text-base text-zinc-400 leading-relaxed max-w-md pt-1">
+                                {step.description}
+                            </p>
+                        </motion.div>
+                    </div>
                 </div>
             </div>
         </motion.div>
     );
 };
 
-// Mobile Step Component
-interface MobileStepProps {
-    step: typeof steps[0];
-}
-
-const MobileStep: React.FC<MobileStepProps> = ({ step }) => {
-    return (
-        <div className="mb-12 space-y-6">
-            {/* Visual for this step */}
-            <div className="flex items-center justify-center py-8">
-                <div className="w-64 h-64">
-                    <SimplifiedVisual stepNumber={step.number} />
-                </div>
-            </div>
-
-            {/* Content */}
-            <div className="space-y-4">
-                <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-lg bg-white text-black flex items-center justify-center text-base font-bold">
-                        {step.number}
-                    </div>
-                    <h3 className="text-2xl font-bold text-white tracking-tight">
-                        {step.title}
-                    </h3>
-                </div>
-                <p className="text-base text-zinc-400 leading-relaxed">
-                    {step.description}
-                </p>
-            </div>
-        </div>
-    );
-};
-
-// Sticky Visual with animated 3D effect
+// Sticky Visual Component
 interface StickyVisualProps {
     activeStepIndex: any;
 }
 
 const StickyVisual: React.FC<StickyVisualProps> = ({ activeStepIndex }) => {
-    // Transform active step to rotation and scale
     const rotation = useTransform(activeStepIndex, [0, 3], [0, 360]);
     const scale = useTransform(activeStepIndex,
-        [0, 0.5, 1, 1.5, 2, 2.5, 3],
-        [1, 1.1, 1, 1.1, 1, 1.1, 1]
+        [0, 1, 2, 3],
+        [1, 1.05, 1, 1.05]
     );
 
     return (
@@ -252,47 +206,47 @@ const StickyVisual: React.FC<StickyVisualProps> = ({ activeStepIndex }) => {
                     originX: '200px',
                     originY: '200px'
                 }}>
-                    {/* Sphere 1 */}
+                    {/* Sphere 1 - Top */}
                     <motion.circle
                         cx="200"
                         cy="140"
                         r="15"
                         fill="url(#sphereGradient1)"
                         style={{
-                            scale: useTransform(activeStepIndex, [0, 1, 2, 3], [1, 1.3, 1, 1.3])
+                            scale: useTransform(activeStepIndex, [0, 1, 2, 3], [1.3, 1, 1, 1])
                         }}
                     />
 
-                    {/* Sphere 2 */}
+                    {/* Sphere 2 - Right */}
                     <motion.circle
                         cx="260"
                         cy="200"
                         r="20"
                         fill="url(#sphereGradient2)"
                         style={{
-                            scale: useTransform(activeStepIndex, [0, 1, 2, 3], [1, 1, 1.3, 1])
+                            scale: useTransform(activeStepIndex, [0, 1, 2, 3], [1, 1.3, 1, 1])
                         }}
                     />
 
-                    {/* Sphere 3 */}
+                    {/* Sphere 3 - Bottom */}
                     <motion.circle
                         cx="200"
                         cy="260"
                         r="18"
                         fill="url(#sphereGradient3)"
                         style={{
-                            scale: useTransform(activeStepIndex, [0, 1, 2, 3], [1.3, 1, 1, 1.3])
+                            scale: useTransform(activeStepIndex, [0, 1, 2, 3], [1, 1, 1.3, 1])
                         }}
                     />
 
-                    {/* Sphere 4 */}
+                    {/* Sphere 4 - Left */}
                     <motion.circle
                         cx="140"
                         cy="200"
                         r="16"
                         fill="url(#sphereGradient4)"
                         style={{
-                            scale: useTransform(activeStepIndex, [0, 1, 2, 3], [1, 1.3, 1.3, 1])
+                            scale: useTransform(activeStepIndex, [0, 1, 2, 3], [1, 1, 1, 1.3])
                         }}
                     />
                 </motion.g>
@@ -344,41 +298,5 @@ const StickyVisual: React.FC<StickyVisualProps> = ({ activeStepIndex }) => {
             <div className="absolute top-1/4 left-0 w-2 h-2 rounded-full bg-indigo-500/20" />
             <div className="absolute bottom-1/4 right-0 w-2 h-2 rounded-full bg-purple-500/20" />
         </div>
-    );
-};
-
-// Simplified Visual for Mobile
-interface SimplifiedVisualProps {
-    stepNumber: number;
-}
-
-const SimplifiedVisual: React.FC<SimplifiedVisualProps> = ({ stepNumber }) => {
-    const colors = [
-        ['#60a5fa', '#3b82f6'],
-        ['#818cf8', '#6366f1'],
-        ['#a78bfa', '#8b5cf6'],
-        ['#c4b5fd', '#a78bfa']
-    ];
-
-    const [color1, color2] = colors[stepNumber - 1];
-
-    return (
-        <svg viewBox="0 0 400 400" className="w-full h-full">
-            <ellipse
-                cx="200"
-                cy="200"
-                rx="150"
-                ry="60"
-                fill="none"
-                stroke={color1}
-                strokeWidth="2"
-                opacity={0.4}
-            />
-            <circle cx="200" cy="200" r="25" fill={color2} />
-            <circle cx="200" cy="140" r="15" fill={color1} />
-            <circle cx="260" cy="200" r="20" fill={color2} opacity={0.7} />
-            <circle cx="200" cy="260" r="18" fill={color1} opacity={0.6} />
-            <circle cx="140" cy="200" r="16" fill={color2} opacity={0.8} />
-        </svg>
     );
 };
