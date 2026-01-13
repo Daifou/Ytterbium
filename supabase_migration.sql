@@ -4,17 +4,27 @@
 -- ==================== PROFILES TABLE ====================
 CREATE TABLE IF NOT EXISTS profiles (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
-  email TEXT NOT NULL UNIQUE,
-  full_name TEXT,
-  subscription_status TEXT DEFAULT 'free',
-  plan_type TEXT,
-  current_period_end TIMESTAMP WITH TIME ZONE,
-  is_premium BOOLEAN DEFAULT FALSE,
-  total_reserve INTEGER DEFAULT 0,
-  free_sessions_used INTEGER DEFAULT 0,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+
+-- Ensure all columns exist (in case table already existed)
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS email TEXT;
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS full_name TEXT;
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS subscription_status TEXT DEFAULT 'free';
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS plan_type TEXT;
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS current_period_end TIMESTAMP WITH TIME ZONE;
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS is_premium BOOLEAN DEFAULT FALSE;
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS total_reserve INTEGER DEFAULT 0;
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS free_sessions_used INTEGER DEFAULT 0;
+
+-- Ensure email is unique (important for Whop lookup)
+DO $$ 
+BEGIN 
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'profiles_email_key') THEN
+    ALTER TABLE profiles ADD CONSTRAINT profiles_email_key UNIQUE (email);
+  END IF;
+END $$;
 
 -- Enable RLS
 ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
@@ -208,7 +218,7 @@ CREATE OR REPLACE FUNCTION increment_reserve(user_id_param UUID, amount_param IN
 RETURNS VOID AS $$
 BEGIN
   UPDATE profiles
-  SET total_reserve = total_reserve + amount_param,
+  SET total_reserve = COALESCE(total_reserve, 0) + amount_param,
       updated_at = NOW()
   WHERE id = user_id_param;
 END;
