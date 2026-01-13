@@ -20,10 +20,12 @@ CREATE TABLE IF NOT EXISTS profiles (
 ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 
 -- Profiles policies
+DROP POLICY IF EXISTS "Users can view their own profile" ON profiles;
 CREATE POLICY "Users can view their own profile"
   ON profiles FOR SELECT
   USING (auth.uid() = id);
 
+DROP POLICY IF EXISTS "Users can update their own profile" ON profiles;
 CREATE POLICY "Users can update their own profile"
   ON profiles FOR UPDATE
   USING (auth.uid() = id);
@@ -47,18 +49,22 @@ CREATE TABLE IF NOT EXISTS sessions (
 ALTER TABLE sessions ENABLE ROW LEVEL SECURITY;
 
 -- Sessions policies
+DROP POLICY IF EXISTS "Users can view their own sessions" ON sessions;
 CREATE POLICY "Users can view their own sessions"
   ON sessions FOR SELECT
   USING (auth.uid() = user_id OR user_id IS NULL);
 
+DROP POLICY IF EXISTS "Users can create their own sessions" ON sessions;
 CREATE POLICY "Users can create their own sessions"
   ON sessions FOR INSERT
   WITH CHECK (auth.uid() = user_id OR user_id IS NULL);
 
+DROP POLICY IF EXISTS "Users can update their own sessions" ON sessions;
 CREATE POLICY "Users can update their own sessions"
   ON sessions FOR UPDATE
   USING (auth.uid() = user_id OR user_id IS NULL);
 
+DROP POLICY IF EXISTS "Users can delete their own sessions" ON sessions;
 CREATE POLICY "Users can delete their own sessions"
   ON sessions FOR DELETE
   USING (auth.uid() = user_id OR user_id IS NULL);
@@ -79,19 +85,22 @@ CREATE TABLE IF NOT EXISTS tasks (
 ALTER TABLE tasks ENABLE ROW LEVEL SECURITY;
 
 -- Tasks policies
+DROP POLICY IF EXISTS "Users can view their own tasks" ON tasks;
 CREATE POLICY "Users can view their own tasks"
   ON tasks FOR SELECT
   USING (auth.uid() = user_id OR user_id IS NULL);
 
+DROP POLICY IF EXISTS "Users can create their own tasks" ON tasks;
 CREATE POLICY "Users can create their own tasks"
   ON tasks FOR INSERT
   WITH CHECK (auth.uid() = user_id OR user_id IS NULL);
 
+DROP POLICY IF EXISTS "Users can update their own tasks" ON tasks;
 CREATE POLICY "Users can update their own tasks"
   ON tasks FOR UPDATE
   USING (auth.uid() = user_id OR user_id IS NULL);
 
--- Users can delete their own tasks
+DROP POLICY IF EXISTS "Users can delete their own tasks" ON tasks;
 CREATE POLICY "Users can delete their own tasks"
   ON tasks FOR DELETE
   USING (auth.uid() = user_id OR user_id IS NULL);
@@ -114,6 +123,7 @@ CREATE TABLE IF NOT EXISTS fatigue_metrics (
 ALTER TABLE fatigue_metrics ENABLE ROW LEVEL SECURITY;
 
 -- Fatigue metrics policies (users can only access metrics for their own sessions)
+DROP POLICY IF EXISTS "Users can view metrics for their own sessions" ON fatigue_metrics;
 CREATE POLICY "Users can view metrics for their own sessions"
   ON fatigue_metrics FOR SELECT
   USING (
@@ -124,6 +134,7 @@ CREATE POLICY "Users can view metrics for their own sessions"
     )
   );
 
+DROP POLICY IF EXISTS "Users can create metrics for their own sessions" ON fatigue_metrics;
 CREATE POLICY "Users can create metrics for their own sessions"
   ON fatigue_metrics FOR INSERT
   WITH CHECK (
