@@ -27,18 +27,29 @@ const steps = [
 export const StickyScroll: React.FC = () => {
     const containerRef = useRef<HTMLDivElement>(null);
 
-    // Monitor scroll progress through the 400vh parent
+    // Monitor scroll progress through the 600vh parent (increased for "locked" feel time)
     const { scrollYProgress } = useScroll({
         target: containerRef,
         offset: ['start start', 'end end']
     });
 
-    // Map scroll progress (0-1) to active step index (0-3)
-    const activeStepIndex = useTransform(scrollYProgress, [0, 0.33, 0.66, 1], [0, 1, 2, 3]);
+    // Plateau mapping for "Locked" feel:
+    // 0% - 20%: Locked on Step 1 (0)
+    // 20% - 25%: TRANSITION (0 -> 1)
+    // 25% - 45%: Locked on Step 2 (1)
+    // 45% - 50%: TRANSITION (1 -> 2)
+    // 50% - 70%: Locked on Step 3 (2)
+    // 70% - 75%: TRANSITION (2 -> 3)
+    // 75% - 100%: Locked on Step 4 (3)
+    const activeStepIndex = useTransform(
+        scrollYProgress,
+        [0, 0.20, 0.25, 0.45, 0.50, 0.70, 0.75, 1],
+        [0, 0, 1, 1, 2, 2, 3, 3]
+    );
 
     return (
-        // 400vh parent for scroll room
-        <section ref={containerRef} className="relative bg-[#09090b] h-[400vh]">
+        // 600vh parent for ample scroll room to feel the "locks"
+        <section ref={containerRef} className="relative bg-[#09090b] h-[600vh]">
             {/* Sticky h-screen wrapper - stays locked */}
             <div className="sticky top-0 h-screen">
                 <div className="max-w-7xl mx-auto px-6 h-full">
