@@ -1,5 +1,5 @@
 "use client";
-import React, { useRef, useState, useMemo } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useMotionValueEvent, useScroll, motion, AnimatePresence } from "framer-motion";
 import { cn } from "../lib/utils";
 
@@ -23,12 +23,12 @@ const content = [
 
 export const StickyScroll = () => {
     const [activeCard, setActiveCard] = useState(0);
-    const containerRef = useRef<any>(null);
+    const ref = useRef<any>(null);
 
-    // We use a tall container for the scroll progress, but the content remains sticky
+    // Using the exact container-based scroll logic from the library
     const { scrollYProgress } = useScroll({
-        target: containerRef,
-        offset: ["start start", "end end"],
+        container: ref,
+        offset: ["start start", "end start"],
     });
 
     const cardLength = content.length;
@@ -49,30 +49,36 @@ export const StickyScroll = () => {
     });
 
     return (
-        <div ref={containerRef} className="relative h-[300vh] bg-white font-sans">
-            {/* STICKY VIEWPORT: Everything stays in this window */}
-            <div className="sticky top-0 h-screen w-full flex overflow-hidden border-t border-gray-200">
+        <div className="w-full bg-white py-12">
+            {/* SCROLL CONTAINER: 
+          Uses the 'overflow-y-auto' behavior from the library for smooth internal scrolling.
+      */}
+            <motion.div
+                ref={ref}
+                className="relative flex h-[42rem] overflow-y-auto border-t border-b border-gray-200 bg-white"
+                style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+            >
+                <style>{`div::-webkit-scrollbar { display: none; }`}</style>
 
-                {/* TOP LABELS */}
-                <div className="absolute top-4 left-6 flex items-center gap-2 z-50">
-                    <span className="text-[11px] font-semibold text-gray-400">1</span>
-                    <div className="w-2 h-2 rounded-full bg-gray-800" />
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-gray-800">Technology</span>
-                </div>
-                <div className="absolute top-4 right-10 z-50">
-                    <span className="text-[11px] font-semibold text-gray-400">2026</span>
-                </div>
+                {/* LEFT SIDE: Sticky & Level-Tracking Visual */}
+                <div className="sticky top-0 hidden h-full w-1/2 items-center justify-center border-r border-gray-100 lg:flex">
+                    {/* Top Decorative Labels */}
+                    <div className="absolute top-8 left-8 flex items-center gap-2">
+                        <span className="text-[11px] font-semibold text-gray-400">1</span>
+                        <div className="h-2 w-2 rounded-full bg-gray-900 shadow-sm" />
+                        <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-900">Technology</span>
+                    </div>
 
-                {/* LEFT COLUMN: Moving Visual */}
-                <div className="w-1/2 h-full border-r border-gray-100 relative flex items-center justify-center">
-                    {/* Visual Level Tracking: Moves up/down to stay level with active step */}
+                    {/* DYNAMIC LEVELING: 
+              This Y-translation ensures the visual stays centered with the 
+              currently expanded step on the right.
+          */}
                     <motion.div
-                        className="w-full max-w-md aspect-square relative"
+                        className="relative flex h-80 w-80 items-center justify-center"
                         animate={{
-                            // Maps visual Y position to the vertical center of the right-side steps
-                            y: activeCard === 0 ? -80 : activeCard === 1 ? 0 : 80
+                            y: activeCard === 0 ? -100 : activeCard === 1 ? 0 : 100,
                         }}
-                        transition={{ type: "spring", stiffness: 100, damping: 20 }}
+                        transition={{ type: "spring", stiffness: 120, damping: 20 }}
                     >
                         <AnimatePresence mode="wait">
                             <motion.div
@@ -80,38 +86,40 @@ export const StickyScroll = () => {
                                 initial={{ opacity: 0, scale: 0.9 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 exit={{ opacity: 0, scale: 1.1 }}
-                                transition={{ duration: 0.5 }}
-                                className="w-full h-full"
+                                transition={{ duration: 0.4 }}
+                                className="h-full w-full"
                             >
                                 {activeCard === 0 && <Step1Visual />}
                                 {activeCard === 1 && <Step2Visual />}
                                 {activeCard === 2 && <Step3Visual />}
                             </motion.div>
                         </AnimatePresence>
-                    </motion.div>
 
-                    {/* Step Markers inside the visual area */}
-                    <AnimatePresence>
-                        <motion.div
-                            key={`marker-${activeCard}`}
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            className="absolute z-10 w-7 h-7 bg-gray-600 rounded flex items-center justify-center text-white text-[11px] font-bold shadow-lg"
-                            style={{
-                                top: activeCard === 0 ? "20%" : activeCard === 1 ? "45%" : "75%",
-                                right: activeCard === 0 ? "20%" : activeCard === 1 ? "10%" : "25%"
-                            }}
-                        >
-                            {activeCard + 1}
-                        </motion.div>
-                    </AnimatePresence>
+                        {/* Step Number Badge inside Visual Area */}
+                        <AnimatePresence>
+                            <motion.div
+                                key={`badge-${activeCard}`}
+                                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                                className="absolute z-10 flex h-7 w-7 items-center justify-center rounded bg-gray-600 text-[11px] font-bold text-white shadow-lg"
+                                style={{
+                                    top: activeCard === 0 ? "10%" : activeCard === 1 ? "40%" : "80%",
+                                    right: activeCard === 0 ? "15%" : activeCard === 1 ? "5%" : "20%"
+                                }}
+                            >
+                                {activeCard + 1}
+                            </motion.div>
+                        </AnimatePresence>
+                    </motion.div>
                 </div>
 
-                {/* RIGHT COLUMN: Steps List */}
-                <div className="w-1/2 h-full flex flex-col justify-center px-12 relative">
-                    <div className="mb-12 max-w-sm">
-                        <p className="text-[14px] text-gray-500 leading-snug">
+                {/* RIGHT SIDE: Expanding Steps */}
+                <div className="relative flex flex-1 flex-col px-12 py-20">
+                    <div className="absolute top-8 right-12">
+                        <span className="text-[11px] font-semibold text-gray-400">2026</span>
+                    </div>
+
+                    <div className="mb-16 max-w-sm">
+                        <p className="text-[14px] leading-relaxed text-gray-500">
                             ProSE™ will revolutionize proteomics by delivering unprecedented precision, scalability, and accessibility.
                         </p>
                     </div>
@@ -120,39 +128,42 @@ export const StickyScroll = () => {
                         {content.map((item, index) => {
                             const isActive = activeCard === index;
                             return (
-                                <div key={index} className="relative border-b border-gray-100 py-8 flex flex-col transition-all duration-500">
-                                    <div className="flex items-center justify-between w-full">
+                                <div key={index} className="flex flex-col border-b border-gray-100 py-10 transition-all duration-500">
+                                    <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-6">
-                                            {/* Number Box */}
+                                            {/* Number Icon */}
                                             <div className={cn(
-                                                "w-8 h-8 rounded border flex items-center justify-center text-[12px] font-bold transition-all duration-300",
-                                                isActive ? "bg-gray-800 border-gray-800 text-white" : "bg-white border-gray-200 text-gray-300"
+                                                "flex h-8 w-8 items-center justify-center rounded border text-[12px] font-bold transition-all duration-300",
+                                                isActive ? "bg-gray-900 border-gray-900 text-white" : "bg-white border-gray-200 text-gray-300"
                                             )}>
                                                 {item.number}
                                             </div>
                                             {/* Title */}
                                             <h2 className={cn(
-                                                "text-[40px] font-medium tracking-tight transition-colors duration-500",
+                                                "text-[42px] font-medium tracking-tight transition-colors duration-500",
                                                 isActive ? "text-gray-900" : "text-gray-200"
                                             )}>
                                                 {item.title}
                                             </h2>
                                         </div>
-                                        {/* Sticky Dot */}
+                                        {/* Status Indicator Dot */}
                                         <div className={cn(
-                                            "w-2 h-2 rounded-full transition-all duration-500",
-                                            isActive ? "bg-gray-800 scale-125" : "bg-gray-200"
+                                            "h-2 w-2 rounded-full transition-all duration-500",
+                                            isActive ? "bg-gray-900 scale-125" : "bg-gray-100"
                                         )} />
                                     </div>
 
-                                    {/* Expandable Description */}
+                                    {/* Expandable Description - Triggered by Scroll */}
                                     <motion.div
                                         initial={false}
-                                        animate={{ height: isActive ? "auto" : 0, opacity: isActive ? 1 : 0 }}
+                                        animate={{
+                                            height: isActive ? "auto" : 0,
+                                            opacity: isActive ? 1 : 0,
+                                        }}
                                         transition={{ duration: 0.4, ease: "easeInOut" }}
                                         className="overflow-hidden"
                                     >
-                                        <p className="mt-4 text-[15px] text-gray-600 leading-relaxed max-w-md ml-14">
+                                        <p className="mt-6 ml-14 max-w-md text-[16px] leading-relaxed text-gray-600">
                                             {item.description}
                                         </p>
                                     </motion.div>
@@ -160,16 +171,19 @@ export const StickyScroll = () => {
                             );
                         })}
                     </div>
+
+                    {/* Spacer to allow the final item to trigger its scroll expansion */}
+                    <div className="h-60" />
                 </div>
-            </div>
+            </motion.div>
         </div>
     );
 };
 
-/* --- ACCURATE PROSE VISUALS --- */
+/* --- PRECISE PROSE SVGS --- */
 
 const Step1Visual = () => (
-    <svg viewBox="0 0 400 400" className="w-full h-full opacity-90">
+    <svg viewBox="0 0 400 400" className="h-full w-full">
         <defs>
             <radialGradient id="greenBead" cx="30%" cy="30%" r="70%">
                 <stop offset="0%" stopColor="#f0fdf4" />
@@ -177,60 +191,46 @@ const Step1Visual = () => (
                 <stop offset="100%" stopColor="#166534" />
             </radialGradient>
         </defs>
-        {/* Main curved chain */}
         {[...Array(12)].map((_, i) => {
             const angle = (i / 11) * Math.PI * 1.2 + 0.5;
             const r = 120;
-            return (
-                <circle key={i} cx={200 + Math.cos(angle) * r} cy={200 + Math.sin(angle) * r} r={16} fill="url(#greenBead)" />
-            );
+            return <circle key={i} cx={200 + Math.cos(angle) * r} cy={200 + Math.sin(angle) * r} r={16} fill="url(#greenBead)" />;
         })}
-        {/* Small square tail */}
-        {[...Array(8)].map((_, i) => (
-            <rect key={i} x={150 + i * 15} y={120 - i * 5} width="10" height="10" rx="2" fill="#e5e7eb" />
+        {[...Array(6)].map((_, i) => (
+            <rect key={i} x={150 + i * 18} y={110 - i * 4} width="12" height="12" rx="2" fill="#f3f4f6" stroke="#e5e7eb" />
         ))}
     </svg>
 );
 
 const Step2Visual = () => (
-    <svg viewBox="0 0 400 400" className="w-full h-full">
-        <defs>
-            <radialGradient id="whiteBead" cx="30%" cy="30%" r="70%">
-                <stop offset="0%" stopColor="#ffffff" />
-                <stop offset="100%" stopColor="#d1d5db" />
-            </radialGradient>
-        </defs>
-        {/* Long spiral expansion */}
-        {[...Array(20)].map((_, i) => {
-            const angle = (i / 19) * Math.PI * 2.5;
-            const r = 30 + i * 7;
+    <svg viewBox="0 0 400 400" className="h-full w-full">
+        {[...Array(22)].map((_, i) => {
+            const angle = (i / 21) * Math.PI * 3;
+            const r = 25 + i * 7.5;
             return (
-                <circle key={i} cx={200 + Math.cos(angle) * r} cy={200 + Math.sin(angle) * r} r={10} fill={i % 3 === 0 ? "url(#greenBead)" : "url(#whiteBead)"} />
+                <circle key={i} cx={200 + Math.cos(angle) * r} cy={200 + Math.sin(angle) * r} r={10}
+                    fill={i % 4 === 0 ? "url(#greenBead)" : "#f3f4f6"}
+                />
             );
         })}
     </svg>
 );
 
 const Step3Visual = () => (
-    <svg viewBox="0 0 400 400" className="w-full h-full">
-        {/* Translucent Plate */}
-        <motion.rect
-            x="80" y="140" width="240" height="120" rx="20"
-            fill="rgba(0,0,0,0.03)" stroke="rgba(0,0,0,0.1)" strokeWidth="1"
-            initial={{ rotateX: 60 }}
-        />
-        {/* Vertical Sequencing Chains */}
+    <svg viewBox="0 0 400 400" className="h-full w-full">
+        <rect x="80" y="140" width="240" height="120" rx="20" fill="rgba(0,0,0,0.02)" stroke="#f3f4f6" strokeWidth="1" />
         {[...Array(4)].map((_, col) => (
             <g key={col}>
                 {[...Array(5)].map((_, i) => (
                     <motion.circle
                         key={i}
                         cx={130 + col * 50}
-                        cy={100 + i * 40}
-                        r={12}
-                        fill={i === 2 ? "url(#greenBead)" : "#f3f4f6"}
-                        animate={{ y: [0, 40] }}
-                        transition={{ repeat: Infinity, duration: 2, ease: "linear", delay: col * 0.2 }}
+                        cy={80 + i * 50}
+                        r={14}
+                        fill={i === 2 ? "url(#greenBead)" : "#f9fafb"}
+                        stroke="#f3f4f6"
+                        animate={{ y: [0, 50] }}
+                        transition={{ repeat: Infinity, duration: 1.5, ease: "linear", delay: col * 0.3 }}
                     />
                 ))}
             </g>
