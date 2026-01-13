@@ -158,88 +158,216 @@ export const StickyScroll = () => {
     );
 };
 
-// Adapted StickyVisual - Preserved
+// Adapted StickyVisual - Now features 4 distinct visual states
 const StickyVisual = ({ activeIndex }: { activeIndex: number }) => {
     return (
         <div className="relative w-full h-full flex items-center justify-center">
-            <div className="relative w-full max-w-[20rem] aspect-square flex items-center justify-center">
-
-                {/* Background Glow */}
+            <AnimatePresence mode="wait">
                 <motion.div
-                    animate={{
-                        scale: activeIndex % 2 === 0 ? 1 : 1.1,
-                        opacity: 0.5
-                    }}
-                    transition={{ duration: 0.5 }}
-                    className="absolute inset-0 bg-gradient-radial from-indigo-500/10 via-transparent to-transparent blur-3xl"
-                />
-
-                {/* 3D Ring Structure */}
-                <motion.svg
-                    viewBox="0 0 400 400"
-                    className="w-full h-full"
-                    animate={{ rotate: activeIndex * 90 }}
-                    transition={{ type: "spring", stiffness: 50, damping: 20 }}
+                    key={activeIndex}
+                    initial={{ opacity: 0, scale: 0.8, filter: 'blur(10px)' }}
+                    animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
+                    exit={{ opacity: 0, scale: 1.2, filter: 'blur(10px)' }}
+                    transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                    className="relative w-full max-w-[20rem] aspect-square flex items-center justify-center"
                 >
-                    <ellipse
-                        cx="200"
-                        cy="200"
-                        rx="150"
-                        ry="60"
-                        fill="none"
-                        stroke="url(#gradient1)"
-                        strokeWidth="1"
-                        opacity="0.5"
-                    />
-
-                    <motion.g
-                        animate={{ rotate: -(activeIndex * 90) * 2 }}
-                        transition={{ type: "spring", stiffness: 50, damping: 20 }}
-                        style={{ originX: "200px", originY: "200px" }}
-                    >
-                        <circle cx="200" cy="140" r="12" fill="url(#sphereGradient1)" />
-                        <circle cx="260" cy="200" r="16" fill="url(#sphereGradient2)" />
-                        <circle cx="200" cy="260" r="14" fill="url(#sphereGradient3)" />
-                        <circle cx="140" cy="200" r="12" fill="url(#sphereGradient4)" />
-                    </motion.g>
-
-                    <motion.circle
-                        cx="200"
-                        cy="200"
-                        r="20"
-                        fill="url(#coreGradient)"
-                        animate={{ scale: activeIndex % 2 === 0 ? 1 : 1.2 }}
-                        transition={{ duration: 0.3 }}
-                    />
-
-                    <defs>
-                        <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.6" />
-                            <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0.3" />
-                        </linearGradient>
-                        <radialGradient id="sphereGradient1">
-                            <stop offset="0%" stopColor="#60a5fa" />
-                            <stop offset="100%" stopColor="#3b82f6" />
-                        </radialGradient>
-                        <radialGradient id="sphereGradient2">
-                            <stop offset="0%" stopColor="#818cf8" />
-                            <stop offset="100%" stopColor="#6366f1" />
-                        </radialGradient>
-                        <radialGradient id="sphereGradient3">
-                            <stop offset="0%" stopColor="#a78bfa" />
-                            <stop offset="100%" stopColor="#8b5cf6" />
-                        </radialGradient>
-                        <radialGradient id="sphereGradient4">
-                            <stop offset="0%" stopColor="#c4b5fd" />
-                            <stop offset="100%" stopColor="#a78bfa" />
-                        </radialGradient>
-                        <radialGradient id="coreGradient">
-                            <stop offset="0%" stopColor="#e0e7ff" />
-                            <stop offset="100%" stopColor="#818cf8" />
-                        </radialGradient>
-                    </defs>
-                </motion.svg>
-            </div>
+                    {activeIndex === 0 && <InputVisual />}
+                    {activeIndex === 1 && <AnalyzeVisual />}
+                    {activeIndex === 2 && <FocusVisual />}
+                    {activeIndex === 3 && <CompleteVisual />}
+                </motion.div>
+            </AnimatePresence>
         </div>
     );
 };
+
+const InputVisual = () => (
+    <div className="relative w-full h-full flex items-center justify-center">
+        {/* Background Glow */}
+        <div className="absolute inset-0 bg-blue-500/5 blur-[100px] rounded-full" />
+        <svg viewBox="0 0 400 400" className="w-full h-full">
+            <defs>
+                <linearGradient id="inputGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.8" />
+                    <stop offset="100%" stopColor="#60a5fa" stopOpacity="0.2" />
+                </linearGradient>
+            </defs>
+            {/* Pulsing signal lines */}
+            {[0, 1, 2].map((i) => (
+                <motion.circle
+                    key={i}
+                    cx="200"
+                    cy="200"
+                    r={50 + i * 40}
+                    fill="none"
+                    stroke="url(#inputGrad)"
+                    strokeWidth="1"
+                    initial={{ opacity: 0, scale: 0.5 }}
+                    animate={{
+                        opacity: [0, 0.5, 0],
+                        scale: [0.5, 1.5],
+                    }}
+                    transition={{
+                        duration: 3,
+                        repeat: Infinity,
+                        delay: i * 1,
+                        ease: "easeOut"
+                    }}
+                />
+            ))}
+            {/* Core input node */}
+            <motion.circle
+                cx="200"
+                cy="200"
+                r="30"
+                fill="url(#inputGrad)"
+                animate={{ scale: [1, 1.1, 1] }}
+                transition={{ duration: 2, repeat: Infinity }}
+            />
+        </svg>
+    </div>
+);
+
+const AnalyzeVisual = () => (
+    <div className="relative w-full h-full flex items-center justify-center">
+        <div className="absolute inset-0 bg-indigo-500/5 blur-[100px] rounded-full" />
+        <svg viewBox="0 0 400 400" className="w-full h-full">
+            <defs>
+                <linearGradient id="analyzeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#818cf8" stopOpacity="0.8" />
+                    <stop offset="100%" stopColor="#c7d2fe" stopOpacity="0.2" />
+                </linearGradient>
+            </defs>
+            {/* Moving grid/bars representing analysis */}
+            <g transform="translate(100, 100)">
+                {[...Array(6)].map((_, i) => (
+                    <motion.rect
+                        key={i}
+                        x={i * 35}
+                        y="0"
+                        width="20"
+                        height="200"
+                        fill="url(#analyzeGrad)"
+                        rx="4"
+                        initial={{ opacity: 0.1, height: 20 }}
+                        animate={{
+                            opacity: [0.1, 0.8, 0.1],
+                            height: [40, 180, 60, 200, 40]
+                        }}
+                        transition={{
+                            duration: 2 + i * 0.5,
+                            repeat: Infinity,
+                            ease: "easeInOut"
+                        }}
+                    />
+                ))}
+            </g>
+            {/* Scanning line */}
+            <motion.line
+                x1="80" y1="100" x2="320" y2="100"
+                stroke="#818cf8"
+                strokeWidth="2"
+                strokeDasharray="4 4"
+                animate={{ y: [0, 200, 0] }}
+                transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+            />
+        </svg>
+    </div>
+);
+
+const FocusVisual = () => (
+    <div className="relative w-full h-full flex items-center justify-center">
+        <div className="absolute inset-0 bg-purple-500/5 blur-[100px] rounded-full" />
+        <svg viewBox="0 0 400 400" className="w-full h-full">
+            <defs>
+                <radialGradient id="focusGrad">
+                    <stop offset="0%" stopColor="#a78bfa" stopOpacity="1" />
+                    <stop offset="100%" stopColor="#7c3aed" stopOpacity="0.2" />
+                </radialGradient>
+            </defs>
+            {/* Concentrated core */}
+            <motion.circle
+                cx="200"
+                cy="200"
+                r="60"
+                fill="url(#focusGrad)"
+                animate={{
+                    scale: [1, 1.05, 1],
+                    boxShadow: "0 0 40px rgba(167, 139, 250, 0.5)"
+                }}
+                transition={{ duration: 3, repeat: Infinity }}
+            />
+            {/* Orbiting particles */}
+            {[...Array(8)].map((_, i) => (
+                <motion.g
+                    key={i}
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 10 + i * 2, repeat: Infinity, ease: "linear" }}
+                    style={{ originX: "200px", originY: "200px" }}
+                >
+                    <circle
+                        cx={200 + Math.cos(i * 45) * 120}
+                        cy={200 + Math.sin(i * 45) * 120}
+                        r="4"
+                        fill="#a78bfa"
+                    />
+                </motion.g>
+            ))}
+            {/* Steady ring */}
+            <circle
+                cx="200"
+                cy="200"
+                r="120"
+                fill="none"
+                stroke="#a78bfa"
+                strokeWidth="0.5"
+                strokeDasharray="10 20"
+                opacity="0.3"
+            />
+        </svg>
+    </div>
+);
+
+const CompleteVisual = () => (
+    <div className="relative w-full h-full flex items-center justify-center">
+        <div className="absolute inset-0 bg-emerald-500/5 blur-[100px] rounded-full" />
+        <svg viewBox="0 0 400 400" className="w-full h-full">
+            <defs>
+                <linearGradient id="completeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#10b981" />
+                    <stop offset="100%" stopColor="#34d399" />
+                </linearGradient>
+            </defs>
+            {/* Expanding success star/flower */}
+            <g transform="translate(200, 200)">
+                {[...Array(6)].map((_, i) => (
+                    <motion.rect
+                        key={i}
+                        x="-10"
+                        y="-100"
+                        width="20"
+                        height="100"
+                        fill="url(#completeGrad)"
+                        rx="10"
+                        initial={{ rotate: i * 60, scaleY: 0 }}
+                        animate={{ scaleY: [0, 1.2, 1] }}
+                        transition={{ duration: 1, delay: i * 0.1, ease: "backOut" }}
+                        style={{ originY: "bottom" }}
+                    />
+                ))}
+            </g>
+            {/* Center checkmark */}
+            <motion.path
+                d="M160 200 L190 230 L240 170"
+                fill="none"
+                stroke="white"
+                strokeWidth="8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                initial={{ pathLength: 0, opacity: 0 }}
+                animate={{ pathLength: 1, opacity: 1 }}
+                transition={{ duration: 0.8, delay: 1 }}
+            />
+        </svg>
+    </div>
+);
