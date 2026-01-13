@@ -75,6 +75,10 @@ interface StepProps {
 }
 
 const Step: React.FC<StepProps> = ({ step, index, activeStepIndex }) => {
+    // Widen the active window to +/- 0.5 to create a seamless "handoff"
+    // When one is at 0.5 (halfway out), the next is at -0.5 (halfway in)
+    const activeRange = [index - 0.5, index, index + 0.5];
+
     return (
         <motion.div
             className="py-4 border-b border-white/10 last:border-b-0"
@@ -82,33 +86,28 @@ const Step: React.FC<StepProps> = ({ step, index, activeStepIndex }) => {
             <div className="flex items-start gap-5">
                 {/* Number Box */}
                 <motion.div
-                    className="flex-shrink-0 w-11 h-11 rounded-lg flex items-center justify-center text-base font-bold"
+                    className="flex-shrink-0 w-11 h-11 rounded-lg flex items-center justify-center text-base font-bold transition-colors duration-200"
                     style={{
                         backgroundColor: useTransform(
                             activeStepIndex,
-                            [index - 0.2, index, index + 0.2],
+                            activeRange, // Use widened range
                             ['transparent', '#ffffff', 'transparent']
                         ),
                         color: useTransform(
                             activeStepIndex,
-                            [index - 0.2, index, index + 0.2],
+                            activeRange,
                             ['#71717a', '#000000', '#71717a']
                         ),
                         borderWidth: useTransform(
                             activeStepIndex,
-                            [index - 0.2, index, index + 0.2],
+                            activeRange,
                             ['2px', '0px', '2px']
                         ),
                         borderColor: useTransform(
                             activeStepIndex,
-                            [index - 0.2, index, index + 0.2],
+                            activeRange,
                             ['#3f3f46', '#ffffff', '#3f3f46']
                         )
-                    }}
-                    transition={{
-                        type: 'spring',
-                        stiffness: 120,
-                        damping: 40
                     }}
                 >
                     {step.number}
@@ -122,7 +121,7 @@ const Step: React.FC<StepProps> = ({ step, index, activeStepIndex }) => {
                         style={{
                             opacity: useTransform(
                                 activeStepIndex,
-                                [index - 0.3, index, index + 0.3],
+                                activeRange,
                                 [0.3, 1, 0.3]
                             )
                         }}
@@ -136,22 +135,17 @@ const Step: React.FC<StepProps> = ({ step, index, activeStepIndex }) => {
                         style={{
                             height: useTransform(
                                 activeStepIndex,
-                                [index - 0.2, index, index + 0.2],
+                                activeRange,
                                 ['0px', 'auto', '0px']
                             ),
                             opacity: useTransform(
                                 activeStepIndex,
-                                [index - 0.2, index, index + 0.2],
+                                activeRange,
                                 [0, 1, 0]
                             )
                         }}
-                        transition={{
-                            type: 'spring',
-                            stiffness: 100,
-                            damping: 30
-                        }}
                     >
-                        <p className="text-sm md:text-base text-zinc-400 leading-relaxed max-w-md">
+                        <p className="text-sm md:text-base text-zinc-400 leading-relaxed max-w-md pb-4">
                             {step.description}
                         </p>
                     </motion.div>
