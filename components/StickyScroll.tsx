@@ -52,10 +52,10 @@ export const StickyScroll = () => {
     return (
         <div
             ref={containerRef}
-            className="relative h-[400vh] bg-[#050505]"
+            className="relative h-[450vh] bg-[#050505] z-10"
         >
-            {/* STICKY WRAPPER: This stays fixed in the viewport while scrolling the 400vh container */}
-            <div className="sticky top-0 h-screen w-full flex flex-col justify-center border-t border-b border-white/10 overflow-hidden">
+            {/* STICKY WRAPPER: This stays fixed in the viewport while scrolling the 450vh container */}
+            <div className="sticky top-0 h-screen w-full flex flex-col justify-center border-t border-b border-white/10 overflow-hidden z-20">
                 <div className="max-w-7xl mx-auto px-6 w-full">
                     <div className="flex flex-col lg:flex-row gap-12 lg:gap-24 items-center">
 
