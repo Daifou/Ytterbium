@@ -5,24 +5,24 @@ import { cn } from "../lib/utils";
 
 const content = [
     {
-        number: "01",
-        title: "Input",
-        description: "Describe your task and Ytterbium instantly calibrates the optimal focus environment.",
+        number: "1",
+        title: "Input Phase",
+        description: "Describe your cognitive task. Ytterbium's neural engine immediately begins calibrating the optimal resonance for your specific project requirements.",
     },
     {
-        number: "02",
-        title: "Analyze",
-        description: "AI classifies cognitive load and recommends the perfect intensity level for peak performance.",
+        number: "2",
+        title: "Cognitive Analysis",
+        description: "AI classifies complexity and load. By mapping your current state against historical peak states, we recommend a precision-matched intensity level.",
     },
     {
-        number: "03",
-        title: "Focus",
-        description: "Enter your personalized environment with adaptive timers and biometric rest prompts.",
+        number: "3",
+        title: "Deep Focus State",
+        description: "Initiate the environment. Adaptive timers and biometric rest intervals ensure you stay in the flow state without the risk of biological burnout.",
     },
     {
-        number: "04",
-        title: "Complete",
-        description: "Track progress through sessions and unlock deeper focus states over time.",
+        number: "4",
+        title: "Sequence Completion",
+        description: "Review metadata and performance logs. Each completed cycle strengthens your focus architecture, unlocking deeper states for future sessions.",
     },
 ];
 
@@ -51,125 +51,130 @@ export const StickyScroll = () => {
     });
 
     return (
-        <div className="flex justify-center pt-40 pb-10 bg-[#09090b] font-['SF_Pro_Display','-apple-system','BlinkMacSystemFont','Segoe_UI',Roboto,sans-serif] tracking-tight">
-            <div className="max-w-6xl w-full mx-auto px-4">
-                {/* 
-                  The "Box" Container 
-                  This is the scrollable viewport.
-                */}
-                <motion.div
-                    className="h-[40rem] overflow-y-auto border border-white/10 bg-[#09090b] rounded-sm shadow-2xl relative grid grid-cols-1 md:grid-cols-2"
-                    ref={ref}
-                    style={{
-                        scrollbarWidth: 'none',
-                        msOverflowStyle: 'none',
-                    }}
-                >
-                    <style>
-                        {`div::-webkit-scrollbar { display: none; }`}
-                    </style>
+        <div className="w-full bg-[#09090b] font-['SF_Pro_Display','-apple-system',sans-serif] tracking-tight py-20">
+            {/* The "Box" Container - Full Width */}
+            <motion.div
+                className="h-[45rem] overflow-y-auto border-t border-b border-white/10 bg-[#09090b] relative grid grid-cols-1 md:grid-cols-2"
+                ref={ref}
+                style={{
+                    scrollbarWidth: 'none',
+                    msOverflowStyle: 'none',
+                }}
+            >
+                <style>
+                    {`div::-webkit-scrollbar { display: none; }`}
+                </style>
 
-                    {/* LEFT COLUMN: Visual (Sticky) */}
-                    {/* sticky top-0 keeps it pinned to the top of the SCROLL CONTAINER */}
-                    <div className="hidden md:flex flex-col sticky top-0 h-full border-r border-white/10 bg-[#0d0d0e]">
-                        <div className="relative h-full flex items-center justify-center p-12 min-h-[40rem]">
-                            {/* Technical Header */}
-                            <div className="absolute top-6 left-6 flex items-center gap-2 z-10">
-                                <div className="w-1.5 h-1.5 rounded-full bg-zinc-700" />
-                                <span className="text-[10px] uppercase tracking-widest text-zinc-500 font-medium">System Calibration</span>
-                            </div>
+                {/* LEFT COLUMN: Visual (Sticky) */}
+                <div className="hidden md:flex flex-col sticky top-0 h-full border-r border-white/10">
+                    <div className="relative h-full flex items-center justify-center p-12 min-h-[45rem]">
+                        {/* Technical Meta Headers */}
+                        <div className="absolute top-8 left-8 text-[11px] font-medium text-zinc-500">1</div>
+                        <div className="absolute top-8 left-1/2 -translate-x-1/2 flex items-center gap-2">
+                            <div className="w-2 h-2 rounded-full bg-zinc-400" />
+                            <span className="text-[10px] uppercase tracking-[0.2em] text-zinc-400 font-bold">Technology</span>
+                        </div>
 
-                            <StickyVisual activeIndex={activeCard} />
+                        <StickyVisual activeIndex={activeCard} />
+
+                        {/* Corner Accents */}
+                        <div className="absolute bottom-12 left-12 p-1.5 bg-zinc-900 border border-white/5 rounded-sm">
+                            <div className="w-1.5 h-1.5 rounded-full bg-white" />
+                        </div>
+                        <div className="absolute bottom-12 right-12 p-1.5 bg-zinc-900 border border-white/5 rounded-sm">
+                            <div className="w-1.5 h-1.5 rounded-full bg-zinc-700" />
+                        </div>
+                    </div>
+                </div>
+
+                {/* RIGHT COLUMN: Table Hierarchy */}
+                <div className="flex flex-col divide-y divide-white/10">
+                    {/* Top Right Metadata Header */}
+                    <div className="p-8 pb-12 grid grid-cols-12 gap-4">
+                        <div className="col-span-10">
+                            <p className="text-[13px] text-zinc-400 leading-relaxed max-w-sm">
+                                Ytterbium™ will revolutionize focus by delivering unprecedented precision, scalability, and accessibility.
+                            </p>
+                        </div>
+                        <div className="col-span-2 text-right text-[11px] font-medium text-zinc-600">
+                            2026
                         </div>
                     </div>
 
-                    {/* RIGHT COLUMN: Steps "Table" (Scrollable Content) */}
-                    <div className="flex flex-col divide-y divide-white/10 bg-[#09090b]">
-                        {/* Header Row */}
-                        <div className="p-6 flex justify-between items-center text-[10px] text-zinc-600 uppercase tracking-widest font-medium border-b border-white/10 bg-zinc-900/20 sticky top-0 z-20 backdrop-blur-md">
-                            <span>Sequence Protocol</span>
-                            <span>Rev 2.0</span>
-                        </div>
-
-                        {content.map((item, index) => {
-                            const isActive = activeCard === index;
-                            return (
-                                <motion.div
-                                    key={item.title + index}
-                                    initial={{ opacity: 0.3 }}
-                                    animate={{
-                                        opacity: isActive ? 1 : 0.3,
-                                        backgroundColor: isActive ? 'rgba(255,255,255,0.02)' : 'transparent'
-                                    }}
-                                    transition={{ duration: 0.3 }}
-                                    className="relative p-10 flex flex-col justify-center min-h-[20rem] transition-all duration-500"
-                                >
-                                    <div className="flex items-start gap-6">
-                                        {/* Step Number */}
-                                        <div className={cn(
-                                            "flex-shrink-0 w-10 h-10 flex items-center justify-center rounded border text-sm font-semibold transition-all duration-500",
-                                            isActive
-                                                ? "bg-white text-black border-white"
-                                                : "bg-transparent text-zinc-600 border-zinc-800"
-                                        )}>
-                                            {item.number}
-                                        </div>
-
-                                        <div className="flex-1 pt-1">
-                                            <h2 className={cn(
-                                                "text-xl font-medium tracking-tight mb-2 transition-colors duration-300",
-                                                isActive ? "text-white" : "text-zinc-500"
-                                            )}>
-                                                {item.title}
-                                            </h2>
-
-                                            {/* Accordion Description */}
-                                            <motion.div
-                                                initial={false}
-                                                animate={{
-                                                    height: isActive ? "auto" : 0,
-                                                    opacity: isActive ? 1 : 0,
-                                                    marginTop: isActive ? 8 : 0
-                                                }}
-                                                transition={{ duration: 0.4 }}
-                                                className="overflow-hidden"
-                                            >
-                                                <p className="text-sm text-zinc-400 leading-relaxed max-w-sm">
-                                                    {item.description}
-                                                </p>
-                                            </motion.div>
-                                        </div>
-
-                                        {/* Indicator */}
-                                        <div className={cn(
-                                            "w-2 h-2 rounded-full mt-2 transition-all duration-300",
-                                            isActive ? "bg-white shadow-[0_0_8px_rgba(255,255,255,0.5)]" : "bg-zinc-800"
-                                        )} />
+                    {content.map((item, index) => {
+                        const isActive = activeCard === index;
+                        return (
+                            <motion.div
+                                key={item.number}
+                                className="relative p-10 flex flex-col justify-center min-h-[15rem] group"
+                                animate={{
+                                    backgroundColor: isActive ? 'rgba(255,255,255,0.01)' : 'transparent'
+                                }}
+                            >
+                                <div className="flex items-start gap-8">
+                                    {/* ProSE Style Number Box */}
+                                    <div className={cn(
+                                        "flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-[3px] text-[12px] font-bold transition-all duration-500",
+                                        isActive
+                                            ? "bg-white text-black"
+                                            : "border border-zinc-800 text-zinc-700"
+                                    )}>
+                                        {item.number}
                                     </div>
-                                </motion.div>
-                            );
-                        })}
-                        {/* Spacer at the bottom - Reduced to h-24 as requested */}
-                        <div className="h-24" />
-                    </div>
-                </motion.div>
-            </div>
+
+                                    <div className="flex-1">
+                                        <h2 className={cn(
+                                            "text-3xl md:text-[42px] font-medium tracking-tight mb-4 transition-all duration-500",
+                                            isActive ? "text-white" : "text-zinc-800"
+                                        )}>
+                                            {item.title}
+                                        </h2>
+
+                                        <motion.div
+                                            initial={false}
+                                            animate={{
+                                                height: isActive ? "auto" : 0,
+                                                opacity: isActive ? 1 : 0
+                                            }}
+                                            className="overflow-hidden"
+                                        >
+                                            <p className="text-[15px] text-zinc-500 leading-relaxed max-w-lg mb-4">
+                                                {item.description}
+                                            </p>
+                                        </motion.div>
+                                    </div>
+
+                                    {/* Right Side Dot Indicator */}
+                                    <div className={cn(
+                                        "w-2.5 h-2.5 rounded-full mt-4 transition-all duration-500",
+                                        isActive
+                                            ? "bg-white shadow-[0_0_15px_rgba(255,255,255,0.8)]"
+                                            : "bg-zinc-800 opacity-20"
+                                    )} />
+                                </div>
+                            </motion.div>
+                        );
+                    })}
+
+                    {/* Bottom Padding Spacer */}
+                    <div className="h-32" />
+                </div>
+            </motion.div>
         </div>
     );
 };
 
-// Adapted StickyVisual - Now features 4 distinct visual states
 const StickyVisual = ({ activeIndex }: { activeIndex: number }) => {
     return (
         <div className="relative w-full h-full flex items-center justify-center">
             <AnimatePresence mode="wait">
                 <motion.div
                     key={activeIndex}
-                    initial={{ opacity: 0, scale: 0.8, filter: 'blur(10px)' }}
-                    animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
-                    exit={{ opacity: 0, scale: 1.2, filter: 'blur(10px)' }}
-                    transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-                    className="relative w-full max-w-[20rem] aspect-square flex items-center justify-center"
+                    initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 1.1, y: -20 }}
+                    transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                    className="relative w-full max-w-[24rem] aspect-square flex items-center justify-center"
                 >
                     {activeIndex === 0 && <InputVisual />}
                     {activeIndex === 1 && <AnalyzeVisual />}
@@ -183,43 +188,34 @@ const StickyVisual = ({ activeIndex }: { activeIndex: number }) => {
 
 const InputVisual = () => (
     <div className="relative w-full h-full flex items-center justify-center">
-        {/* Background Glow */}
-        <div className="absolute inset-0 bg-blue-500/5 blur-[100px] rounded-full" />
+        <div className="absolute inset-0 bg-blue-500/5 blur-[120px] rounded-full" />
         <svg viewBox="0 0 400 400" className="w-full h-full">
             <defs>
                 <linearGradient id="inputGrad" x1="0%" y1="0%" x2="100%" y2="100%">
                     <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.8" />
-                    <stop offset="100%" stopColor="#60a5fa" stopOpacity="0.2" />
+                    <stop offset="100%" stopColor="#1d4ed8" stopOpacity="0.2" />
                 </linearGradient>
             </defs>
-            {/* Pulsing signal lines */}
-            {[0, 1, 2].map((i) => (
+            {[...Array(5)].map((_, i) => (
                 <motion.circle
                     key={i}
                     cx="200"
                     cy="200"
-                    r={50 + i * 40}
+                    r={20 + i * 35}
                     fill="none"
                     stroke="url(#inputGrad)"
-                    strokeWidth="1"
-                    initial={{ opacity: 0, scale: 0.5 }}
+                    strokeWidth="0.5"
                     animate={{
-                        opacity: [0, 0.5, 0],
-                        scale: [0.5, 1.5],
+                        opacity: [0.1, 0.4, 0.1],
+                        scale: [1, 1.05, 1]
                     }}
-                    transition={{
-                        duration: 3,
-                        repeat: Infinity,
-                        delay: i * 1,
-                        ease: "easeOut"
-                    }}
+                    transition={{ duration: 4, delay: i * 0.5, repeat: Infinity }}
                 />
             ))}
-            {/* Core input node */}
             <motion.circle
                 cx="200"
                 cy="200"
-                r="30"
+                r="40"
                 fill="url(#inputGrad)"
                 animate={{ scale: [1, 1.1, 1] }}
                 transition={{ duration: 2, repeat: Infinity }}
@@ -230,44 +226,33 @@ const InputVisual = () => (
 
 const AnalyzeVisual = () => (
     <div className="relative w-full h-full flex items-center justify-center">
-        <div className="absolute inset-0 bg-indigo-500/5 blur-[100px] rounded-full" />
+        <div className="absolute inset-0 bg-indigo-500/5 blur-[120px] rounded-full" />
         <svg viewBox="0 0 400 400" className="w-full h-full">
             <defs>
                 <linearGradient id="analyzeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#818cf8" stopOpacity="0.8" />
-                    <stop offset="100%" stopColor="#c7d2fe" stopOpacity="0.2" />
+                    <stop offset="0%" stopColor="#6366f1" />
+                    <stop offset="100%" stopColor="#4f46e5" />
                 </linearGradient>
             </defs>
-            {/* Moving grid/bars representing analysis */}
-            <g transform="translate(100, 100)">
-                {[...Array(6)].map((_, i) => (
+            <g opacity="0.4">
+                {[...Array(12)].map((_, i) => (
                     <motion.rect
                         key={i}
-                        x={i * 35}
-                        y="0"
-                        width="20"
+                        x={100 + i * 18}
+                        y="100"
+                        width="8"
                         height="200"
-                        fill="url(#analyzeGrad)"
-                        rx="4"
-                        initial={{ opacity: 0.1, height: 20 }}
-                        animate={{
-                            opacity: [0.1, 0.8, 0.1],
-                            height: [40, 180, 60, 200, 40]
-                        }}
-                        transition={{
-                            duration: 2 + i * 0.5,
-                            repeat: Infinity,
-                            ease: "easeInOut"
-                        }}
+                        fill="white"
+                        rx="1"
+                        animate={{ height: [40, 200, 40] }}
+                        transition={{ duration: 2, delay: i * 0.1, repeat: Infinity }}
                     />
                 ))}
             </g>
-            {/* Scanning line */}
             <motion.line
                 x1="80" y1="100" x2="320" y2="100"
-                stroke="#818cf8"
-                strokeWidth="2"
-                strokeDasharray="4 4"
+                stroke="white"
+                strokeWidth="1"
                 animate={{ y: [0, 200, 0] }}
                 transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
             />
@@ -277,52 +262,26 @@ const AnalyzeVisual = () => (
 
 const FocusVisual = () => (
     <div className="relative w-full h-full flex items-center justify-center">
-        <div className="absolute inset-0 bg-purple-500/5 blur-[100px] rounded-full" />
+        <div className="absolute inset-0 bg-white/5 blur-[120px] rounded-full" />
         <svg viewBox="0 0 400 400" className="w-full h-full">
-            <defs>
-                <radialGradient id="focusGrad">
-                    <stop offset="0%" stopColor="#a78bfa" stopOpacity="1" />
-                    <stop offset="100%" stopColor="#7c3aed" stopOpacity="0.2" />
-                </radialGradient>
-            </defs>
-            {/* Concentrated core */}
             <motion.circle
                 cx="200"
                 cy="200"
-                r="60"
-                fill="url(#focusGrad)"
-                animate={{
-                    scale: [1, 1.05, 1],
-                    boxShadow: "0 0 40px rgba(167, 139, 250, 0.5)"
-                }}
-                transition={{ duration: 3, repeat: Infinity }}
+                r="80"
+                fill="none"
+                stroke="white"
+                strokeWidth="0.5"
+                strokeDasharray="4 8"
+                animate={{ rotate: 360 }}
+                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
             />
-            {/* Orbiting particles */}
-            {[...Array(8)].map((_, i) => (
-                <motion.g
-                    key={i}
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 10 + i * 2, repeat: Infinity, ease: "linear" }}
-                    style={{ originX: "200px", originY: "200px" }}
-                >
-                    <circle
-                        cx={200 + Math.cos(i * 45) * 120}
-                        cy={200 + Math.sin(i * 45) * 120}
-                        r="4"
-                        fill="#a78bfa"
-                    />
-                </motion.g>
-            ))}
-            {/* Steady ring */}
-            <circle
+            <motion.circle
                 cx="200"
                 cy="200"
-                r="120"
-                fill="none"
-                stroke="#a78bfa"
-                strokeWidth="0.5"
-                strokeDasharray="10 20"
-                opacity="0.3"
+                r="40"
+                fill="white"
+                animate={{ scale: [1, 1.2, 1], opacity: [0.8, 1, 0.8] }}
+                transition={{ duration: 3, repeat: Infinity }}
             />
         </svg>
     </div>
@@ -330,44 +289,31 @@ const FocusVisual = () => (
 
 const CompleteVisual = () => (
     <div className="relative w-full h-full flex items-center justify-center">
-        <div className="absolute inset-0 bg-emerald-500/5 blur-[100px] rounded-full" />
+        <div className="absolute inset-0 bg-emerald-500/5 blur-[120px] rounded-full" />
         <svg viewBox="0 0 400 400" className="w-full h-full">
-            <defs>
-                <linearGradient id="completeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#10b981" />
-                    <stop offset="100%" stopColor="#34d399" />
-                </linearGradient>
-            </defs>
-            {/* Expanding success star/flower */}
-            <g transform="translate(200, 200)">
-                {[...Array(6)].map((_, i) => (
-                    <motion.rect
-                        key={i}
-                        x="-10"
-                        y="-100"
-                        width="20"
-                        height="100"
-                        fill="url(#completeGrad)"
-                        rx="10"
-                        initial={{ rotate: i * 60, scaleY: 0 }}
-                        animate={{ scaleY: [0, 1.2, 1] }}
-                        transition={{ duration: 1, delay: i * 0.1, ease: "backOut" }}
-                        style={{ originY: "bottom" }}
-                    />
-                ))}
-            </g>
-            {/* Center checkmark */}
             <motion.path
-                d="M160 200 L190 230 L240 170"
+                d="M100 200 L180 280 L300 120"
                 fill="none"
                 stroke="white"
-                strokeWidth="8"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                initial={{ pathLength: 0, opacity: 0 }}
-                animate={{ pathLength: 1, opacity: 1 }}
-                transition={{ duration: 0.8, delay: 1 }}
+                strokeWidth="2"
+                initial={{ pathLength: 0 }}
+                animate={{ pathLength: 1 }}
+                transition={{ duration: 1 }}
             />
+            {[...Array(3)].map((_, i) => (
+                <motion.circle
+                    key={i}
+                    cx="200"
+                    cy="200"
+                    r={100 + i * 40}
+                    fill="none"
+                    stroke="white"
+                    strokeWidth="0.5"
+                    opacity="0.2"
+                    animate={{ scale: [0.8, 1.2, 0.8], opacity: [0, 0.2, 0] }}
+                    transition={{ duration: 3, delay: i * 1, repeat: Infinity }}
+                />
+            ))}
         </svg>
     </div>
 );
