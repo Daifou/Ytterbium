@@ -225,9 +225,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
                                     {['Deep Work Session', 'Study for Exam', 'Debug Code'].map((suggestion, i) => (
                                         <motion.button
                                             key={suggestion}
-                                            initial={{ opacity: 0, y: 10 }}
                                             animate={{ opacity: 1, y: 0 }}
-                                            transition={{ delay: 0.8 + (i * 0.1) }}
+                                            transition={{ duration: 0.5 }}
                                             onClick={() => setTask(suggestion)}
                                             className="px-5 py-2.5 rounded-full border border-zinc-800 bg-zinc-900/30 hover:bg-zinc-800/50 text-xs md:text-sm text-zinc-500 hover:text-zinc-200 transition-all duration-300 backdrop-blur-sm"
                                         >
