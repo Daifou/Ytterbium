@@ -1,14 +1,13 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../services/supabase';
-
 import { PostgrestError } from '@supabase/supabase-js';
 
 export interface Subscription {
     id: string;
-    status: 'active' | 'canceled' | 'incomplete' | 'revoked';
-    product_name: string;
-    current_period_end: string;
-    is_recurring: boolean;
+    status: 'active' | 'free' | 'expired' | 'refunded';
+    plan_type: string | null;
+    current_period_end: string | null;
+    is_premium: boolean;
 }
 
 export function useSubscription() {
@@ -29,16 +28,25 @@ export function useSubscription() {
                     return;
                 }
 
-                // We query the helper view we created in the SQL migration
+                // Query profiles table directly for Whop data
                 const { data, error } = await supabase
-                    .from('user_subscriptions')
-                    .select('*')
+                    .from('profiles')
+                    .select('id, subscription_status, plan_type, current_period_end, is_premium')
+                    .eq('id', user.id)
                     .single();
 
-                if (error && error.code !== 'PGRST116') { // PGRST116 is 'No rows found'
-                    setError(error);
+                if (error) {
+                    if (error.code !== 'PGRST116') {
+                        setError(error);
+                    }
                 } else {
-                    setSubscription(data as Subscription);
+                    setSubscription({
+                        id: data.id,
+                        status: data.subscription_status as any,
+                        plan_type: data.plan_type,
+                        current_period_end: data.current_period_end,
+                        is_premium: data.is_premium
+                    });
                 }
             } catch (err: any) {
                 console.error("Subscription fetch failed:", err);
@@ -55,13 +63,23 @@ export function useSubscription() {
         });
         authSubscription = authListener;
 
-        // Subscribe to changes for Real-time Resilience
+        // Subscribe to changes on profiles table for Real-time Whop Sync
         const subscriptionChannel = supabase
-            .channel('gumroad_sync_changes')
+            .channel('profile_subscription_changes')
             .on(
                 'postgres_changes',
-                { event: '*', schema: 'public', table: 'gumroad_subscriptions' },
-                () => fetchSubscription()
+                { event: 'UPDATE', schema: 'public', table: 'profiles' },
+                (payload) => {
+                    console.log("[useSubscription] Profile update detected", payload.new);
+                    const updated = payload.new;
+                    setSubscription({
+                        id: updated.id,
+                        status: updated.subscription_status,
+                        plan_type: updated.plan_type,
+                        current_period_end: updated.current_period_end,
+                        is_premium: updated.is_premium
+                    });
+                }
             )
             .subscribe();
 
@@ -71,11 +89,10 @@ export function useSubscription() {
         };
     }, []);
 
-
     return {
         subscription,
         loading,
         error,
-        isPremium: subscription?.status === 'active'
+        isPremium: subscription?.is_premium || false
     };
 }

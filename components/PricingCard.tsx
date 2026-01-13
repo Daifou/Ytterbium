@@ -84,6 +84,7 @@ export const PricingCard: React.FC<PricingCardProps> = ({
                             <WhopCheckoutEmbed
                                 planId="plan_8CWnEKzsQpVQh"
                                 returnUrl={window.location.origin + '/dashboard?checkout=success'}
+                                email={currentUser?.email || undefined}
                             />
                         </div>
                     </div>

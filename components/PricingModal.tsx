@@ -8,9 +8,16 @@ interface PricingModalProps {
     onClose: () => void;
     currentUser?: User | null;
     onAuthRequired?: () => void;
+    isAuthMode?: boolean;
 }
 
-export const PricingModal: React.FC<PricingModalProps> = ({ isOpen, onClose, currentUser, onAuthRequired }) => {
+export const PricingModal: React.FC<PricingModalProps> = ({
+    isOpen,
+    onClose,
+    currentUser,
+    onAuthRequired,
+    isAuthMode = false
+}) => {
     if (!isOpen) return null;
 
     return (
@@ -34,10 +41,11 @@ export const PricingModal: React.FC<PricingModalProps> = ({ isOpen, onClose, cur
                         onClose={onClose}
                         currentUser={currentUser}
                         onAuthRequired={onAuthRequired}
+                        isAuthMode={isAuthMode}
+                        isCompact={isAuthMode}
                     />
                 </motion.div>
             </motion.div>
         </AnimatePresence>
     );
 };
-

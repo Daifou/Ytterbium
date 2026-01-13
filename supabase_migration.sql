@@ -223,3 +223,24 @@ BEGIN
   WHERE id = user_id_param;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
+-- ==================== VIEWS ====================
+
+-- Unified view for subscription status (handles both legacy and Whop)
+-- Using a DO block to safely replace if it exists
+DO $$ 
+BEGIN
+    IF EXISTS (SELECT 1 FROM information_schema.views WHERE table_name = 'user_subscriptions' AND table_schema = 'public') THEN
+        DROP VIEW IF EXISTS public.user_subscriptions CASCADE;
+    END IF;
+END $$;
+
+CREATE OR REPLACE VIEW public.user_subscriptions AS
+SELECT 
+    id,
+    id as user_id,
+    subscription_status as status,
+    plan_type as product_name,
+    current_period_end,
+    true as is_recurring
+FROM public.profiles
+WHERE subscription_status = 'active' OR is_premium = true;

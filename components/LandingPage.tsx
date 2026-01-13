@@ -89,15 +89,20 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
     };
 
     const handleStartSession = async () => {
-        // We always "Enter" the app now, App.tsx will handle the Paywall Gate
-        // if user is not premium or not logged in.
-        onEnter({
-            task,
-            intensity: analysisResult.intensity,
-            insight: analysisResult.insight,
-            focusMode: analysisResult.focusMode,
-            user: currentUser,
-        });
+        // Scenario 2: If user is premium, go directly to dashboard
+        if (isPremium) {
+            onEnter({
+                task,
+                intensity: analysisResult.intensity,
+                insight: analysisResult.insight,
+                focusMode: analysisResult.focusMode,
+                user: currentUser,
+            });
+            return;
+        }
+
+        // Scenario 1: If not premium, show the Paywall
+        setShowPricingModal(true);
     };
 
     const handleGoogleSignUp = async () => {
@@ -273,10 +278,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
                 isOpen={showPricingModal}
                 onClose={() => setShowPricingModal(false)}
                 currentUser={currentUser}
-                onAuthRequired={() => {
-                    setShowPricingModal(false);
-                    setShowAuthModal(true);
-                }}
+                isAuthMode={!currentUser}
+                onAuthRequired={handleGoogleSignUp}
             />
         </div >
     );
