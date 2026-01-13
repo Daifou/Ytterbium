@@ -35,7 +35,7 @@ export const StickyScroll = () => {
     });
     const cardLength = content.length;
 
-    // BRANDED ORANGE BORDER LIGHT
+    // BRANDED ORANGE BORDER LIGHT (Logic updated, structure preserved)
     const borderY = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
 
     useMotionValueEvent(scrollYProgress, "change", (latest) => {
@@ -70,7 +70,7 @@ export const StickyScroll = () => {
 
                 {/* LEFT COLUMN: Visual (Sticky) */}
                 <div className="hidden md:flex flex-col sticky top-0 h-full border-r border-white/10 overflow-hidden">
-                    {/* ANIMATED ORANGE BORDER LIGHT */}
+                    {/* ANIMATED ORANGE BORDER LIGHT (Senior Update) */}
                     <motion.div
                         className="absolute right-[-1px] top-0 w-[1px] h-32 bg-gradient-to-b from-transparent via-orange-500 to-transparent z-50 shadow-[0_0_15px_rgba(249,115,22,0.5)]"
                         style={{ y: borderY }}
@@ -84,12 +84,11 @@ export const StickyScroll = () => {
                             <span className="text-[10px] uppercase tracking-[0.2em] text-zinc-400 font-bold">Technology</span>
                         </div>
 
-                        {/* Centered Visual Container that tracks vertical level */}
+                        {/* Centered Visual Container tracking vertical level of the steps */}
                         <motion.div
                             className="flex-1 flex items-center justify-center"
                             animate={{
-                                // Vertical alignment logic to match expanded items
-                                y: activeCard === 0 ? -60 : activeCard === 1 ? -20 : activeCard === 2 ? 20 : 60
+                                y: activeCard === 0 ? -80 : activeCard === 1 ? -30 : activeCard === 2 ? 30 : 80
                             }}
                             transition={{ type: "spring", stiffness: 100, damping: 20 }}
                         >
@@ -106,7 +105,7 @@ export const StickyScroll = () => {
                     </div>
                 </div>
 
-                {/* RIGHT COLUMN: Table Hierarchy */}
+                {/* RIGHT COLUMN: Reverted to Original Design */}
                 <div className="flex flex-col divide-y divide-white/10">
                     <div className="p-8 pb-12 grid grid-cols-12 gap-4">
                         <div className="col-span-10">
@@ -130,14 +129,18 @@ export const StickyScroll = () => {
                                 }}
                             >
                                 <div className="flex items-start gap-8">
+                                    {/* REVERTED: Original Number Box Styling */}
                                     <div className={cn(
                                         "flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-[3px] text-[12px] font-bold transition-all duration-500",
-                                        isActive ? "bg-orange-500 text-black shadow-[0_0_15px_rgba(249,115,22,0.4)]" : "border border-zinc-800 text-zinc-700"
+                                        isActive
+                                            ? "bg-white text-black"
+                                            : "border border-zinc-800 text-zinc-700"
                                     )}>
                                         {item.number}
                                     </div>
 
                                     <div className="flex-1">
+                                        {/* REVERTED: Original Typography */}
                                         <h2 className={cn(
                                             "text-3xl md:text-[42px] font-medium tracking-tight mb-4 transition-all duration-500",
                                             isActive ? "text-white" : "text-zinc-800"
@@ -161,17 +164,20 @@ export const StickyScroll = () => {
                                         </motion.div>
                                     </div>
 
+                                    {/* REVERTED: Original White Dot Indicator */}
                                     <div className={cn(
                                         "w-2.5 h-2.5 rounded-full mt-4 transition-all duration-500",
-                                        isActive ? "bg-orange-500 shadow-[0_0_15px_rgba(249,115,22,0.8)]" : "bg-zinc-800 opacity-20"
+                                        isActive
+                                            ? "bg-white shadow-[0_0_15px_rgba(255,255,255,0.8)]"
+                                            : "bg-zinc-800 opacity-20"
                                     )} />
                                 </div>
                             </motion.div>
                         );
                     })}
 
-                    {/* Optimized Bottom Padding */}
-                    <div className="h-[15rem]" />
+                    {/* REDUCED: Minimal Spacer for Step 4 focus */}
+                    <div className="h-[5rem]" />
                 </div>
             </motion.div>
         </div>
@@ -181,14 +187,14 @@ export const StickyScroll = () => {
 const StickyVisual = ({ activeIndex }: { activeIndex: number }) => {
     return (
         <div className="relative w-full h-full flex items-center justify-center">
-            {/* Branded Marker Squares */}
+            {/* ORANGE BRANDED MARKER BADGE (Updated Colors) */}
             <AnimatePresence>
                 <motion.div
                     key={`marker-${activeIndex}`}
                     initial={{ opacity: 0, scale: 0.8 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0 }}
-                    className="absolute z-20 w-8 h-8 bg-zinc-800 border border-orange-500/30 rounded-md flex items-center justify-center text-orange-500 text-[12px] font-bold shadow-lg shadow-orange-950/20"
+                    className="absolute z-20 w-8 h-8 bg-zinc-800 border border-orange-500/30 rounded-md flex items-center justify-center text-orange-500 text-[12px] font-bold shadow-lg"
                     style={{
                         top: activeIndex === 0 ? "15%" : activeIndex === 1 ? "35%" : "65%",
                         right: activeIndex === 0 ? "15%" : activeIndex === 1 ? "75%" : "25%"
@@ -220,7 +226,6 @@ const SpiralChain = ({ activeIndex }: { activeIndex: number }) => {
     return (
         <svg viewBox="0 0 400 400" className="w-[110%] h-[110%] drop-shadow-[0_20px_50px_rgba(249,115,22,0.15)]">
             <defs>
-                {/* BRANDED ORANGE GRADIENTS */}
                 <radialGradient id="sphereGradOrange" cx="30%" cy="30%" r="70%">
                     <stop offset="0%" stopColor="#ffedd5" />
                     <stop offset="40%" stopColor="#f97316" />
@@ -283,7 +288,7 @@ const SpiralChain = ({ activeIndex }: { activeIndex: number }) => {
     );
 };
 
-// PRESERVED EMPTY PLACEHOLDERS TO MEET "NEVER REMOVE A LINE" REQUIREMENT
+// PRESERVED PLACEHOLDERS
 const InputVisual = () => <div />;
 const AnalyzeVisual = () => <div />;
 const FocusVisual = () => <div />;
