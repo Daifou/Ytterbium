@@ -10,6 +10,7 @@ import { PricingSection } from './PricingSection';
 import { authService } from '../services/authService';
 import { useSubscription } from '../hooks/useSubscription';
 import { Logo } from './Logo';
+import { StickyScroll } from './StickyScroll';
 
 interface LandingPageProps {
     onEnter: (data: any) => void;
@@ -254,6 +255,9 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
                     </AnimatePresence>
                 </AnimatePresence>
             </div>
+
+            {/* Sticky Scroll Section - Between AI Input and Pricing */}
+            {stage === 'hero' && <StickyScroll />}
 
             {/* Pricing Section (Accessible via Scroll / Anchor) */}
             {stage === 'hero' && (
