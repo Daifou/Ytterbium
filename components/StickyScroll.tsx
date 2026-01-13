@@ -51,118 +51,117 @@ export const StickyScroll = () => {
     });
 
     return (
-        <motion.div
-            className="h-[45rem] overflow-y-auto bg-[#09090b] relative"
-            ref={ref}
-            style={{
-                scrollbarWidth: 'none',
-                msOverflowStyle: 'none',
-            }}
-        >
-            <style>
-                {`div::-webkit-scrollbar { display: none; }`}
-            </style>
+        <div className="flex justify-center py-10 bg-[#09090b]">
+            <div className="max-w-6xl w-full mx-auto px-4">
+                {/* 
+                  The "Box" Container 
+                  This is the scrollable viewport.
+                */}
+                <motion.div
+                    className="h-[40rem] overflow-y-auto border border-white/10 bg-[#09090b] rounded-sm shadow-2xl relative grid grid-cols-1 md:grid-cols-2"
+                    ref={ref}
+                    style={{
+                        scrollbarWidth: 'none',
+                        msOverflowStyle: 'none',
+                    }}
+                >
+                    <style>
+                        {`div::-webkit-scrollbar { display: none; }`}
+                    </style>
 
-            {/* The "Locked" Viewport - Centered perfectly */}
-            <div className="sticky top-0 h-full w-full flex items-center justify-center py-10">
-                <div className="max-w-6xl w-full mx-auto px-4">
-
-                    {/* Unified Grid Container */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 border border-white/10 bg-[#09090b] rounded-sm shadow-2xl overflow-hidden">
-
-                        {/* LEFT COLUMN: Visual (Sticky Context) */}
-                        <div className="hidden md:flex flex-col items-center justify-center border-r border-white/10 p-12 bg-[#0d0d0e] relative min-h-[400px]">
-                            {/* Technical Header inside Grid */}
-                            <div className="absolute top-6 left-6 flex items-center gap-2">
+                    {/* LEFT COLUMN: Visual (Sticky) */}
+                    {/* sticky top-0 keeps it pinned to the top of the SCROLL CONTAINER */}
+                    <div className="hidden md:flex flex-col sticky top-0 h-full border-r border-white/10 bg-[#0d0d0e]">
+                        <div className="relative h-full flex items-center justify-center p-12 min-h-[40rem]">
+                            {/* Technical Header */}
+                            <div className="absolute top-6 left-6 flex items-center gap-2 z-10">
                                 <div className="w-1.5 h-1.5 rounded-full bg-zinc-700" />
                                 <span className="text-[10px] uppercase tracking-widest text-zinc-500 font-medium">System Calibration</span>
                             </div>
 
                             <StickyVisual activeIndex={activeCard} />
                         </div>
-
-                        {/* RIGHT COLUMN: Steps "Table" */}
-                        <div className="flex flex-col divide-y divide-white/10 bg-[#09090b]">
-                            {/* Header Row (Optional "ProSE" style header) */}
-                            <div className="p-6 flex justify-between items-center text-[10px] text-zinc-600 uppercase tracking-widest font-medium border-b border-white/10 bg-zinc-900/20">
-                                <span>Sequence Protocol</span>
-                                <span>Rev 2.0</span>
-                            </div>
-
-                            {content.map((item, index) => {
-                                const isActive = activeCard === index;
-                                return (
-                                    <motion.div
-                                        key={item.title + index}
-                                        initial={{ opacity: 0.3 }}
-                                        animate={{
-                                            opacity: isActive ? 1 : 0.3,
-                                            backgroundColor: isActive ? 'rgba(255,255,255,0.02)' : 'transparent'
-                                        }}
-                                        transition={{ duration: 0.3 }}
-                                        className="relative p-8 flex flex-col justify-center transition-all duration-500"
-                                    >
-                                        <div className="flex items-start gap-6">
-                                            {/* Step Number Box */}
-                                            <div className={cn(
-                                                "flex-shrink-0 w-10 h-10 flex items-center justify-center rounded border text-sm font-semibold transition-all duration-500",
-                                                isActive
-                                                    ? "bg-white text-black border-white"
-                                                    : "bg-transparent text-zinc-600 border-zinc-800"
-                                            )}>
-                                                {item.number}
-                                            </div>
-
-                                            <div className="flex-1 pt-1">
-                                                {/* Title */}
-                                                <h2 className={cn(
-                                                    "text-xl font-medium tracking-tight mb-2 transition-colors duration-300",
-                                                    isActive ? "text-white" : "text-zinc-500"
-                                                )}>
-                                                    {item.title}
-                                                </h2>
-
-                                                {/* Accordion Description */}
-                                                <motion.div
-                                                    initial={false}
-                                                    animate={{
-                                                        height: isActive ? "auto" : 0,
-                                                        opacity: isActive ? 1 : 0,
-                                                        marginTop: isActive ? 8 : 0
-                                                    }}
-                                                    transition={{ duration: 0.4, ease: [0.04, 0.62, 0.23, 0.98] }}
-                                                    className="overflow-hidden"
-                                                >
-                                                    <p className="text-sm text-zinc-400 leading-relaxed max-w-sm">
-                                                        {item.description}
-                                                    </p>
-                                                </motion.div>
-                                            </div>
-
-                                            {/* Active Indicator Dot */}
-                                            <div className={cn(
-                                                "w-2 h-2 rounded-full mt-2 transition-all duration-300",
-                                                isActive ? "bg-white shadow-[0_0_8px_rgba(255,255,255,0.5)]" : "bg-zinc-800"
-                                            )} />
-                                        </div>
-                                    </motion.div>
-                                );
-                            })}
-
-                            {/* Filler row to maintain grid balance if needed */}
-                            <div className="flex-grow bg-[#09090b]" />
-                        </div>
                     </div>
-                </div>
+
+                    {/* RIGHT COLUMN: Steps "Table" (Scrollable Content) */}
+                    <div className="flex flex-col divide-y divide-white/10 bg-[#09090b]">
+                        {/* Header Row */}
+                        <div className="p-6 flex justify-between items-center text-[10px] text-zinc-600 uppercase tracking-widest font-medium border-b border-white/10 bg-zinc-900/20 sticky top-0 z-20 backdrop-blur-md"> {/* Sticky header relative to list? Added z-20 and backdrop-blur */}
+                            <span>Sequence Protocol</span>
+                            <span>Rev 2.0</span>
+                        </div>
+
+                        {content.map((item, index) => {
+                            const isActive = activeCard === index;
+                            return (
+                                <motion.div
+                                    key={item.title + index}
+                                    initial={{ opacity: 0.3 }}
+                                    animate={{
+                                        opacity: isActive ? 1 : 0.3,
+                                        backgroundColor: isActive ? 'rgba(255,255,255,0.02)' : 'transparent'
+                                    }}
+                                    transition={{ duration: 0.3 }}
+                                    className="relative p-10 flex flex-col justify-center min-h-[20rem] transition-all duration-500" // Increased min-h to 20rem for better scroll feel
+                                >
+                                    <div className="flex items-start gap-6">
+                                        {/* Step Number */}
+                                        <div className={cn(
+                                            "flex-shrink-0 w-10 h-10 flex items-center justify-center rounded border text-sm font-semibold transition-all duration-500",
+                                            isActive
+                                                ? "bg-white text-black border-white"
+                                                : "bg-transparent text-zinc-600 border-zinc-800"
+                                        )}>
+                                            {item.number}
+                                        </div>
+
+                                        <div className="flex-1 pt-1">
+                                            <h2 className={cn(
+                                                "text-xl font-medium tracking-tight mb-2 transition-colors duration-300",
+                                                isActive ? "text-white" : "text-zinc-500"
+                                            )}>
+                                                {item.title}
+                                            </h2>
+
+                                            {/* Accordion Description */}
+                                            <motion.div
+                                                initial={false}
+                                                animate={{
+                                                    height: isActive ? "auto" : 0,
+                                                    opacity: isActive ? 1 : 0,
+                                                    marginTop: isActive ? 8 : 0
+                                                }}
+                                                transition={{ duration: 0.4 }}
+                                                className="overflow-hidden"
+                                            >
+                                                <p className="text-sm text-zinc-400 leading-relaxed max-w-sm">
+                                                    {item.description}
+                                                </p>
+                                            </motion.div>
+                                        </div>
+
+                                        {/* Indicator */}
+                                        <div className={cn(
+                                            "w-2 h-2 rounded-full mt-2 transition-all duration-300",
+                                            isActive ? "bg-white shadow-[0_0_8px_rgba(255,255,255,0.5)]" : "bg-zinc-800"
+                                        )} />
+                                    </div>
+                                </motion.div>
+                            );
+                        })}
+                        {/* Spacer at the bottom to ensure the last item can trigger the end state and scroll fully */}
+                        <div className="h-[20rem]" />
+                    </div>
+                </motion.div>
             </div>
-        </motion.div>
+        </div>
     );
 };
 
-// Adapted StickyVisual that accepts an integer index and uses layout animations/springs
+// Adapted StickyVisual - Preserved
 const StickyVisual = ({ activeIndex }: { activeIndex: number }) => {
     return (
-        <div className="relative w-full h-full flex items-center justify-center bg-[#09090b]">
+        <div className="relative w-full h-full flex items-center justify-center">
             <div className="relative w-full max-w-[20rem] aspect-square flex items-center justify-center">
 
                 {/* Background Glow */}
@@ -179,10 +178,9 @@ const StickyVisual = ({ activeIndex }: { activeIndex: number }) => {
                 <motion.svg
                     viewBox="0 0 400 400"
                     className="w-full h-full"
-                    animate={{ rotate: activeIndex * 90 }} // Rotate 90deg per step
+                    animate={{ rotate: activeIndex * 90 }}
                     transition={{ type: "spring", stiffness: 50, damping: 20 }}
                 >
-                    {/* Outer Ring */}
                     <ellipse
                         cx="200"
                         cy="200"
@@ -194,9 +192,8 @@ const StickyVisual = ({ activeIndex }: { activeIndex: number }) => {
                         opacity="0.5"
                     />
 
-                    {/* Inner Rotating Spheres Group */}
                     <motion.g
-                        animate={{ rotate: -(activeIndex * 90) * 2 }} // Counter-rotate
+                        animate={{ rotate: -(activeIndex * 90) * 2 }}
                         transition={{ type: "spring", stiffness: 50, damping: 20 }}
                         style={{ originX: "200px", originY: "200px" }}
                     >
@@ -206,7 +203,6 @@ const StickyVisual = ({ activeIndex }: { activeIndex: number }) => {
                         <circle cx="140" cy="200" r="12" fill="url(#sphereGradient4)" />
                     </motion.g>
 
-                    {/* Center Core */}
                     <motion.circle
                         cx="200"
                         cy="200"
@@ -216,7 +212,6 @@ const StickyVisual = ({ activeIndex }: { activeIndex: number }) => {
                         transition={{ duration: 0.3 }}
                     />
 
-                    {/* Gradients */}
                     <defs>
                         <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="100%">
                             <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.6" />
