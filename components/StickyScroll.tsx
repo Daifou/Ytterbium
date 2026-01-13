@@ -71,7 +71,7 @@ export const StickyScroll = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 border border-white/10 bg-[#09090b] rounded-sm shadow-2xl overflow-hidden">
 
                         {/* LEFT COLUMN: Visual (Sticky Context) */}
-                        <div className="hidden md:flex flex-col items-center justify-center border-r border-white/10 p-12 bg-[#0d0d0e relative min-h-[400px]">
+                        <div className="hidden md:flex flex-col items-center justify-center border-r border-white/10 p-12 bg-[#0d0d0e] relative min-h-[400px]">
                             {/* Technical Header inside Grid */}
                             <div className="absolute top-6 left-6 flex items-center gap-2">
                                 <div className="w-1.5 h-1.5 rounded-full bg-zinc-700" />
@@ -119,7 +119,6 @@ export const StickyScroll = () => {
                                                     "text-xl font-medium tracking-tight mb-2 transition-colors duration-300",
                                                     isActive ? "text-white" : "text-zinc-500"
                                                 )}>
-                                                    {item.description.split(' ')[0]} {/* Simple way to get single word title if strictly matching ProSE, or use item.title */}
                                                     {item.title}
                                                 </h2>
 
