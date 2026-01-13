@@ -14,7 +14,7 @@ if (!supabaseAnonKey) {
 let client;
 
 if (supabaseUrl && supabaseAnonKey) {
-    client = createClient(supabaseUrl, supabaseAnonKey, {
+    client = createClient<Database>(supabaseUrl, supabaseAnonKey, {
         auth: {
             persistSession: true,
             autoRefreshToken: true,
@@ -75,6 +75,12 @@ export interface Database {
                     id: string;
                     email: string;
                     full_name: string | null;
+                    subscription_status: string;
+                    plan_type: string | null;
+                    current_period_end: string | null;
+                    is_premium: boolean;
+                    total_reserve: number;
+                    free_sessions_used: number;
                     created_at: string;
                     updated_at: string;
                 };
@@ -82,6 +88,12 @@ export interface Database {
                     id: string;
                     email: string;
                     full_name?: string | null;
+                    subscription_status?: string;
+                    plan_type?: string | null;
+                    current_period_end?: string | null;
+                    is_premium?: boolean;
+                    total_reserve?: number;
+                    free_sessions_used?: number;
                     created_at?: string;
                     updated_at?: string;
                 };
@@ -89,6 +101,12 @@ export interface Database {
                     id?: string;
                     email?: string;
                     full_name?: string | null;
+                    subscription_status?: string;
+                    plan_type?: string | null;
+                    current_period_end?: string | null;
+                    is_premium?: boolean;
+                    total_reserve?: number;
+                    free_sessions_used?: number;
                     updated_at?: string;
                 };
             };

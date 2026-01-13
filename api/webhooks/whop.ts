@@ -1,7 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
-import crypto from "crypto";
 import { logger } from "../../lib/logger";
-import { handleError, AppError } from "../../lib/errorHandler";
 
 export const config = {
     runtime: "edge",
@@ -14,13 +12,23 @@ const supabaseAdmin = createClient(
 
 const WHOP_WEBHOOK_SECRET = process.env.WHOP_WEBHOOK_SECRET!;
 
-const verifyWhopSignature = (payload: string, signature: string) => {
+async function verifyWhopSignature(payload: string, signature: string) {
     if (!WHOP_WEBHOOK_SECRET) return true;
-    const hmac = crypto.createHmac("sha256", WHOP_WEBHOOK_SECRET);
-    const digest = Buffer.from(hmac.update(payload).digest("hex"), "utf8");
-    const sig = Buffer.from(signature, "utf8");
-    return sig.length === digest.length && crypto.timingSafeEqual(sig, digest);
-};
+
+    const encoder = new TextEncoder();
+    const key = await crypto.subtle.importKey(
+        'raw',
+        encoder.encode(WHOP_WEBHOOK_SECRET),
+        { name: 'HMAC', hash: 'SHA-256' },
+        false,
+        ['sign']
+    );
+    const signedBuffer = await crypto.subtle.sign('HMAC', key, encoder.encode(payload));
+    const signedArray = Array.from(new Uint8Array(signedBuffer));
+    const hmacHex = signedArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
+    return hmacHex === signature;
+}
 
 export default async function handler(req: Request) {
     if (req.method !== "POST") {
@@ -31,8 +39,11 @@ export default async function handler(req: Request) {
         const body = await req.text();
         const signature = req.headers.get("x-whop-signature");
 
-        if (signature && !verifyWhopSignature(body, signature)) {
-            throw new AppError("Invalid signature", 401);
+        if (signature && !(await verifyWhopSignature(body, signature))) {
+            return new Response(JSON.stringify({ error: "Invalid signature" }), {
+                status: 401,
+                headers: { "Content-Type": "application/json" }
+            });
         }
 
         const event = JSON.parse(body);
@@ -99,6 +110,10 @@ export default async function handler(req: Request) {
         return new Response("OK", { status: 200 });
 
     } catch (e: any) {
-        return handleError(e);
+        logger.error("Whop Webhook Error", e);
+        return new Response(JSON.stringify({ error: e.message }), {
+            status: 500,
+            headers: { "Content-Type": "application/json" }
+        });
     }
 }
