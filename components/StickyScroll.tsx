@@ -51,7 +51,7 @@ export const StickyScroll = () => {
     });
 
     return (
-        <div className="flex justify-center py-10 bg-[#09090b]">
+        <div className="flex justify-center pt-40 pb-10 bg-[#09090b] font-['Helvetica_World','Helvetica_Neue',sans-serif] tracking-tight">
             <div className="max-w-6xl w-full mx-auto px-4">
                 {/* 
                   The "Box" Container 
@@ -86,7 +86,7 @@ export const StickyScroll = () => {
                     {/* RIGHT COLUMN: Steps "Table" (Scrollable Content) */}
                     <div className="flex flex-col divide-y divide-white/10 bg-[#09090b]">
                         {/* Header Row */}
-                        <div className="p-6 flex justify-between items-center text-[10px] text-zinc-600 uppercase tracking-widest font-medium border-b border-white/10 bg-zinc-900/20 sticky top-0 z-20 backdrop-blur-md"> {/* Sticky header relative to list? Added z-20 and backdrop-blur */}
+                        <div className="p-6 flex justify-between items-center text-[10px] text-zinc-600 uppercase tracking-widest font-medium border-b border-white/10 bg-zinc-900/20 sticky top-0 z-20 backdrop-blur-md">
                             <span>Sequence Protocol</span>
                             <span>Rev 2.0</span>
                         </div>
@@ -102,7 +102,7 @@ export const StickyScroll = () => {
                                         backgroundColor: isActive ? 'rgba(255,255,255,0.02)' : 'transparent'
                                     }}
                                     transition={{ duration: 0.3 }}
-                                    className="relative p-10 flex flex-col justify-center min-h-[20rem] transition-all duration-500" // Increased min-h to 20rem for better scroll feel
+                                    className="relative p-10 flex flex-col justify-center min-h-[20rem] transition-all duration-500"
                                 >
                                     <div className="flex items-start gap-6">
                                         {/* Step Number */}
@@ -149,8 +149,8 @@ export const StickyScroll = () => {
                                 </motion.div>
                             );
                         })}
-                        {/* Spacer at the bottom to ensure the last item can trigger the end state and scroll fully */}
-                        <div className="h-[20rem]" />
+                        {/* Spacer at the bottom - Reduced to h-24 as requested */}
+                        <div className="h-24" />
                     </div>
                 </motion.div>
             </div>
