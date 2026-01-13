@@ -1,24 +1,28 @@
 "use client";
 import React, { useRef, useState } from "react";
-import { useMotionValueEvent, useScroll, motion } from "framer-motion";
+import { useMotionValueEvent, useScroll, motion, AnimatePresence } from "framer-motion";
 import { cn } from "../lib/utils";
 
 const content = [
     {
+        number: "01",
         title: "Input",
-        description: "Describe your task and Ytterbium instantly calibrates the optimal focus environment",
+        description: "Describe your task and Ytterbium instantly calibrates the optimal focus environment.",
     },
     {
+        number: "02",
         title: "Analyze",
-        description: "AI classifies cognitive load and recommends the perfect intensity level for peak performance",
+        description: "AI classifies cognitive load and recommends the perfect intensity level for peak performance.",
     },
     {
+        number: "03",
         title: "Focus",
-        description: "Enter your personalized environment with adaptive timers and biometric rest prompts",
+        description: "Enter your personalized environment with adaptive timers and biometric rest prompts.",
     },
     {
+        number: "04",
         title: "Complete",
-        description: "Track progress through sessions and unlock deeper focus states over time",
+        description: "Track progress through sessions and unlock deeper focus states over time.",
     },
 ];
 
@@ -27,7 +31,7 @@ export const StickyScroll = () => {
     const ref = useRef<any>(null);
     const { scrollYProgress } = useScroll({
         container: ref,
-        offset: ["start start", "end end"], // Adjusted for fuller scroll coverage
+        offset: ["start start", "end end"],
     });
     const cardLength = content.length;
 
@@ -48,54 +52,108 @@ export const StickyScroll = () => {
 
     return (
         <motion.div
-            className="h-[40rem] overflow-y-auto flex justify-center relative space-x-10 rounded-md p-10 bg-[#09090b]"
+            className="h-[45rem] overflow-y-auto bg-[#09090b] relative"
             ref={ref}
             style={{
-                scrollbarWidth: 'none', /* Firefox */
-                msOverflowStyle: 'none', /* IE/Edge */
+                scrollbarWidth: 'none',
+                msOverflowStyle: 'none',
             }}
         >
             <style>
-                {`
-                /* Hide scrollbar for Chrome, Safari and Opera */
-                div::-webkit-scrollbar {
-                    display: none;
-                }
-                `}
+                {`div::-webkit-scrollbar { display: none; }`}
             </style>
 
-            {/* Visual Column (Sticky) - Placed First for Left Alignment */}
-            <div
-                className={cn(
-                    "hidden lg:block h-[30rem] w-[30rem] sticky top-10 overflow-hidden rounded-md",
-                )}
-            >
-                {/* Persistent Visual Component that morphs based on activeCard */}
-                <StickyVisual activeIndex={activeCard} />
-            </div>
+            {/* The "Locked" Viewport - Centered perfectly */}
+            <div className="sticky top-0 h-full w-full flex items-center justify-center py-10">
+                <div className="max-w-6xl w-full mx-auto px-4">
 
-            {/* Text Column (Scrollable) */}
-            <div className="div relative flex items-start px-4">
-                <div className="max-w-2xl">
-                    {content.map((item, index) => (
-                        <div key={item.title + index} className="my-20 flex flex-col justify-center min-h-[15rem]">
-                            <motion.h2
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: activeCard === index ? 1 : 0.3 }}
-                                className="text-3xl font-bold text-slate-100 mb-4"
-                            >
-                                {item.title}
-                            </motion.h2>
-                            <motion.p
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: activeCard === index ? 1 : 0.3 }}
-                                className="text-lg text-slate-300 max-w-sm leading-relaxed"
-                            >
-                                {item.description}
-                            </motion.p>
+                    {/* Unified Grid Container */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 border border-white/10 bg-[#09090b] rounded-sm shadow-2xl overflow-hidden">
+
+                        {/* LEFT COLUMN: Visual (Sticky Context) */}
+                        <div className="hidden md:flex flex-col items-center justify-center border-r border-white/10 p-12 bg-[#0d0d0e relative min-h-[400px]">
+                            {/* Technical Header inside Grid */}
+                            <div className="absolute top-6 left-6 flex items-center gap-2">
+                                <div className="w-1.5 h-1.5 rounded-full bg-zinc-700" />
+                                <span className="text-[10px] uppercase tracking-widest text-zinc-500 font-medium">System Calibration</span>
+                            </div>
+
+                            <StickyVisual activeIndex={activeCard} />
                         </div>
-                    ))}
-                    <div className="h-40" />
+
+                        {/* RIGHT COLUMN: Steps "Table" */}
+                        <div className="flex flex-col divide-y divide-white/10 bg-[#09090b]">
+                            {/* Header Row (Optional "ProSE" style header) */}
+                            <div className="p-6 flex justify-between items-center text-[10px] text-zinc-600 uppercase tracking-widest font-medium border-b border-white/10 bg-zinc-900/20">
+                                <span>Sequence Protocol</span>
+                                <span>Rev 2.0</span>
+                            </div>
+
+                            {content.map((item, index) => {
+                                const isActive = activeCard === index;
+                                return (
+                                    <motion.div
+                                        key={item.title + index}
+                                        initial={{ opacity: 0.3 }}
+                                        animate={{
+                                            opacity: isActive ? 1 : 0.3,
+                                            backgroundColor: isActive ? 'rgba(255,255,255,0.02)' : 'transparent'
+                                        }}
+                                        transition={{ duration: 0.3 }}
+                                        className="relative p-8 flex flex-col justify-center transition-all duration-500"
+                                    >
+                                        <div className="flex items-start gap-6">
+                                            {/* Step Number Box */}
+                                            <div className={cn(
+                                                "flex-shrink-0 w-10 h-10 flex items-center justify-center rounded border text-sm font-semibold transition-all duration-500",
+                                                isActive
+                                                    ? "bg-white text-black border-white"
+                                                    : "bg-transparent text-zinc-600 border-zinc-800"
+                                            )}>
+                                                {item.number}
+                                            </div>
+
+                                            <div className="flex-1 pt-1">
+                                                {/* Title */}
+                                                <h2 className={cn(
+                                                    "text-xl font-medium tracking-tight mb-2 transition-colors duration-300",
+                                                    isActive ? "text-white" : "text-zinc-500"
+                                                )}>
+                                                    {item.description.split(' ')[0]} {/* Simple way to get single word title if strictly matching ProSE, or use item.title */}
+                                                    {item.title}
+                                                </h2>
+
+                                                {/* Accordion Description */}
+                                                <motion.div
+                                                    initial={false}
+                                                    animate={{
+                                                        height: isActive ? "auto" : 0,
+                                                        opacity: isActive ? 1 : 0,
+                                                        marginTop: isActive ? 8 : 0
+                                                    }}
+                                                    transition={{ duration: 0.4, ease: [0.04, 0.62, 0.23, 0.98] }}
+                                                    className="overflow-hidden"
+                                                >
+                                                    <p className="text-sm text-zinc-400 leading-relaxed max-w-sm">
+                                                        {item.description}
+                                                    </p>
+                                                </motion.div>
+                                            </div>
+
+                                            {/* Active Indicator Dot */}
+                                            <div className={cn(
+                                                "w-2 h-2 rounded-full mt-2 transition-all duration-300",
+                                                isActive ? "bg-white shadow-[0_0_8px_rgba(255,255,255,0.5)]" : "bg-zinc-800"
+                                            )} />
+                                        </div>
+                                    </motion.div>
+                                );
+                            })}
+
+                            {/* Filler row to maintain grid balance if needed */}
+                            <div className="flex-grow bg-[#09090b]" />
+                        </div>
+                    </div>
                 </div>
             </div>
         </motion.div>
