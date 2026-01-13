@@ -106,7 +106,7 @@ export const StickyScroll = () => {
                         return (
                             <motion.div
                                 key={item.number}
-                                className="relative p-10 flex flex-col justify-center min-h-[15rem] group"
+                                className="relative p-10 flex flex-col justify-center min-h-[10rem] group"
                                 animate={{
                                     backgroundColor: isActive ? 'rgba(255,255,255,0.01)' : 'transparent'
                                 }}
@@ -134,11 +134,16 @@ export const StickyScroll = () => {
                                             initial={false}
                                             animate={{
                                                 height: isActive ? "auto" : 0,
-                                                opacity: isActive ? 1 : 0
+                                                opacity: isActive ? 1 : 0,
+                                                marginBottom: isActive ? "1rem" : "0rem"
+                                            }}
+                                            transition={{
+                                                duration: 0.5,
+                                                ease: [0.4, 0, 0.2, 1]
                                             }}
                                             className="overflow-hidden"
                                         >
-                                            <p className="text-[15px] text-zinc-500 leading-relaxed max-w-lg mb-4">
+                                            <p className="text-[15px] text-zinc-500 leading-relaxed max-w-lg">
                                                 {item.description}
                                             </p>
                                         </motion.div>
@@ -156,8 +161,8 @@ export const StickyScroll = () => {
                         );
                     })}
 
-                    {/* Bottom Padding Spacer */}
-                    <div className="h-32" />
+                    {/* Bottom Padding Spacer - crucial for scrolling to the last item */}
+                    <div className="h-[30rem]" />
                 </div>
             </motion.div>
         </div>
