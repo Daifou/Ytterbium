@@ -52,23 +52,16 @@ export const StickyScroll = () => {
     return (
         <div
             ref={containerRef}
-            className="relative h-[450vh] bg-[#050505] z-10"
+            className="relative h-[450vh] bg-[#09090b] z-10"
         >
             {/* STICKY WRAPPER: This stays fixed in the viewport while scrolling the 450vh container */}
             <div className="sticky top-0 h-screen w-full flex flex-col justify-center border-t border-b border-white/10 overflow-hidden z-20">
-                <div className="max-w-7xl mx-auto px-6 w-full">
-                    <div className="flex flex-col lg:flex-row gap-12 lg:gap-24 items-center">
+                <div className="max-w-7xl mx-auto px-6 w-full h-full flex items-center justify-center">
+                    <div className="grid grid-cols-1 lg:grid-cols-[1fr_1px_1fr] w-full items-center">
 
                         {/* LEFT SIDE: Visuals - Perfectly Locked */}
-                        <div className="w-full lg:w-1/2 flex flex-col items-center justify-center pt-8 lg:pt-0">
-                            <div className="w-full mb-6 flex items-center gap-3">
-                                <span className="text-[11px] font-semibold text-orange-500 uppercase tracking-widest">
-                                    Biological Sync: Phase {content[activeCard].number}
-                                </span>
-                                <div className="h-[1px] flex-1 bg-white/10" />
-                            </div>
-
-                            <div className="relative w-full aspect-square max-w-[400px] xl:max-w-[480px] flex items-center justify-center bg-[#09090b]/40 rounded-[48px] border border-white/5 shadow-2xl overflow-hidden">
+                        <div className="flex flex-col items-center justify-center py-12 lg:py-0">
+                            <div className="relative w-full aspect-square max-w-[380px] xl:max-w-[440px] flex items-center justify-center bg-[#0d0d0f]/40 rounded-[48px] border border-white/5 shadow-2xl overflow-hidden">
                                 {/* Technical Grid Overlay */}
                                 <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'linear-gradient(white 1px, transparent 1px), linear-gradient(90deg, white 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
 
@@ -95,8 +88,11 @@ export const StickyScroll = () => {
                             </div>
                         </div>
 
+                        {/* VERTICAL DIVIDER (Table Look) */}
+                        <div className="hidden lg:block h-[60vh] bg-white/10" />
+
                         {/* RIGHT SIDE: Text Content - Perfectly Synchronized */}
-                        <div className="w-full lg:w-1/2 flex flex-col items-start pb-12 lg:pb-0">
+                        <div className="flex flex-col items-start px-8 lg:px-24">
                             <div className="relative w-full h-[320px] lg:h-[400px] flex flex-col justify-center">
                                 {content.map((item, index) => {
                                     const isActive = activeCard === index;
@@ -122,11 +118,6 @@ export const StickyScroll = () => {
                                             <p className="text-lg lg:text-xl text-zinc-400 leading-relaxed font-light max-w-lg">
                                                 {item.description}
                                             </p>
-
-                                            <div className="mt-8 flex items-center gap-4">
-                                                <div className="h-[2px] w-12 bg-orange-500/50" />
-                                                <span className="text-[10px] text-zinc-600 uppercase tracking-widest font-bold">Resonance Locked</span>
-                                            </div>
                                         </div>
                                     );
                                 })}
