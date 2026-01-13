@@ -58,8 +58,8 @@ export default async function handler(req: Request) {
         }
 
         switch (action) {
-            case "membership.activated":
-            case "membership.renewed":
+            case "membership_activated":
+            case "membership_renewed":
                 await supabaseAdmin.from('profiles').update({
                     subscription_status: 'active',
                     plan_type: data.plan?.name || 'premium',
@@ -69,13 +69,27 @@ export default async function handler(req: Request) {
                 logger.info(`Subscription activated/renewed for user`, { profileId, email });
                 break;
 
-            case "membership.deactivated":
-            case "membership.expired":
+            case "membership_deactivated":
+            case "membership_expired":
                 await supabaseAdmin.from('profiles').update({
                     subscription_status: 'expired',
                     is_premium: false
                 }).eq('id', profileId);
                 logger.info(`Subscription deactivated for user`, { profileId, email });
+                break;
+
+            case "invoice_paid":
+            case "payment_succeeded":
+                await supabaseAdmin.from('profiles').update({ is_premium: true }).eq('id', profileId);
+                logger.info(`Payment succeeded for user`, { profileId, email });
+                break;
+
+            case "refund_created":
+                await supabaseAdmin.from('profiles').update({
+                    subscription_status: 'refunded',
+                    is_premium: false
+                }).eq('id', profileId);
+                logger.info(`Refund processed for user`, { profileId, email });
                 break;
 
             default:
