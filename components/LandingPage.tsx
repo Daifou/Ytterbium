@@ -223,7 +223,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
                                             animate={{ opacity: 1, y: 0 }}
                                             transition={{ delay: 1 + (i * 0.1), duration: 0.4 }}
                                             onClick={() => setTask(label)}
-                                            className="px-6 py-2.5 rounded-full border border-white/5 bg-white/5 hover:bg-white/10 text-white/60 hover:text-white transition-all duration-300 backdrop-blur-md flex items-center gap-2 text-xs md:text-sm shadow-sm"
+                                            className="px-4 py-1.5 rounded-full border border-white/5 bg-white/5 hover:bg-white/10 text-white/60 hover:text-white transition-all duration-300 backdrop-blur-md flex items-center gap-2 text-xs md:text-sm shadow-sm"
                                         >
                                             <span className="font-medium tracking-tight">{label}</span>
                                         </motion.button>
