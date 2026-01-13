@@ -5,22 +5,22 @@ import { cn } from "../lib/utils";
 
 const content = [
     {
-        number: "01",
+        number: "1",
         title: "Sample Preparation",
-        description: "To prepare samples for Ytterbium™, proteins and peptides are first functionalized by attaching an initiating linker to one terminus of each peptide chain.",
+        description: "To prepare samples for ProSE, proteins and peptides are first functionalized by attaching an initiating linker to one terminus of each peptide chain.",
     },
     {
-        number: "02",
+        number: "2",
         title: "Molecular Expansion",
         description: "Each amino acid is then sequentially added and uniformly spaced along the linker in its original order, constructing a stable molecular sequence.",
     },
     {
-        number: "03",
-        title: "Vertical Transport",
+        number: "3",
+        title: "Amino Acid Sequencing",
         description: "Assembled molecules pass through the neural plate, where distinct electrical signatures from each unit reveal the protein's complete sequence.",
     },
     {
-        number: "04",
+        number: "4",
         title: "Sequence Completion",
         description: "Review metadata and performance logs. Each completed cycle strengthens your focus architecture, unlocking deeper states for future sessions.",
     },
@@ -39,7 +39,6 @@ export const StickyScroll = () => {
     const cardLength = content.length;
 
     useMotionValueEvent(scrollYProgress, "change", (latest) => {
-        // Divide the [0, 1] scroll range into 4 chunks
         const index = Math.min(
             Math.floor(latest * cardLength),
             cardLength - 1
@@ -52,229 +51,297 @@ export const StickyScroll = () => {
     return (
         <div
             ref={containerRef}
-            className="relative h-[450vh] bg-[#09090b] z-10"
+            className="relative h-[450vh] bg-[#09090b] z-10 font-sans"
         >
-            {/* STICKY WRAPPER: This stays fixed in the viewport while scrolling the 450vh container */}
-            <div className="sticky top-0 h-screen w-full flex flex-col justify-center border-t border-b border-white/10 overflow-hidden z-20">
-                <div className="max-w-7xl mx-auto px-6 w-full h-full flex items-center justify-center">
-                    <div className="grid grid-cols-1 lg:grid-cols-[1fr_1px_1fr] w-full items-center">
+            {/* STICKY WRAPPER: Instrument Panel Frame */}
+            <div className="sticky top-0 h-screen w-full flex flex-col justify-center overflow-hidden z-20">
+                <div className="max-w-[1400px] mx-auto w-full h-[85vh] border border-white/10 bg-[#09090b] flex flex-col shadow-2xl relative">
 
-                        {/* LEFT SIDE: Visuals - Perfectly Locked */}
-                        <div className="flex flex-col items-center justify-center py-12 lg:py-0">
-                            <div className="relative w-full aspect-square max-w-[380px] xl:max-w-[440px] flex items-center justify-center bg-[#0d0d0f]/40 rounded-[48px] border border-white/5 shadow-2xl overflow-hidden">
-                                {/* Technical Grid Overlay */}
-                                <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'linear-gradient(white 1px, transparent 1px), linear-gradient(90deg, white 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
+                    {/* INSTRUMENT HEADER ROW */}
+                    <div className="h-16 border-b border-white/10 flex divide-x divide-white/10 text-[11px] font-medium tracking-tighter uppercase text-white/50">
+                        <div className="w-16 flex items-center justify-center text-white">1</div>
+                        <div className="flex-1 flex items-center justify-center gap-2">
+                            <span className="text-white">●</span> Technology
+                        </div>
+                        <div className="flex-[2] flex items-center px-8 normal-case tracking-normal text-white/40">
+                            ProSE™ will revolutionize proteomics by delivering unprecedented precision, scalability, and accessibility.
+                        </div>
+                        <div className="w-24 flex items-center justify-center">2026</div>
+                    </div>
+
+                    {/* MAIN CONTENT GRID */}
+                    <div className="flex-1 flex divide-x divide-white/10 overflow-hidden">
+
+                        {/* LEFT COLUMN: Visuals (Locked) */}
+                        <div className="flex-1 relative flex items-center justify-center bg-[#09090b] p-12">
+                            {/* Decorative Dots */}
+                            {[...Array(4)].map((_, i) => (
+                                <div
+                                    key={i}
+                                    className={cn(
+                                        "absolute w-2 h-2 rounded-full border border-white/20",
+                                        i === 0 && "top-10 left-10",
+                                        i === 1 && "top-10 right-10",
+                                        i === 2 && "bottom-10 left-10",
+                                        i === 3 && "bottom-10 right-10"
+                                    )}
+                                />
+                            ))}
+
+                            <div className="relative w-full aspect-square max-w-[500px] flex items-center justify-center">
+                                {/* Technical Badge Indicator */}
+                                <div className="absolute top-10 right-10 w-9 h-9 rounded-lg bg-zinc-800/80 border border-white/10 flex items-center justify-center z-30">
+                                    <span className="text-[14px] font-bold text-white">{activeCard + 1}</span>
+                                </div>
 
                                 <AnimatePresence mode="wait">
                                     <motion.div
                                         key={activeCard}
-                                        initial={{ opacity: 0, scale: 0.85, filter: "blur(10px)" }}
+                                        initial={{ opacity: 0, scale: 0.9, filter: "blur(20px)" }}
                                         animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-                                        exit={{ opacity: 0, scale: 1.1, filter: "blur(10px)" }}
-                                        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-                                        className="w-full h-full p-10"
+                                        exit={{ opacity: 0, scale: 1.1, filter: "blur(20px)" }}
+                                        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+                                        className="w-full h-full"
                                     >
-                                        {activeCard === 0 && <Step1Visual />}
-                                        {activeCard === 1 && <Step2Visual />}
-                                        {activeCard === 2 && <Step3Visual />}
-                                        {activeCard === 3 && <Step4Visual />}
+                                        <BeadVisual step={activeCard} />
                                     </motion.div>
                                 </AnimatePresence>
-
-                                {/* Badge from user image */}
-                                <div className="absolute top-10 right-10 w-8 h-8 rounded-lg bg-zinc-900/90 border border-white/5 flex items-center justify-center shadow-lg">
-                                    <span className="text-[12px] font-bold text-white/40">{activeCard + 1}</span>
-                                </div>
                             </div>
                         </div>
 
-                        {/* VERTICAL DIVIDER (Table Look) */}
-                        <div className="hidden lg:block h-[60vh] bg-white/10" />
-
-                        {/* RIGHT SIDE: Text Content - Perfectly Synchronized */}
-                        <div className="flex flex-col items-start px-8 lg:px-24">
-                            <div className="relative w-full h-[320px] lg:h-[400px] flex flex-col justify-center">
-                                {content.map((item, index) => {
-                                    const isActive = activeCard === index;
-                                    return (
-                                        <div
-                                            key={index}
-                                            className={cn(
-                                                "absolute inset-0 flex flex-col justify-center transition-all duration-700 ease-in-out",
-                                                isActive
-                                                    ? "opacity-100 scale-100 translate-y-0"
-                                                    : "opacity-0 scale-95 translate-y-10 pointer-events-none"
-                                            )}
-                                        >
-                                            <div className="flex items-center gap-6 mb-8">
-                                                <div className="w-10 h-10 flex-shrink-0 flex items-center justify-center rounded-xl bg-orange-500 text-white text-[12px] font-bold shadow-[0_0_20px_rgba(255,77,0,0.4)]">
-                                                    {item.number}
-                                                </div>
-                                                <h2 className="text-4xl lg:text-[56px] font-medium tracking-tighter text-white leading-none">
-                                                    {item.title}
-                                                </h2>
-                                            </div>
-
-                                            <p className="text-lg lg:text-xl text-zinc-400 leading-relaxed font-light max-w-lg">
-                                                {item.description}
-                                            </p>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-
-                            {/* Pagination Indicators */}
-                            <div className="flex gap-2 mt-8 lg:mt-12">
-                                {content.map((_, i) => (
+                        {/* RIGHT COLUMN: Steps (List Expansion) */}
+                        <div className="flex-1 flex flex-col items-start bg-[#09090b] overflow-hidden">
+                            {content.map((item, index) => {
+                                const isActive = activeCard === index;
+                                return (
                                     <div
-                                        key={i}
+                                        key={index}
                                         className={cn(
-                                            "h-1 transition-all duration-500 rounded-full",
-                                            activeCard === i ? "w-8 bg-orange-500" : "w-4 bg-zinc-800"
+                                            "w-full border-b border-white/10 transition-all duration-700 ease-in-out p-8 lg:p-12",
+                                            isActive ? "bg-white/[0.02]" : "opacity-30 grayscale hover:opacity-50"
                                         )}
-                                    />
-                                ))}
-                            </div>
+                                    >
+                                        <div className="flex items-center gap-6">
+                                            <div className={cn(
+                                                "w-10 h-10 flex-shrink-0 flex items-center justify-center rounded-lg text-[14px] font-bold transition-colors duration-500",
+                                                isActive ? "bg-white text-black" : "border border-white/20 text-white"
+                                            )}>
+                                                {item.number}
+                                            </div>
+                                            <h2 className="text-3xl lg:text-4xl font-medium tracking-tighter text-white">
+                                                {item.title}
+                                            </h2>
+                                            {isActive && (
+                                                <motion.div
+                                                    initial={{ scale: 0 }}
+                                                    animate={{ scale: 1 }}
+                                                    className="w-2 h-2 rounded-full bg-white ml-auto"
+                                                />
+                                            )}
+                                        </div>
+
+                                        <AnimatePresence>
+                                            {isActive && (
+                                                <motion.div
+                                                    initial={{ height: 0, opacity: 0, marginTop: 0 }}
+                                                    animate={{ height: "auto", opacity: 1, marginTop: 24 }}
+                                                    exit={{ height: 0, opacity: 0, marginTop: 0 }}
+                                                    transition={{ duration: 0.5, ease: "circOut" }}
+                                                    className="overflow-hidden"
+                                                >
+                                                    <p className="text-lg text-white/50 leading-relaxed font-light max-w-xl tracking-tight">
+                                                        {item.description}
+                                                    </p>
+                                                </motion.div>
+                                            )}
+                                        </AnimatePresence>
+                                    </div>
+                                );
+                            })}
                         </div>
                     </div>
+
+                    {/* Footer Info Row (Optional style refinement) */}
+                    <div className="h-4 border-t border-white/5 bg-white/[0.01]" />
                 </div>
             </div>
         </div>
     );
 };
 
-/* --- MOLECULAR SVG COMPONENTS (Orange Theme) --- */
+/* --- UNIFIED MOLECULAR BEAD VISUALS --- */
 
-const Step1Visual = () => (
-    <svg viewBox="0 0 400 400" className="w-full h-full drop-shadow-[0_0_25px_rgba(255,77,0,0.2)]">
-        <defs>
-            <radialGradient id="beadGrad" cx="30%" cy="30%" r="70%">
-                <stop offset="0%" stopColor="#ff9a66" />
-                <stop offset="60%" stopColor="#FF4D00" />
-                <stop offset="100%" stopColor="#992e00" />
-            </radialGradient>
-        </defs>
-        {/* "C" Shape Molecular String */}
-        {[...Array(15)].map((_, i) => {
-            const angle = (i / 14) * Math.PI * 1.4 - 0.3;
-            const r = 115;
-            return (
-                <motion.circle
-                    key={i}
-                    cx={200 + Math.cos(angle) * r}
-                    cy={200 + Math.sin(angle) * r}
-                    r={20}
-                    fill="url(#beadGrad)"
-                    initial={{ opacity: 0, scale: 0 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: i * 0.04 }}
+const BeadVisual = ({ step }: { step: number }) => {
+    return (
+        <svg viewBox="0 0 400 400" className="w-full h-full drop-shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
+            <defs>
+                <radialGradient id="beadLight" cx="30%" cy="30%" r="70%">
+                    <stop offset="0%" stopColor="#ffffff" />
+                    <stop offset="20%" stopColor="#e2e8f0" />
+                    <stop offset="100%" stopColor="#94a3b8" />
+                </radialGradient>
+                <radialGradient id="beadAccent" cx="35%" cy="35%" r="70%">
+                    <stop offset="0%" stopColor="#fff7ed" />
+                    <stop offset="30%" stopColor="#ffedd5" />
+                    <stop offset="100%" stopColor="#fdba74" />
+                </radialGradient>
+                {/* 3D Pearl style for the image reference */}
+                <radialGradient id="pearl" cx="35%" cy="35%" r="50%">
+                    <stop offset="0%" stopColor="#ffffff" />
+                    <stop offset="100%" stopColor="#b2c0cb" />
+                </radialGradient>
+                <radialGradient id="pearlMint" cx="35%" cy="35%" r="50%">
+                    <stop offset="0%" stopColor="#f0fdf4" />
+                    <stop offset="100%" stopColor="#bbf7d0" />
+                </radialGradient>
+                <radialGradient id="pearlIvory" cx="35%" cy="35%" r="50%">
+                    <stop offset="0%" stopColor="#fffbeb" />
+                    <stop offset="100%" stopColor="#fde68a" />
+                </radialGradient>
+            </defs>
+
+            {step === 0 && <Step1Beads />}
+            {step === 1 && <Step2Beads />}
+            {step === 2 && <Step3Beads />}
+            {step === 3 && <Step4Beads />}
+        </svg>
+    );
+};
+
+// C-Curve Cluster (from image)
+const Step1Beads = () => {
+    const beads = [...Array(14)];
+    return (
+        <g>
+            {/* Cubelet Tail */}
+            {[...Array(8)].map((_, i) => (
+                <motion.rect
+                    key={`cube-${i}`}
+                    x={200 + i * 20}
+                    y={120 - i * 5}
+                    width={18} height={18} rx={4}
+                    fill="#e2e8f0" fillOpacity={0.8}
+                    initial={{ opacity: 0, x: 250 }}
+                    animate={{ opacity: 1, x: 180 + i * 20 }}
+                    transition={{ delay: i * 0.05 }}
+                    style={{ rotate: "-15deg" }}
                 />
-            );
-        })}
-        {/* Floating Components */}
-        <motion.circle cx="100" cy="100" r="4" fill="white" fillOpacity="0.2" animate={{ y: [0, -10, 0] }} transition={{ repeat: Infinity, duration: 3 }} />
-        <motion.circle cx="280" cy="320" r="3" fill="white" fillOpacity="0.2" animate={{ y: [0, 10, 0] }} transition={{ repeat: Infinity, duration: 4 }} />
-    </svg>
-);
-
-const Step2Visual = () => (
-    <svg viewBox="0 0 400 400" className="w-full h-full drop-shadow-[0_0_25px_rgba(255,77,0,0.2)]">
-        {/* Spiral Expansion */}
-        {[...Array(30)].map((_, i) => {
-            const angle = (i / 29) * Math.PI * 5;
-            const r = 25 + i * 5.5;
-            const isBead = i % 4 === 0;
-            return (
-                <motion.circle
-                    key={i}
-                    cx={200 + Math.cos(angle) * r}
-                    cy={200 + Math.sin(angle) * r}
-                    r={isBead ? 14 : 6}
-                    fill={isBead ? "url(#beadGrad)" : "rgba(255,255,255,0.08)"}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: i * 0.02 }}
-                />
-            );
-        })}
-    </svg>
-);
-
-const Step3Visual = () => (
-    <svg viewBox="0 0 400 400" className="w-full h-full drop-shadow-[0_0_25px_rgba(255,77,0,0.2)]">
-        {/* Neural Plate - High Def */}
-        <motion.rect
-            x="80" y="140" width="240" height="120"
-            rx="32"
-            fill="rgba(255,255,255,0.02)"
-            stroke="white"
-            strokeOpacity="0.1"
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-        />
-        {/* Transport Strings */}
-        {[...Array(4)].map((_, col) => (
-            <g key={col}>
-                {[...Array(8)].map((_, i) => (
+            ))}
+            {/* Main C-Curve */}
+            {beads.map((_, i) => {
+                const angle = (i / beads.length) * Math.PI * 1.5 + 0.5;
+                const r = 130;
+                const colors = ["url(#pearl)", "url(#pearlMint)", "url(#pearlIvory)"];
+                return (
                     <motion.circle
                         key={i}
-                        cx={140 + col * 40}
-                        cy={60 + i * 40}
-                        r={12}
-                        fill={i === 3 ? "url(#beadGrad)" : "rgba(255,255,255,0.04)"}
-                        animate={{ y: [0, 40] }}
-                        transition={{ repeat: Infinity, duration: 1.5, ease: "linear", delay: col * 0.3 }}
+                        cx={200 + Math.cos(angle) * r}
+                        cy={200 + Math.sin(angle) * r}
+                        r={28 - i * 0.5}
+                        fill={colors[i % 3]}
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ delay: i * 0.03, type: "spring" }}
                     />
-                ))}
-            </g>
-        ))}
-    </svg>
-);
+                );
+            })}
+        </g>
+    );
+};
 
-const Step4Visual = () => (
-    <svg viewBox="0 0 400 400" className="w-full h-full drop-shadow-[0_0_25px_rgba(255,77,0,0.2)]">
-        {/* Neural Network Completion */}
-        <motion.circle
-            cx="200" cy="200" r="120"
-            fill="none" stroke="white" strokeOpacity="0.05"
-            strokeDasharray="4 12"
-            animate={{ rotate: 360 }}
-            transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
-        />
-        <motion.circle
-            cx="200" cy="200" r="80"
-            fill="none" stroke="#FF4D00" strokeOpacity="0.2"
-            strokeDasharray="1 10"
-            animate={{ rotate: -360 }}
-            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-        />
-        {[...Array(6)].map((_, i) => {
-            const angle = (i / 6) * Math.PI * 2;
-            return (
-                <motion.g key={i}>
-                    <line
-                        x1="200" y1="200"
-                        x2={200 + Math.cos(angle) * 100}
-                        y2={200 + Math.sin(angle) * 100}
-                        stroke="white" strokeOpacity="0.1"
-                    />
+// Linear Expansion Cluster
+const Step2Beads = () => {
+    return (
+        <g>
+            {[...Array(12)].map((_, i) => (
+                <motion.circle
+                    key={i}
+                    cx={100 + i * 25}
+                    cy={200 + Math.sin(i * 0.5) * 30}
+                    r={24}
+                    fill={i % 2 === 0 ? "url(#pearlMint)" : "url(#pearl)"}
+                    initial={{ opacity: 0, x: -50 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: i * 0.04 }}
+                />
+            ))}
+            {[...Array(6)].map((_, i) => (
+                <motion.rect
+                    key={`c-${i}`}
+                    x={120 + i * 40} y={150} width={14} height={14} rx={3}
+                    fill="#cbd5e1"
+                    animate={{ y: [0, -10, 0] }}
+                    transition={{ repeat: Infinity, duration: 2, delay: i * 0.2 }}
+                />
+            ))}
+        </g>
+    );
+};
+
+// S-Curve Gate (Transport)
+const Step3Beads = () => {
+    return (
+        <g>
+            {/* The "Gate" */}
+            <motion.rect
+                x="195" y="100" width="10" height="200" rx="5"
+                fill="white" fillOpacity="0.05"
+            />
+            {[...Array(16)].map((_, i) => {
+                const angle = (i / 15) * Math.PI * 2;
+                const x = 200 + Math.sin(angle) * 120;
+                const y = 80 + i * 18;
+                return (
                     <motion.circle
-                        cx={200 + Math.cos(angle) * 100}
-                        cy={200 + Math.sin(angle) * 100}
-                        r="18"
-                        fill="url(#beadGrad)"
-                        animate={{ y: [0, -10, 0] }}
-                        transition={{ duration: 2, delay: i * 0.3, repeat: Infinity }}
+                        key={i}
+                        cx={x} cy={y}
+                        r={22}
+                        fill={i > 8 ? "url(#pearlMint)" : "url(#pearlIvory)"}
+                        initial={{ opacity: 0, scale: 0 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: i * 0.03 }}
+                    />
+                );
+            })}
+        </g>
+    );
+};
+
+// Completed Architecture Bloom
+const Step4Beads = () => {
+    return (
+        <g>
+            <motion.circle
+                cx="200" cy="200" r="140"
+                fill="none" stroke="white" strokeOpacity="0.05" strokeWidth="1" strokeDasharray="10 20"
+                animate={{ rotate: 360 }}
+                transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
+            />
+            {[0, 60, 120, 180, 240, 300].map((angle, i) => (
+                <motion.g key={i} animate={{ rotate: [0, 5, 0] }} transition={{ repeat: Infinity, duration: 4, delay: i * 0.5 }}>
+                    <motion.circle
+                        cx={200 + Math.cos((angle * Math.PI) / 180) * 100}
+                        cy={200 + Math.sin((angle * Math.PI) / 180) * 100}
+                        r={35}
+                        fill="url(#pearl)"
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ delay: i * 0.1 }}
+                    />
+                    <circle
+                        cx={200 + Math.cos((angle * Math.PI) / 180) * 100}
+                        cy={200 + Math.sin((angle * Math.PI) / 180) * 100}
+                        r={12}
+                        fill="white" fillOpacity="0.2"
                     />
                 </motion.g>
-            );
-        })}
-        <motion.circle
-            cx="200" cy="200" r="30"
-            fill="white"
-            initial={{ scale: 0.5, opacity: 0 }}
-            animate={{ scale: [1, 1.2, 1], opacity: [0.1, 0.3, 0.1] }}
-            transition={{ duration: 3, repeat: Infinity }}
-        />
-    </svg>
-);
+            ))}
+            <motion.circle
+                cx="200" cy="200" r="40"
+                fill="url(#pearlIvory)"
+                animate={{ scale: [1, 1.1, 1] }}
+                transition={{ repeat: Infinity, duration: 4 }}
+            />
+        </g>
+    );
+};

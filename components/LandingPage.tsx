@@ -121,7 +121,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
     };
 
     return (
-        <div className="min-h-screen bg-black text-white relative">
+        <div className="min-h-screen bg-[#09090b] text-white relative">
             {/* Background Elements */}
             <div className="fixed inset-0 bg-[#09090b]" />
 
