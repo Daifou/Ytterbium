@@ -27,18 +27,19 @@ const content = [
 ];
 
 export const StickyScroll = () => {
-    const [activeCard, setActiveCard] = React.useState(0);
+    const [activeCard, setActiveCard] = useState(0);
     const ref = useRef<any>(null);
     const { scrollYProgress } = useScroll({
         container: ref,
         offset: ["start start", "end end"],
     });
+
     const cardLength = content.length;
 
+    // This handles the sticky scroll indicator on the vertical border
     const borderY = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
 
     useMotionValueEvent(scrollYProgress, "change", (latest) => {
-        // SENIOR MATH FIX: Added a small offset to ensure the 'active' zone is centered
         const cardsBreakpoints = content.map((_, index) => index / cardLength);
         const closestBreakpointIndex = cardsBreakpoints.reduce(
             (acc, breakpoint, index) => {
@@ -54,40 +55,38 @@ export const StickyScroll = () => {
     });
 
     return (
-        <div className="w-full bg-[#09090b] font-['SF_Pro_Display','-apple-system',sans-serif] tracking-tight py-20">
+        <div className="w-full bg-[#09090b] py-24">
             <motion.div
-                className="h-[45rem] overflow-y-auto border-t border-b border-white/10 bg-[#09090b] relative grid grid-cols-1 md:grid-cols-2"
+                className="h-[40rem] overflow-y-auto border-t border-b border-white/10 bg-[#09090b] relative grid grid-cols-1 md:grid-cols-2"
                 ref={ref}
                 style={{
                     scrollbarWidth: 'none',
                     msOverflowStyle: 'none',
                 }}
             >
-                <style>
-                    {`div::-webkit-scrollbar { display: none; }`}
-                </style>
+                <style>{`div::-webkit-scrollbar { display: none; }`}</style>
 
-                {/* LEFT COLUMN: Visual (Sticky) */}
+                {/* LEFT COLUMN: Sticky Visual */}
                 <div className="hidden md:flex flex-col sticky top-0 h-full border-r border-white/10 overflow-hidden">
                     <motion.div
-                        className="absolute right-[-1px] top-0 w-[1px] h-32 bg-gradient-to-b from-transparent via-orange-500 to-transparent z-50 shadow-[0_0_15px_rgba(249,115,22,0.5)]"
+                        className="absolute right-[-1px] top-0 w-[1px] h-32 bg-gradient-to-b from-transparent via-orange-500 to-transparent z-50 shadow-[0_0_10px_rgba(249,115,22,0.5)]"
                         style={{ y: borderY }}
                     />
 
-                    <div className="relative h-full flex flex-col p-12 min-h-[45rem]">
+                    <div className="relative h-full flex flex-col p-12 min-h-[40rem]">
                         <div className="absolute top-8 left-8 text-[11px] font-medium text-zinc-500">1</div>
                         <div className="absolute top-8 left-1/2 -translate-x-1/2 flex items-center gap-2">
                             <div className="w-2 h-2 rounded-full bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.8)]" />
                             <span className="text-[10px] uppercase tracking-[0.2em] text-zinc-400 font-bold">Technology</span>
                         </div>
 
+                        {/* CLONE FIX: This Y translation ensures the visual stays level with the right-side active step */}
                         <motion.div
                             className="flex-1 flex items-center justify-center"
                             animate={{
-                                // Precise vertical level tracking
-                                y: activeCard === 0 ? -100 : activeCard === 1 ? -40 : activeCard === 2 ? 40 : 100
+                                y: activeCard === 0 ? -110 : activeCard === 1 ? -40 : activeCard === 2 ? 40 : 110
                             }}
-                            transition={{ type: "spring", stiffness: 80, damping: 25 }}
+                            transition={{ type: "spring", stiffness: 100, damping: 20 }}
                         >
                             <StickyVisual activeIndex={activeCard} />
                         </motion.div>
@@ -101,7 +100,7 @@ export const StickyScroll = () => {
                     </div>
                 </div>
 
-                {/* RIGHT COLUMN */}
+                {/* RIGHT COLUMN: Scrolling Content */}
                 <div className="flex flex-col divide-y divide-white/10">
                     <div className="p-8 pb-12 grid grid-cols-12 gap-4">
                         <div className="col-span-10">
@@ -109,9 +108,7 @@ export const StickyScroll = () => {
                                 Ytterbium™ will revolutionize focus by delivering unprecedented precision, scalability, and accessibility.
                             </p>
                         </div>
-                        <div className="col-span-2 text-right text-[11px] font-medium text-zinc-600">
-                            2026
-                        </div>
+                        <div className="col-span-2 text-right text-[11px] font-medium text-zinc-600">2026</div>
                     </div>
 
                     {content.map((item, index) => {
@@ -119,11 +116,7 @@ export const StickyScroll = () => {
                         return (
                             <motion.div
                                 key={item.number}
-                                // SENIOR FIX: Increased min-h to 24rem to slow down scroll sensitivity
-                                className="relative p-10 flex flex-col justify-center min-h-[24rem] group"
-                                animate={{
-                                    backgroundColor: isActive ? 'rgba(255,255,255,0.01)' : 'transparent'
-                                }}
+                                className="relative p-10 flex flex-col justify-center min-h-[12rem] group"
                             >
                                 <div className="flex items-start gap-8">
                                     <div className={cn(
@@ -146,9 +139,9 @@ export const StickyScroll = () => {
                                             animate={{
                                                 height: isActive ? "auto" : 0,
                                                 opacity: isActive ? 1 : 0,
-                                                marginBottom: isActive ? "1rem" : "0rem"
+                                                marginTop: isActive ? "0.5rem" : "0rem"
                                             }}
-                                            transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
+                                            transition={{ duration: 0.4, ease: "circOut" }}
                                             className="overflow-hidden"
                                         >
                                             <p className="text-[15px] text-zinc-500 leading-relaxed max-w-lg">
@@ -159,14 +152,13 @@ export const StickyScroll = () => {
 
                                     <div className={cn(
                                         "w-2.5 h-2.5 rounded-full mt-4 transition-all duration-500",
-                                        isActive ? "bg-white shadow-[0_0_15px_rgba(255,255,255,0.8)]" : "bg-zinc-800 opacity-20"
+                                        isActive ? "bg-white shadow-[0_0_10px_white]" : "bg-zinc-800 opacity-20"
                                     )} />
                                 </div>
                             </motion.div>
                         );
                     })}
-
-                    <div className="h-[2rem]" />
+                    <div className="h-[10rem]" /> {/* Spacer for clean scroll exit */}
                 </div>
             </motion.div>
         </div>
@@ -176,169 +168,109 @@ export const StickyScroll = () => {
 const StickyVisual = ({ activeIndex }: { activeIndex: number }) => {
     return (
         <div className="relative w-full h-full flex items-center justify-center">
-            <AnimatePresence>
-                <motion.div
-                    key={`marker-${activeIndex}`}
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0 }}
-                    className="absolute z-20 w-8 h-8 bg-zinc-800 border border-orange-500/30 rounded-md flex items-center justify-center text-orange-500 text-[12px] font-bold shadow-lg"
-                    style={{
-                        top: activeIndex === 0 ? "10%" : activeIndex === 1 ? "30%" : "60%",
-                        right: activeIndex === 0 ? "10%" : activeIndex === 1 ? "70%" : "20%"
-                    }}
-                >
-                    {activeIndex + 1}
-                </motion.div>
-            </AnimatePresence>
-
             <AnimatePresence mode="wait">
                 <motion.div
                     key={activeIndex}
-                    initial={{ opacity: 0, rotate: -10, scale: 0.9 }}
-                    animate={{ opacity: 1, rotate: 0, scale: 1 }}
-                    exit={{ opacity: 0, rotate: 10, scale: 1.1 }}
-                    transition={{ duration: 0.7, ease: "circOut" }}
-                    className="relative w-full h-full flex items-center justify-center"
+                    initial={{ opacity: 0, scale: 0.9, rotate: -5 }}
+                    animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                    exit={{ opacity: 0, scale: 1.1, rotate: 5 }}
+                    transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                    className="relative w-full max-w-[20rem] aspect-square flex items-center justify-center"
                 >
-                    {activeIndex === 0 && <InputVisual />}
-                    {activeIndex === 1 && <AnalyzeVisual />}
-                    {activeIndex === 2 && <FocusVisual />}
-                    {activeIndex === 3 && <CompleteVisual />}
+                    {activeIndex === 0 && <BeadSpiral />}
+                    {activeIndex === 1 && <DoubleHelix />}
+                    {activeIndex === 2 && <PerforatedPlate />}
+                    {activeIndex === 3 && <ClusterVisual />}
                 </motion.div>
             </AnimatePresence>
         </div>
     );
 };
 
-/* --- HIGH-END UNIQUE ORANGE VISUALS --- */
+/* --- UNIQUE ORANGE GRADIENT SHAPES (CLONED FROM VIDEO) --- */
 
-const InputVisual = () => (
-    <div className="relative w-full h-full flex items-center justify-center">
-        <svg viewBox="0 0 400 400" className="w-[80%] h-[80%]">
-            <defs>
-                <radialGradient id="orangeBall" cx="30%" cy="30%" r="70%">
-                    <stop offset="0%" stopColor="#fed7aa" />
-                    <stop offset="100%" stopColor="#f97316" />
-                </radialGradient>
-            </defs>
-            {/* Grid of entering spheres */}
-            {[...Array(9)].map((_, i) => (
+const OrangeGradient = ({ id }: { id: string }) => (
+    <defs>
+        <radialGradient id={id} cx="35%" cy="35%" r="65%">
+            <stop offset="0%" stopColor="#ffedd5" />
+            <stop offset="45%" stopColor="#f97316" />
+            <stop offset="100%" stopColor="#7c2d12" />
+        </radialGradient>
+    </defs>
+);
+
+const BeadSpiral = () => (
+    <svg viewBox="0 0 400 400" className="w-full h-full">
+        <OrangeGradient id="grad1" />
+        {[...Array(14)].map((_, i) => {
+            const angle = (i / 13) * Math.PI * 1.5;
+            const r = 120;
+            return (
                 <motion.circle
                     key={i}
-                    cx={120 + (i % 3) * 80}
-                    cy={120 + Math.floor(i / 3) * 80}
-                    r="12"
-                    fill="url(#orangeBall)"
-                    animate={{
-                        opacity: [0.3, 1, 0.3],
-                        scale: [0.8, 1.2, 0.8],
-                        y: [0, -10, 0]
-                    }}
-                    transition={{ duration: 3, delay: i * 0.2, repeat: Infinity }}
+                    cx={200 + Math.cos(angle) * r}
+                    cy={200 + Math.sin(angle) * r}
+                    r={i % 4 === 0 ? 20 : 12}
+                    fill="url(#grad1)"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: i * 0.05 }}
                 />
-            ))}
-        </svg>
-    </div>
+            );
+        })}
+    </svg>
 );
 
-const AnalyzeVisual = () => (
-    <div className="relative w-full h-full flex items-center justify-center">
-        <svg viewBox="0 0 400 400" className="w-[80%] h-[80%]">
-            {/* Vertical DNA-style columns */}
-            {[...Array(15)].map((_, i) => (
-                <motion.rect
-                    key={i}
-                    x={80 + i * 18}
-                    y="100"
-                    width="6"
-                    height="200"
-                    rx="3"
-                    fill="#f97316"
-                    opacity="0.2"
-                />
-            ))}
-            {[...Array(15)].map((_, i) => (
+const DoubleHelix = () => (
+    <svg viewBox="0 0 400 400" className="w-full h-full">
+        <OrangeGradient id="grad2" />
+        {[...Array(18)].map((_, i) => {
+            const angle = (i / 17) * Math.PI * 4;
+            const r = 40 + i * 8;
+            return (
                 <motion.circle
-                    key={`c-${i}`}
-                    cx={83 + i * 18}
-                    cy="200"
-                    r="6"
-                    fill="#fbbf24"
-                    animate={{
-                        y: [80, -80, 80],
-                        opacity: [0.2, 1, 0.2]
-                    }}
-                    transition={{ duration: 2.5, delay: i * 0.1, repeat: Infinity }}
+                    key={i}
+                    cx={200 + Math.cos(angle) * r}
+                    cy={200 + Math.sin(angle) * r}
+                    r={10}
+                    fill="url(#grad2)"
                 />
-            ))}
-        </svg>
-    </div>
+            );
+        })}
+    </svg>
 );
 
-const FocusVisual = () => (
-    <div className="relative w-full h-full flex items-center justify-center">
-        {/* The Core Spiral */}
-        <SpiralChain activeIndex={2} />
-    </div>
-);
-
-const CompleteVisual = () => (
-    <div className="relative w-full h-full flex items-center justify-center">
-        <svg viewBox="0 0 400 400" className="w-[90%] h-[90%]">
-            {/* Expanding outward network */}
-            {[...Array(12)].map((_, i) => {
-                const angle = (i / 12) * Math.PI * 2;
-                return (
-                    <motion.line
-                        key={i}
-                        x1="200" y1="200"
-                        x2={200 + Math.cos(angle) * 140}
-                        y2={200 + Math.sin(angle) * 140}
-                        stroke="#f97316"
-                        strokeWidth="1"
-                        initial={{ pathLength: 0 }}
-                        animate={{ pathLength: 1, opacity: [0, 0.5, 0] }}
-                        transition={{ duration: 2, repeat: Infinity, delay: i * 0.1 }}
-                    />
-                );
-            })}
+const PerforatedPlate = () => (
+    <svg viewBox="0 0 400 400" className="w-full h-full">
+        <OrangeGradient id="grad3" />
+        <rect x="100" y="150" width="200" height="100" rx="10" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.1)" />
+        {[...Array(6)].map((_, i) => (
             <motion.circle
-                cx="200" cy="200" r="40"
-                fill="#f97316"
-                animate={{ scale: [1, 1.3, 1] }}
-                transition={{ duration: 2, repeat: Infinity }}
+                key={i}
+                cx={130 + i * 30}
+                cy={200 + Math.sin(i) * 20}
+                r={15}
+                fill="url(#grad3)"
+                animate={{ y: [0, -15, 0] }}
+                transition={{ duration: 3, delay: i * 0.2, repeat: Infinity }}
             />
-        </svg>
-    </div>
+        ))}
+    </svg>
 );
 
-const SpiralChain = ({ activeIndex }: { activeIndex: number }) => {
-    const points = Array.from({ length: 24 });
-    return (
-        <svg viewBox="0 0 400 400" className="w-[110%] h-[110%] drop-shadow-[0_20px_50px_rgba(249,115,22,0.15)]">
-            <defs>
-                <radialGradient id="sphereGradOrange" cx="30%" cy="30%" r="70%">
-                    <stop offset="0%" stopColor="#ffedd5" />
-                    <stop offset="40%" stopColor="#f97316" />
-                    <stop offset="100%" stopColor="#9a3412" />
-                </radialGradient>
-            </defs>
-            {points.map((_, i) => {
-                const angle = (i / points.length) * Math.PI * 2.5;
-                const radius = 60 + i * 4.5;
-                const x = 200 + Math.cos(angle) * radius;
-                const y = 200 + Math.sin(angle) * radius;
-                return (
-                    <motion.circle
-                        key={i}
-                        cx={x} cy={y} r={i % 3 === 0 ? 14 : 10}
-                        fill="url(#sphereGradOrange)"
-                        animate={{ scale: [1, 1.1, 1] }}
-                        transition={{ delay: i * 0.015, duration: 2, repeat: Infinity }}
-                    />
-                );
-            })}
-        </svg>
-    );
-};
+const ClusterVisual = () => (
+    <svg viewBox="0 0 400 400" className="w-full h-full">
+        <OrangeGradient id="grad4" />
+        {[...Array(12)].map((_, i) => (
+            <motion.circle
+                key={i}
+                cx={200 + (Math.random() - 0.5) * 150}
+                cy={200 + (Math.random() - 0.5) * 150}
+                r={14}
+                fill="url(#grad4)"
+                animate={{ scale: [1, 1.2, 1] }}
+                transition={{ duration: 2, repeat: Infinity, delay: i * 0.1 }}
+            />
+        ))}
+    </svg>
+);
