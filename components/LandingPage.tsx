@@ -129,7 +129,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
             />
 
             {/* Main Content */}
-            <div className="relative z-10 min-h-screen flex items-center justify-center px-6 pt-32">
+            <div className="relative z-10 min-h-screen flex items-center justify-center px-6 pt-20">
                 <AnimatePresence mode="wait">
                     {/* Hero Section - Centered Input */}
                     <AnimatePresence>
@@ -216,21 +216,16 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
 
                                 {/* Suggestion Chips (Compact & Pro Style) */}
                                 <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
-                                    {[
-                                        { label: 'Deep Work Session', icon: <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor font-bold"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg> },
-                                        { label: 'Study for Exam', icon: <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor font-bold"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg> },
-                                        { label: 'Debug Code', icon: <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor font-bold"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg> }
-                                    ].map((item, i) => (
+                                    {['Deep Work Session', 'Study for Exam', 'Debug Code'].map((label, i) => (
                                         <motion.button
-                                            key={item.label}
+                                            key={label}
                                             initial={{ opacity: 0, y: 5 }}
                                             animate={{ opacity: 1, y: 0 }}
                                             transition={{ delay: 1 + (i * 0.1), duration: 0.4 }}
-                                            onClick={() => setTask(item.label)}
-                                            className="px-4 py-2 rounded-full border border-white/5 bg-white/5 hover:bg-white/10 text-white/60 hover:text-white transition-all duration-300 backdrop-blur-md flex items-center gap-2 text-xs md:text-sm shadow-sm"
+                                            onClick={() => setTask(label)}
+                                            className="px-6 py-2.5 rounded-full border border-white/5 bg-white/5 hover:bg-white/10 text-white/60 hover:text-white transition-all duration-300 backdrop-blur-md flex items-center gap-2 text-xs md:text-sm shadow-sm"
                                         >
-                                            <span className="opacity-70 group-hover:opacity-100">{item.icon}</span>
-                                            <span className="font-medium tracking-tight">{item.label}</span>
+                                            <span className="font-medium tracking-tight">{label}</span>
                                         </motion.button>
                                     ))}
                                 </div>
