@@ -146,7 +146,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
                                     initial={{ opacity: 0, y: 15 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-                                    className="text-center mb-16"
+                                    className="text-center mb-10"
                                 >
                                     <h1 className="flex flex-col items-center">
                                         {/* Headline - The "Authority" */}
@@ -196,7 +196,6 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
 
                                             {/* Input Footer / Actions */}
                                             <div className="absolute bottom-4 right-4 flex items-center justify-end">
-
                                                 {/* Submit Button */}
                                                 <button
                                                     type="submit"
@@ -213,24 +212,25 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
                                             </div>
                                         </form>
                                     </div>
-
-                                    {/* Sub-input subtle text */}
-                                    <p className="mt-4 text-center text-[11px] text-zinc-600 uppercase tracking-widest font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                                        Powered by biological AI calibration
-                                    </p>
                                 </motion.div>
 
-                                {/* Suggestion Chips (Secondary Button Style) */}
-                                <div className="mt-2 flex flex-wrap items-center justify-center gap-3">
-                                    {['Deep Work Session', 'Study for Exam', 'Debug Code'].map((suggestion, i) => (
+                                {/* Suggestion Chips (Compact & Pro Style) */}
+                                <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
+                                    {[
+                                        { label: 'Deep Work Session', icon: <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor font-bold"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg> },
+                                        { label: 'Study for Exam', icon: <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor font-bold"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg> },
+                                        { label: 'Debug Code', icon: <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor font-bold"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg> }
+                                    ].map((item, i) => (
                                         <motion.button
-                                            key={suggestion}
+                                            key={item.label}
+                                            initial={{ opacity: 0, y: 5 }}
                                             animate={{ opacity: 1, y: 0 }}
-                                            transition={{ duration: 0.5 }}
-                                            onClick={() => setTask(suggestion)}
-                                            className="px-5 py-2.5 rounded-full border border-zinc-800 bg-zinc-900/30 hover:bg-zinc-800/50 text-xs md:text-sm text-zinc-500 hover:text-zinc-200 transition-all duration-300 backdrop-blur-sm"
+                                            transition={{ delay: 1 + (i * 0.1), duration: 0.4 }}
+                                            onClick={() => setTask(item.label)}
+                                            className="px-4 py-2 rounded-full border border-white/5 bg-white/5 hover:bg-white/10 text-white/60 hover:text-white transition-all duration-300 backdrop-blur-md flex items-center gap-2 text-xs md:text-sm shadow-sm"
                                         >
-                                            {suggestion}
+                                            <span className="opacity-70 group-hover:opacity-100">{item.icon}</span>
+                                            <span className="font-medium tracking-tight">{item.label}</span>
                                         </motion.button>
                                     ))}
                                 </div>
