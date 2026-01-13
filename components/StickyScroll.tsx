@@ -19,11 +19,6 @@ const content = [
         title: "Amino Acid Sequencing",
         description: "Assembled molecules pass through the neural plate, where distinct electrical signatures from each unit reveal the protein's complete sequence.",
     },
-    {
-        number: "4",
-        title: "Sequence Completion",
-        description: "Review metadata and performance logs. Each completed cycle strengthens your focus architecture, unlocking deeper states for future sessions.",
-    },
 ];
 
 export const StickyScroll = () => {
@@ -51,7 +46,7 @@ export const StickyScroll = () => {
     return (
         <div
             ref={containerRef}
-            className="relative h-[450vh] bg-[#09090b] z-10 font-sans"
+            className="relative h-[350vh] bg-[#09090b] z-10 font-sans"
         >
             {/* STICKY WRAPPER: Instrument Panel Frame */}
             <div className="sticky top-0 h-screen w-full flex flex-col justify-center overflow-hidden z-20">
@@ -161,7 +156,7 @@ export const StickyScroll = () => {
                         </div>
                     </div>
 
-                    {/* Footer Info Row (Optional style refinement) */}
+                    {/* Footer Info Row */}
                     <div className="h-4 border-t border-white/5 bg-white/[0.01]" />
                 </div>
             </div>
@@ -169,58 +164,47 @@ export const StickyScroll = () => {
     );
 };
 
-/* --- UNIFIED MOLECULAR BEAD VISUALS --- */
+/* --- UNIFIED MOLECULAR BEAD VISUALS (Orange Branded) --- */
 
 const BeadVisual = ({ step }: { step: number }) => {
     return (
-        <svg viewBox="0 0 400 400" className="w-full h-full drop-shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
+        <svg viewBox="0 0 400 400" className="w-full h-full drop-shadow-[0_20px_50px_rgba(255,77,0,0.15)]">
             <defs>
-                <radialGradient id="beadLight" cx="30%" cy="30%" r="70%">
-                    <stop offset="0%" stopColor="#ffffff" />
-                    <stop offset="20%" stopColor="#e2e8f0" />
-                    <stop offset="100%" stopColor="#94a3b8" />
-                </radialGradient>
-                <radialGradient id="beadAccent" cx="35%" cy="35%" r="70%">
-                    <stop offset="0%" stopColor="#fff7ed" />
-                    <stop offset="30%" stopColor="#ffedd5" />
-                    <stop offset="100%" stopColor="#fdba74" />
-                </radialGradient>
-                {/* 3D Pearl style for the image reference */}
+                {/* 3D Orange style for the brand alignment */}
                 <radialGradient id="pearl" cx="35%" cy="35%" r="50%">
-                    <stop offset="0%" stopColor="#ffffff" />
-                    <stop offset="100%" stopColor="#b2c0cb" />
+                    <stop offset="0%" stopColor="#FF9966" />
+                    <stop offset="100%" stopColor="#FF4D00" />
                 </radialGradient>
-                <radialGradient id="pearlMint" cx="35%" cy="35%" r="50%">
-                    <stop offset="0%" stopColor="#f0fdf4" />
-                    <stop offset="100%" stopColor="#bbf7d0" />
+                <radialGradient id="pearlLight" cx="35%" cy="35%" r="50%">
+                    <stop offset="0%" stopColor="#FFB280" />
+                    <stop offset="100%" stopColor="#FF6622" />
                 </radialGradient>
-                <radialGradient id="pearlIvory" cx="35%" cy="35%" r="50%">
-                    <stop offset="0%" stopColor="#fffbeb" />
-                    <stop offset="100%" stopColor="#fde68a" />
+                <radialGradient id="pearlDeep" cx="35%" cy="35%" r="50%">
+                    <stop offset="0%" stopColor="#FF4D00" />
+                    <stop offset="100%" stopColor="#B33600" />
                 </radialGradient>
             </defs>
 
             {step === 0 && <Step1Beads />}
             {step === 1 && <Step2Beads />}
             {step === 2 && <Step3Beads />}
-            {step === 3 && <Step4Beads />}
         </svg>
     );
 };
 
-// C-Curve Cluster (from image)
+// Step 1: C-Curve Cluster (Orange)
 const Step1Beads = () => {
     const beads = [...Array(14)];
     return (
         <g>
-            {/* Cubelet Tail */}
+            {/* Cubelet Tail (Warm Contrast) */}
             {[...Array(8)].map((_, i) => (
                 <motion.rect
                     key={`cube-${i}`}
                     x={200 + i * 20}
                     y={120 - i * 5}
                     width={18} height={18} rx={4}
-                    fill="#e2e8f0" fillOpacity={0.8}
+                    fill="#FF4D00" fillOpacity={0.2}
                     initial={{ opacity: 0, x: 250 }}
                     animate={{ opacity: 1, x: 180 + i * 20 }}
                     transition={{ delay: i * 0.05 }}
@@ -231,7 +215,7 @@ const Step1Beads = () => {
             {beads.map((_, i) => {
                 const angle = (i / beads.length) * Math.PI * 1.5 + 0.5;
                 const r = 130;
-                const colors = ["url(#pearl)", "url(#pearlMint)", "url(#pearlIvory)"];
+                const colors = ["url(#pearl)", "url(#pearlLight)", "url(#pearlDeep)"];
                 return (
                     <motion.circle
                         key={i}
@@ -249,7 +233,7 @@ const Step1Beads = () => {
     );
 };
 
-// Linear Expansion Cluster
+// Step 2: Linear Cluster (Orange)
 const Step2Beads = () => {
     return (
         <g>
@@ -259,7 +243,7 @@ const Step2Beads = () => {
                     cx={100 + i * 25}
                     cy={200 + Math.sin(i * 0.5) * 30}
                     r={24}
-                    fill={i % 2 === 0 ? "url(#pearlMint)" : "url(#pearl)"}
+                    fill={i % 2 === 0 ? "url(#pearlLight)" : "url(#pearl)"}
                     initial={{ opacity: 0, x: -50 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: i * 0.04 }}
@@ -269,7 +253,7 @@ const Step2Beads = () => {
                 <motion.rect
                     key={`c-${i}`}
                     x={120 + i * 40} y={150} width={14} height={14} rx={3}
-                    fill="#cbd5e1"
+                    fill="#FF4D00" fillOpacity={0.4}
                     animate={{ y: [0, -10, 0] }}
                     transition={{ repeat: Infinity, duration: 2, delay: i * 0.2 }}
                 />
@@ -278,14 +262,14 @@ const Step2Beads = () => {
     );
 };
 
-// S-Curve Gate (Transport)
+// Step 3: Transport Cluster (Orange)
 const Step3Beads = () => {
     return (
         <g>
             {/* The "Gate" */}
             <motion.rect
                 x="195" y="100" width="10" height="200" rx="5"
-                fill="white" fillOpacity="0.05"
+                fill="#FF4D00" fillOpacity="0.1"
             />
             {[...Array(16)].map((_, i) => {
                 const angle = (i / 15) * Math.PI * 2;
@@ -296,52 +280,13 @@ const Step3Beads = () => {
                         key={i}
                         cx={x} cy={y}
                         r={22}
-                        fill={i > 8 ? "url(#pearlMint)" : "url(#pearlIvory)"}
+                        fill={i > 8 ? "url(#pearlLight)" : "url(#pearlDeep)"}
                         initial={{ opacity: 0, scale: 0 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: i * 0.03 }}
                     />
                 );
             })}
-        </g>
-    );
-};
-
-// Completed Architecture Bloom
-const Step4Beads = () => {
-    return (
-        <g>
-            <motion.circle
-                cx="200" cy="200" r="140"
-                fill="none" stroke="white" strokeOpacity="0.05" strokeWidth="1" strokeDasharray="10 20"
-                animate={{ rotate: 360 }}
-                transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
-            />
-            {[0, 60, 120, 180, 240, 300].map((angle, i) => (
-                <motion.g key={i} animate={{ rotate: [0, 5, 0] }} transition={{ repeat: Infinity, duration: 4, delay: i * 0.5 }}>
-                    <motion.circle
-                        cx={200 + Math.cos((angle * Math.PI) / 180) * 100}
-                        cy={200 + Math.sin((angle * Math.PI) / 180) * 100}
-                        r={35}
-                        fill="url(#pearl)"
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        transition={{ delay: i * 0.1 }}
-                    />
-                    <circle
-                        cx={200 + Math.cos((angle * Math.PI) / 180) * 100}
-                        cy={200 + Math.sin((angle * Math.PI) / 180) * 100}
-                        r={12}
-                        fill="white" fillOpacity="0.2"
-                    />
-                </motion.g>
-            ))}
-            <motion.circle
-                cx="200" cy="200" r="40"
-                fill="url(#pearlIvory)"
-                animate={{ scale: [1, 1.1, 1] }}
-                transition={{ repeat: Infinity, duration: 4 }}
-            />
         </g>
     );
 };
