@@ -150,7 +150,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
                                 >
                                     <h1 className="flex flex-col items-center">
                                         {/* Headline - The "Authority" */}
-                                        <span className="text-5xl md:text-[84px] font-['SF_Pro_Display','-apple-system','BlinkMacSystemFont','Segoe_UI',Roboto,sans-serif] font-bold text-white tracking-[-0.04em] leading-[0.9] max-w-4xl px-4">
+                                        <span className="text-5xl md:text-[84px] font-instrument italic text-white tracking-tight leading-[0.9] max-w-4xl px-4">
                                             You're Already <br /> Burning Out
                                         </span>
 
