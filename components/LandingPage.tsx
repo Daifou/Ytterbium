@@ -101,6 +101,14 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
             return;
         }
 
+        // Save session data for post-auth/post-payment retrieval
+        localStorage.setItem('pending_session', JSON.stringify({
+            task,
+            intensity: analysisResult.intensity,
+            insight: analysisResult.insight,
+            focusMode: analysisResult.focusMode,
+        }));
+
         // Scenario 1: If not premium, show the Paywall
         setShowPricingModal(true);
     };
@@ -108,6 +116,9 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
     const handleGoogleSignUp = async () => {
         try {
             console.log("[LandingPage] Engaging authService.signInWithGoogle...");
+            // Set flag to return to paywall immediately
+            localStorage.setItem('auth_return_mode', 'paywall');
+
             const { error } = await authService.signInWithGoogle();
 
             if (error) {
@@ -119,6 +130,15 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
             alert(`Critical System Error: ${err.message || 'Unknown failure'}`);
         }
     };
+
+    // Check for auth return mode
+    useEffect(() => {
+        const returnMode = localStorage.getItem('auth_return_mode');
+        if (returnMode === 'paywall') {
+            setShowPricingModal(true);
+            // Don't clear it yet, wait for successful payment or close
+        }
+    }, []);
 
     return (
         <div className="min-h-screen bg-[#09090b] text-white relative">
@@ -138,7 +158,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
                 <AnimatePresence mode="wait">
                     {/* Hero Section - Centered Input */}
                     <AnimatePresence>
-                        {stage === 'hero' && (
+                        {stage === 'hero' && !showPricingModal && (
                             <motion.div
                                 initial={{ opacity: 0, scale: 1.02, filter: 'blur(8px)' }}
                                 animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}

@@ -24,7 +24,13 @@ export const PricingCard: React.FC<PricingCardProps> = ({
 }) => {
     const [isAnnual, setIsAnnual] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-    const [isCheckingOut, setIsCheckingOut] = useState(false);
+    const [isCheckingOut, setIsCheckingOut] = useState(() => {
+        // Instant check: if user is logged in and has pending plan, start true
+        if (currentUser && typeof localStorage !== 'undefined') {
+            return !!localStorage.getItem('pending_plan');
+        }
+        return false;
+    });
     const [isHovered, setIsHovered] = useState(false);
 
     useEffect(() => {
@@ -104,76 +110,73 @@ export const PricingCard: React.FC<PricingCardProps> = ({
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-                className={`w-full max-w-sm mx-auto ${className}`}
+                className={`w-full max-w-[320px] mx-auto ${className}`}
             >
                 {/* Compact Card - Dark Zinc/Gray Aesthetic */}
-                <div className="relative rounded-3xl bg-zinc-900 border border-zinc-700 shadow-2xl overflow-hidden">
+                <div className="relative rounded-2xl bg-[#09090b] border border-zinc-800 shadow-2xl overflow-hidden">
                     {/* Subtle gradient overlay */}
                     <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none" />
 
-                    <div className="relative p-8 space-y-6">
+                    <div className="relative p-6 space-y-5">
                         {/* Header Section */}
-                        <div className="text-center space-y-3">
-                            <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-zinc-800 border border-zinc-700 mb-2">
-                                <svg className="w-6 h-6 text-zinc-100" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <div className="text-center space-y-2">
+                            <div className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-zinc-900 border border-zinc-800 mb-1">
+                                <svg className="w-5 h-5 text-zinc-100" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                                 </svg>
                             </div>
-                            <h2 className="text-2xl font-semibold text-white tracking-tight">Membership</h2>
-                            <p className="text-sm text-zinc-400 leading-relaxed max-w-xs mx-auto">
-                                Sign in to unlock AI-powered focus optimization
+                            <h2 className="text-xl font-bold text-white tracking-tight">Pro Access</h2>
+                            <p className="text-xs text-zinc-400 leading-relaxed max-w-[200px] mx-auto">
+                                Unlock your focus environment
                             </p>
                         </div>
 
                         {/* Pricing Section */}
-                        <div className="text-center space-y-4">
+                        <div className="text-center space-y-3">
                             <div className="flex items-baseline justify-center gap-1">
-                                <span className="text-5xl font-semibold text-white tracking-tight">${currentPrice}</span>
-                                <span className="text-lg text-zinc-400">{period}</span>
+                                <span className="text-4xl font-bold text-white tracking-tighter">${currentPrice}</span>
+                                <span className="text-sm text-zinc-500 font-medium">{period}</span>
                             </div>
 
                             {/* Annual Toggle - Minimal */}
-                            <div className="flex items-center justify-center gap-3">
+                            <div className="flex items-center justify-center gap-2">
                                 <button
                                     onClick={() => setIsAnnual(!isAnnual)}
-                                    className={`relative w-11 h-6 flex items-center rounded-full p-0.5 transition-all duration-300 ${isAnnual ? 'bg-zinc-600' : 'bg-zinc-700 border border-zinc-600'
+                                    className={`relative w-9 h-5 flex items-center rounded-full p-0.5 transition-all duration-300 ${isAnnual ? 'bg-zinc-100' : 'bg-zinc-800 border border-zinc-700'
                                         }`}
                                 >
                                     <motion.div
-                                        animate={{ x: isAnnual ? 20 : 0 }}
+                                        animate={{ x: isAnnual ? 16 : 0 }}
                                         transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                                        className="w-5 h-5 bg-white rounded-full shadow-sm"
+                                        className={`w-4 h-4 rounded-full shadow-sm ${isAnnual ? 'bg-black' : 'bg-zinc-400'}`}
                                     />
                                 </button>
-                                <span className={`text-xs font-medium transition-colors ${isAnnual ? 'text-white' : 'text-zinc-500'}`}>
-                                    Annual billing
+                                <span className={`text-[11px] font-medium transition-colors ${isAnnual ? 'text-white' : 'text-zinc-500'}`}>
+                                    Annual
                                 </span>
                                 {isAnnual && (
-                                    <span className="text-[9px] font-bold text-orange-900 bg-orange-100/90 px-2 py-0.5 rounded-full uppercase tracking-wide">
-                                        Save 15%
+                                    <span className="text-[9px] font-bold text-emerald-400 bg-emerald-400/10 px-1.5 py-0.5 rounded-sm uppercase tracking-wider">
+                                        -15%
                                     </span>
                                 )}
                             </div>
                         </div>
 
                         {/* Features - Compact List */}
-                        <div className="space-y-3 py-4">
+                        <div className="space-y-2 py-2">
                             {[
-                                'Zero Eye Strain',
-                                'No Gamer Posture',
-                                'Cortisol Under Control',
-                                'Real Rest',
+                                'Zero Eye Strain & Fatigue',
+                                'Cortisol Control System',
                                 'Laser-Sharp Productivity',
-                                'Sleep Like You Used To',
-                                'Prevent Mental Fog'
+                                'Deep Sleep Protocols'
                             ].map((feature, i) => (
                                 <div key={i} className="flex items-center gap-3">
-                                    <div className="w-5 h-5 rounded-full bg-zinc-700 border border-zinc-600 flex items-center justify-center flex-shrink-0">
-                                        <svg className="w-3 h-3 text-zinc-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                                    <div className="w-4 h-4 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center flex-shrink-0">
+                                        <svg className="w-2.5 h-2.5 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                                             <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                                         </svg>
                                     </div>
-                                    <span className="text-sm text-zinc-300 font-medium">{feature}</span>
+                                    <span className="text-xs text-zinc-300 font-medium tracking-wide">{feature}</span>
                                 </div>
                             ))}
                         </div>
@@ -183,15 +186,15 @@ export const PricingCard: React.FC<PricingCardProps> = ({
                             onClick={handleCheckout}
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
-                            className="w-full py-3.5 rounded-xl bg-white text-zinc-900 font-semibold text-sm tracking-tight hover:bg-zinc-100 transition-colors shadow-lg flex items-center justify-center gap-3"
+                            className="w-full py-3 rounded-lg bg-zinc-50 text-zinc-950 font-bold text-xs tracking-wider uppercase hover:bg-white transition-all shadow-[0_0_20px_rgba(255,255,255,0.1)] flex items-center justify-center gap-3 group"
                         >
                             {isLoading ? (
-                                <div className="w-4 h-4 border-2 border-zinc-400 border-t-zinc-900 rounded-full animate-spin" />
+                                <div className="w-4 h-4 border-2 border-zinc-300 border-t-zinc-900 rounded-full animate-spin" />
                             ) : currentUser ? (
-                                "Apply Membership"
+                                "Start Subscription"
                             ) : (
                                 <>
-                                    <svg className="w-5 h-5" viewBox="0 0 24 24">
+                                    <svg className="w-4 h-4 grayscale group-hover:grayscale-0 transition-all opacity-60 group-hover:opacity-100" viewBox="0 0 24 24">
                                         <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
                                         <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
                                         <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />

@@ -59,7 +59,7 @@ export const StickyScroll = () => {
                             <span className="text-white">●</span> Tech<span className="hidden sm:inline">nology</span>
                         </div>
                         <div className="hidden lg:flex lg:flex-[2] items-center px-8 normal-case tracking-normal text-white/40">
-                            ProSE™ will revolutionize proteomics by delivering unprecedented precision, scalability, and accessibility.
+                            Ytterbium™ protects screen workers with real-time burnout detection and enforced recovery.
                         </div>
                         <div className="w-16 lg:w-24 flex items-center justify-center">2026</div>
                     </div>
