@@ -24,9 +24,10 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
     const [showPricingModal, setShowPricingModal] = useState(false);
     const [currentUser, setCurrentUser] = useState<User | null>(null);
     const [freeSessionsUsed, setFreeSessionsUsed] = useState(0);
-    const { isPremium, loading: isSubscriptionLoading } = useSubscription(); // Use existing hook
+    const { isPremium, loading: isSubscriptionLoading, checkSubscription } = useSubscription(); // Use existing hook
     // const isPremium = false;
     const chatInputRef = useRef<HTMLInputElement>(null);
+    const [isSyncing, setIsSyncing] = useState(false);
 
     // Check for existing user & usage stats
     useEffect(() => {
@@ -94,8 +95,24 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
             return;
         }
 
-        // Scenario 2: If user is premium, go directly to dashboard
+        // Scenario 2: Assume premium temporarily? No, verify first.
         if (isPremium) {
+            onEnter({
+                task,
+                intensity: analysisResult.intensity,
+                insight: analysisResult.insight,
+                focusMode: analysisResult.focusMode,
+                user: currentUser,
+            });
+            return;
+        }
+
+        // Force check one last time before showing paywall
+        setIsSyncing(true);
+        const subData = await checkSubscription();
+        setIsSyncing(false);
+
+        if (subData?.is_premium) {
             onEnter({
                 task,
                 intensity: analysisResult.intensity,
@@ -114,7 +131,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
             focusMode: analysisResult.focusMode,
         }));
 
-        // Scenario 1: If not premium, show the Paywall
+        // Scenario 1: If actually not premium, show the Paywall
         setShowPricingModal(true);
     };
 
@@ -274,7 +291,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
                                 result={analysisResult}
                                 onStartSession={handleStartSession}
                                 showLock={currentUser ? (!isPremium && freeSessionsUsed >= 3) : false}
-                                isSyncing={isSubscriptionLoading}
+                                isSyncing={isSubscriptionLoading || isSyncing}
                             />
                         )}
                     </AnimatePresence>

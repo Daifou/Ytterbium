@@ -89,10 +89,44 @@ export function useSubscription() {
         };
     }, []);
 
+    const checkSubscription = async () => {
+        setLoading(true);
+        try {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) return null;
+
+            const { data, error } = await supabase
+                .from('profiles')
+                .select('id, subscription_status, plan_type, current_period_end, is_premium')
+                .eq('id', user.id)
+                .single();
+
+            if (error || !data) {
+                return null;
+            }
+
+            const subData = {
+                id: data.id,
+                status: data.subscription_status as any,
+                plan_type: data.plan_type,
+                current_period_end: data.current_period_end,
+                is_premium: data.is_premium
+            };
+            setSubscription(subData);
+            return subData;
+        } catch (err) {
+            console.error(err);
+            return null;
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return {
         subscription,
         loading,
         error,
-        isPremium: subscription?.is_premium || false
+        isPremium: subscription?.is_premium || false,
+        checkSubscription
     };
 }
