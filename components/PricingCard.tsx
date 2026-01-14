@@ -110,7 +110,7 @@ export const PricingCard: React.FC<PricingCardProps> = ({
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-                className={`w-full max-w-[320px] mx-auto ${className}`}
+                className={`w-full max-w-[280px] mx-auto ${className}`}
             >
                 {/* Compact Card - Dark Zinc/Gray Aesthetic */}
                 <div className="relative rounded-2xl bg-[#09090b] border border-zinc-800 shadow-2xl overflow-hidden">
@@ -134,7 +134,7 @@ export const PricingCard: React.FC<PricingCardProps> = ({
                         {/* Pricing Section */}
                         <div className="text-center space-y-3">
                             <div className="flex items-baseline justify-center gap-1">
-                                <span className="text-4xl font-bold text-white tracking-tighter">${currentPrice}</span>
+                                <span className="text-3xl font-bold text-white tracking-tighter">${currentPrice}</span>
                                 <span className="text-sm text-zinc-500 font-medium">{period}</span>
                             </div>
 
@@ -162,23 +162,11 @@ export const PricingCard: React.FC<PricingCardProps> = ({
                             </div>
                         </div>
 
-                        {/* Features - Compact List */}
-                        <div className="space-y-2 py-2">
-                            {[
-                                'Zero Eye Strain & Fatigue',
-                                'Cortisol Control System',
-                                'Laser-Sharp Productivity',
-                                'Deep Sleep Protocols'
-                            ].map((feature, i) => (
-                                <div key={i} className="flex items-center gap-3">
-                                    <div className="w-4 h-4 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center flex-shrink-0">
-                                        <svg className="w-2.5 h-2.5 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                                            <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                                        </svg>
-                                    </div>
-                                    <span className="text-xs text-zinc-300 font-medium tracking-wide">{feature}</span>
-                                </div>
-                            ))}
+                        {/* Features - Compact Summary */}
+                        <div className="py-2 text-center border-t border-white/5 border-b mb-2">
+                            <p className="text-[11px] text-zinc-400 font-medium leading-relaxed px-2">
+                                Full access to all neural optimization tools.
+                            </p>
                         </div>
 
                         {/* Google Sign-In Button */}

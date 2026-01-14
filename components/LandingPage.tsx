@@ -24,7 +24,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
     const [showPricingModal, setShowPricingModal] = useState(false);
     const [currentUser, setCurrentUser] = useState<User | null>(null);
     const [freeSessionsUsed, setFreeSessionsUsed] = useState(0);
-    const { isPremium } = useSubscription(); // Use existing hook
+    const { isPremium, loading: isSubscriptionLoading } = useSubscription(); // Use existing hook
     // const isPremium = false;
     const chatInputRef = useRef<HTMLInputElement>(null);
 
@@ -89,6 +89,11 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
     };
 
     const handleStartSession = async () => {
+        if (isSubscriptionLoading) {
+            console.log("[LandingPage] Subscription still loading...");
+            return;
+        }
+
         // Scenario 2: If user is premium, go directly to dashboard
         if (isPremium) {
             onEnter({
@@ -269,6 +274,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
                                 result={analysisResult}
                                 onStartSession={handleStartSession}
                                 showLock={currentUser ? (!isPremium && freeSessionsUsed >= 3) : false}
+                                isSyncing={isSubscriptionLoading}
                             />
                         )}
                     </AnimatePresence>
@@ -393,15 +399,16 @@ const AnalyzingState: React.FC = () => {
     );
 };
 
-// Result View Component
+// ResultView Component
 interface ResultViewProps {
     task: string;
     result: any;
     onStartSession: () => void;
     showLock?: boolean;
+    isSyncing?: boolean;
 }
 
-const ResultView: React.FC<ResultViewProps> = ({ task, result, onStartSession, showLock }) => {
+const ResultView: React.FC<ResultViewProps> = ({ task, result, onStartSession, showLock, isSyncing }) => {
     return (
         <motion.div
             initial={{ opacity: 0 }}
@@ -539,12 +546,15 @@ const ResultView: React.FC<ResultViewProps> = ({ task, result, onStartSession, s
 
                             {/* Action Button */}
                             <motion.button
-                                whileHover={{ scale: 1.02 }}
-                                whileTap={{ scale: 0.98 }}
+                                whileHover={!isSyncing ? { scale: 1.02 } : {}}
+                                whileTap={!isSyncing ? { scale: 0.98 } : {}}
                                 onClick={onStartSession}
+                                disabled={isSyncing}
                                 className={`w-full py-4 rounded-md font-medium text-[13px] transition-all duration-200 flex items-center justify-center gap-2 ${showLock
                                     ? 'bg-zinc-900/50 text-zinc-600 cursor-not-allowed border border-zinc-800'
-                                    : 'bg-[#1A1A1A] text-white hover:bg-[#252525] border border-zinc-800 shadow-[0_1px_2px_rgba(0,0,0,0.4)] hover:shadow-[0_4px_12px_rgba(0,0,0,0.5)] active:scale-[0.99]'
+                                    : isSyncing
+                                        ? 'bg-zinc-800 text-zinc-500 cursor-wait border border-zinc-700'
+                                        : 'bg-[#1A1A1A] text-white hover:bg-[#252525] border border-zinc-800 shadow-[0_1px_2px_rgba(0,0,0,0.4)] hover:shadow-[0_4px_12px_rgba(0,0,0,0.5)] active:scale-[0.99]'
                                     }`}
                             >
                                 {showLock ? (
@@ -553,6 +563,11 @@ const ResultView: React.FC<ResultViewProps> = ({ task, result, onStartSession, s
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                                         </svg>
                                         Limit Reached
+                                    </span>
+                                ) : isSyncing ? (
+                                    <span className="flex items-center justify-center gap-2">
+                                        <div className="w-3 h-3 rounded-full border border-zinc-500 border-t-white animate-spin"></div>
+                                        Syncing Plan...
                                     </span>
                                 ) : "Initiate Environment"}
                             </motion.button>
