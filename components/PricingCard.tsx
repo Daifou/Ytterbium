@@ -82,7 +82,7 @@ export const PricingCard: React.FC<PricingCardProps> = ({
                     <div className="flex-1 overflow-y-auto pt-10 pb-4 scrollbar-hide">
                         <div className="px-4">
                             <WhopCheckoutEmbed
-                                planId="plan_8CWnEKzsQpVQh"
+                                planId="plan_e5QKHjthJdH40"
                                 returnUrl={window.location.origin + '/dashboard?checkout=success'}
                                 email={currentUser?.email || undefined}
                             />
