@@ -6,18 +6,18 @@ import { cn } from "../lib/utils";
 const content = [
     {
         number: "1",
-        title: "Sample Preparation",
-        description: "To prepare samples for ProSE, proteins and peptides are first functionalized by attaching an initiating linker to one terminus of each peptide chain.",
+        title: "Start With Clarity",
+        description: "Tell us your task. AI sets your focus intensity automatically.",
     },
     {
         number: "2",
-        title: "Molecular Expansion",
-        description: "Each amino acid is then sequentially added and uniformly spaced along the linker in its original order, constructing a stable molecular sequence.",
+        title: "Work Without Breaking",
+        description: "System detects fatigue through your behavior and forces strategic rest.",
     },
     {
         number: "3",
-        title: "Amino Acid Sequencing",
-        description: "Assembled molecules pass through the neural plate, where distinct electrical signatures from each unit reveal the protein's complete sequence.",
+        title: "Finish Faster, Healthier",
+        description: "Complete your work in protected intervals instead of damaging marathons",
     },
 ];
 

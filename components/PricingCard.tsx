@@ -159,10 +159,13 @@ export const PricingCard: React.FC<PricingCardProps> = ({
                         {/* Features - Compact List */}
                         <div className="space-y-3 py-4">
                             {[
-                                'Biological Calibration',
-                                'Hormone Protection',
-                                'Neuro-Rest Sessions',
-                                'Deep Work Metrics'
+                                'Zero Eye Strain',
+                                'No Gamer Posture',
+                                'Cortisol Under Control',
+                                'Real Rest',
+                                'Laser-Sharp Productivity',
+                                'Sleep Like You Used To',
+                                'Prevent Mental Fog'
                             ].map((feature, i) => (
                                 <div key={i} className="flex items-center gap-3">
                                     <div className="w-5 h-5 rounded-full bg-zinc-700 border border-zinc-600 flex items-center justify-center flex-shrink-0">
@@ -306,10 +309,14 @@ export const PricingCard: React.FC<PricingCardProps> = ({
                     <div className="relative p-10 md:p-14 bg-zinc-900/10 flex flex-col justify-center">
                         <div className="space-y-8">
                             {[
-                                { title: "Biological Calibration", desc: "Zero eye strain protocol & posture correction." },
-                                { title: "Hormone Protection", desc: "Cortisol regulation & fatigue detection alerts." },
-                                { title: "Neuro-Rest Sessions", desc: "Guided NSDR protocols for rapid recovery." },
-                                { title: "Deep Work Metrics", desc: "Momentum tracking & flow state analytics." },
+                                { title: "Zero Eye Strain", desc: "End your day without dryness, blur, or fatigue." },
+                                { title: "No Gamer Posture", desc: "Sit long without slouching or pain." },
+                                { title: "Cortisol Under Control", desc: "Work hard without wrecking your hormones." },
+                                { title: "Real Rest", desc: "Guided breaks that truly refresh your mind and body." },
+                                { title: "Avoid the \"Worked All Day, Did Nothing\" Feeling", desc: "" },
+                                { title: "Laser-Sharp Productivity", desc: "Focus when it matters; stop when it doesn't." },
+                                { title: "Sleep Like You Used To", desc: "Fall asleep fast, wake up restored." },
+                                { title: "Prevent Mental Fog", desc: "Get alerted before focus drops." },
                             ].map((item, i) => (
                                 <div
                                     key={i}
