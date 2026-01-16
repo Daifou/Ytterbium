@@ -30,33 +30,38 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
     const [isSyncing, setIsSyncing] = useState(false);
 
     // Check for existing user & usage stats
-    // Check for existing user & usage stats & Auto-Enter for Premium
+    // Check for existing user & Auto-Enter for Premium with Pending Session
     useEffect(() => {
         const checkUser = async () => {
             const { data: { user } } = await supabase.auth.getUser();
             setCurrentUser(user);
 
             if (user) {
-                const profile = await databaseService.getProfile(user.id);
-                if (profile) {
-                    setFreeSessionsUsed((profile as any).free_sessions_used || 0);
+                // Use refreshSubscription for consistency
+                const subData = await refreshSubscription();
+
+                if (subData) {
+                    setFreeSessionsUsed((subData as any).free_sessions_used || 0);
 
                     // Auto-Restore Session if Premium + Pending Session
-                    // This handles the "App.tsx restore" requirement for users returning/refreshing
                     const pendingSession = localStorage.getItem('pending_session');
-                    if (pendingSession && (profile as any).is_premium) {
-                        console.log("[LandingPage] Restoring pending session for premium user...");
+                    if (pendingSession && subData.is_premium) {
+                        console.log("[LandingPage] Premium user with pending session - auto-entering dashboard...");
                         try {
                             const sessionData = JSON.parse(pendingSession);
                             onEnter({
                                 ...sessionData,
                                 user: user
                             });
+                            return;
                         } catch (e) {
                             console.error("Failed to parse pending session", e);
                         }
                     }
                 }
+
+                // Clean up any stale auth flags
+                localStorage.removeItem('auth_return_mode');
             }
         };
         checkUser();
@@ -149,8 +154,6 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
     const handleGoogleSignUp = async () => {
         try {
             console.log("[LandingPage] Engaging authService.signInWithGoogle...");
-            // Set flag to return to paywall immediately
-            localStorage.setItem('auth_return_mode', 'paywall');
 
             const { error } = await authService.signInWithGoogle();
 
@@ -163,67 +166,6 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
             alert(`Critical System Error: ${err.message || 'Unknown failure'}`);
         }
     };
-
-    // Check for auth return mode
-    // Check for auth return mode - ROBUST CHECK
-    useEffect(() => {
-        const handleAuthReturn = async () => {
-            const returnMode = localStorage.getItem('auth_return_mode');
-            if (returnMode === 'paywall') {
-                console.log("[LandingPage] Returning from Auth Flow...");
-                setIsSyncing(true);
-
-                // 1. Wait for auth to settle and get user
-                const { data: { user } } = await supabase.auth.getUser();
-
-                if (user) {
-                    console.log("[LandingPage] User authenticated:", user.id);
-                    setCurrentUser(user); // Ensure state is synced
-
-                    // 2. Check subscription status FRESH
-                    const subData = await checkSubscription();
-                    console.log("[LandingPage] Post-Auth Subscription Check:", subData);
-
-                    if (subData?.is_premium) {
-                        console.log("[LandingPage] User is Premium! Bypassing paywall.");
-                        // Restore pending session if available
-                        const pendingSessionStr = localStorage.getItem('pending_session');
-                        if (pendingSessionStr) {
-                            try {
-                                const sessionData = JSON.parse(pendingSessionStr);
-                                onEnter({
-                                    ...sessionData,
-                                    user: user
-                                });
-                            } catch (e) {
-                                console.error("Error parsing pending session", e);
-                                // Fallback if session lost, but let them in
-                                onEnter({ user });
-                            }
-                        } else {
-                            // Just enter dashboard
-                            onEnter({ user });
-                        }
-                        // Clear flags
-                        localStorage.removeItem('auth_return_mode');
-                        setIsSyncing(false);
-                        return;
-                    }
-                }
-
-                // 3. If NOT premium, or no user (weird), show paywall
-                console.log("[LandingPage] User not premium or not found. Showing Paywall.");
-                setShowPricingModal(true);
-                setIsSyncing(false);
-                // We keep 'auth_return_mode' until they pay or explicitly close/cancel in a way we define later,
-                // BUT for now, we might want to clear it so a refresh doesn't loop them if they want to escape.
-                // However, user asked for "smooth process", so keeping logic simple.
-                localStorage.removeItem('auth_return_mode');
-            }
-        };
-
-        handleAuthReturn();
-    }, []);
 
     return (
         <div className="min-h-screen bg-[#09090b] text-white relative">

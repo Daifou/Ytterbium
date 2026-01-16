@@ -56,8 +56,7 @@ export const PricingCard: React.FC<PricingCardProps> = ({
             e.preventDefault();
             setIsLoading(true);
 
-            // Unified Flow: Sign In -> Paywall
-            localStorage.setItem('auth_return_mode', 'paywall');
+            // Save pending plan for after auth
             localStorage.setItem('pending_plan', isAnnual ? 'annual' : 'monthly');
 
             const { error } = await authService.signInWithGoogle();
