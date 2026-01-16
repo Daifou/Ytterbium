@@ -751,6 +751,7 @@ export const Dashboard: React.FC = () => {
                                                     dragConstraints={layoutWrapperRef}
                                                     dragElastic={0.2}
                                                     dragMomentum={false} // Precise control
+                                                    onDrag={updatePaths}
                                                     whileDrag={{ scale: 1.05, cursor: 'grabbing', zIndex: 100 }}
                                                     className={`w-full max-w-[16rem] min-h-[13rem] relative z-20 cursor-grab active:cursor-grabbing`}
                                                 >
@@ -763,6 +764,7 @@ export const Dashboard: React.FC = () => {
                                                     dragConstraints={layoutWrapperRef}
                                                     dragElastic={0.2}
                                                     dragMomentum={false}
+                                                    onDrag={updatePaths}
                                                     whileDrag={{ scale: 1.05, cursor: 'grabbing', zIndex: 100 }}
                                                     className={`w-full max-w-[20rem] h-[15rem] relative z-30 cursor-grab active:cursor-grabbing`}
                                                 >
@@ -775,6 +777,7 @@ export const Dashboard: React.FC = () => {
                                                     dragConstraints={layoutWrapperRef}
                                                     dragElastic={0.2}
                                                     dragMomentum={false}
+                                                    onDrag={updatePaths}
                                                     whileDrag={{ scale: 1.05, cursor: 'grabbing', zIndex: 100 }}
                                                     className={`w-full max-w-[16rem] h-[9.25rem] mt-0 md:mt-24 relative z-20 cursor-grab active:cursor-grabbing`}
                                                 >
