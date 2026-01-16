@@ -9,7 +9,7 @@ type SpatialState = {
   nodes: Node[];
   edges: Edge[];
   viewMode: SpatialViewMode;
-  
+
   // Actions
   onNodesChange: OnNodesChange;
   onEdgesChange: OnEdgesChange;
@@ -35,19 +35,36 @@ const initialNodes: Node[] = [
   {
     id: 'gold-vault',
     type: 'goldVault',
-    position: { x: 0, y: 400 },
+    position: { x: 800, y: 0 },
     data: { label: 'Gold Vault' },
   },
 ];
 
-const initialEdges: Edge[] = [];
+const initialEdges: Edge[] = [
+  {
+    id: 'e1-2',
+    source: 'focus-timer',
+    target: 'task-list',
+    type: 'custom',
+    animated: true,
+    style: { stroke: 'rgba(255, 255, 255, 0.2)', strokeWidth: 2, strokeDasharray: '5,5' },
+  },
+  {
+    id: 'e2-3',
+    source: 'task-list',
+    target: 'gold-vault',
+    type: 'custom',
+    animated: true,
+    style: { stroke: 'rgba(255, 255, 255, 0.2)', strokeWidth: 2, strokeDasharray: '5,5' },
+  },
+];
 
 export const useSpatialStore = create<SpatialState>()(
   persist(
     (set, get) => ({
       nodes: initialNodes,
       edges: initialEdges,
-      viewMode: 'panel', // Default to panel view initially
+      viewMode: 'spatial', // Default to spatial view
 
       onNodesChange: (changes) => {
         set({
@@ -63,9 +80,9 @@ export const useSpatialStore = create<SpatialState>()(
 
       onConnect: (connection: Connection) => {
         set({
-          edges: addEdge({ 
-            ...connection, 
-            type: 'custom', 
+          edges: addEdge({
+            ...connection,
+            type: 'custom',
             animated: true,
             style: { stroke: 'rgba(255, 255, 255, 0.2)', strokeWidth: 2, strokeDasharray: '5,5' }
           }, get().edges),
@@ -73,15 +90,15 @@ export const useSpatialStore = create<SpatialState>()(
       },
 
       setViewMode: (mode) => set({ viewMode: mode }),
-      
+
       addNode: (node) => set({ nodes: [...get().nodes, node] }),
     }),
     {
-      name: 'ytterbium-spatial-storage',
-      partialize: (state) => ({ 
-        nodes: state.nodes, 
+      name: 'ytterbium-spatial-storage-v2',
+      partialize: (state) => ({
+        nodes: state.nodes,
         edges: state.edges,
-        viewMode: state.viewMode 
+        viewMode: state.viewMode
       }),
     }
   )
