@@ -14,21 +14,16 @@ const LandingWrapper = () => {
 
   useEffect(() => {
     const checkAutoEnter = async () => {
-      // 1. Check for pending session
-      const pendingSession = localStorage.getItem('pending_session');
-      if (!pendingSession) {
-        setIsChecking(false);
-        return;
-      }
-
-      // 2. Check if user is logged in & premium (Force Refresh)
+      // 1. Check if user is logged in & premium (Force Refresh)
+      // Prioritize this check for ALL users to ensure paid users never see Landing Page loop
       const subData = await refreshSubscription();
       if (subData?.is_premium) {
-        console.log("[App] Auto-Entry: User is premium with pending session. Redirecting...");
+        console.log("[App] Auto-Entry: User is premium. Redirecting...");
         navigate('/dashboard');
         return;
       }
 
+      // If not premium, stop checking and show Landing Page
       setIsChecking(false);
     };
 
