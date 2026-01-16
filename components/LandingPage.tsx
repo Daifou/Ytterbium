@@ -115,35 +115,34 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
             focusMode: analysisResult.focusMode,
         }));
 
-        // 2. FORCE REFRESH from DB to avoid staleness
+        // 2. Show loading state while checking subscription
         setIsSyncing(true);
-        console.log("[LandingPage] Verifying subscription status...");
 
-        let validPremium = isPremium;
-
+        // 3. If user is logged in, FORCE fresh subscription check to avoid stale data
         if (currentUser) {
+            console.log("[LandingPage] Verifying subscription status for logged-in user...");
             const freshSub = await refreshSubscription();
+
+            // If user is premium, go straight to dashboard
             if (freshSub?.is_premium) {
-                validPremium = true;
+                console.log("[LandingPage] User is verified premium. Entering dashboard immediately.");
+                setIsSyncing(false);
+                onEnter({
+                    task,
+                    intensity: analysisResult.intensity,
+                    insight: analysisResult.insight,
+                    focusMode: analysisResult.focusMode,
+                    user: currentUser,
+                });
+                return;
             }
+
+            // If not premium, fall through to show paywall
+            console.log("[LandingPage] User is logged in but not premium. Showing paywall.");
         }
 
+        // 4. Not logged in OR Not Premium -> Show Unified Pricing Modal
         setIsSyncing(false);
-
-        // 3. If User is Logged In AND Premium (Verified) -> GO STRAIGHT TO DASHBOARD
-        if (currentUser && validPremium) {
-            console.log("[LandingPage] User is verified premium. Entering dashboard immediately.");
-            onEnter({
-                task,
-                intensity: analysisResult.intensity,
-                insight: analysisResult.insight,
-                focusMode: analysisResult.focusMode,
-                user: currentUser,
-            });
-            return;
-        }
-
-        // 4. Any other case (Not logged in OR Not Premium) -> Show Unified Pricing Modal
         setShowPricingModal(true);
     };
 

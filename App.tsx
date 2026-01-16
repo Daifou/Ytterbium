@@ -14,16 +14,19 @@ const LandingWrapper = () => {
 
   useEffect(() => {
     const checkAutoEnter = async () => {
-      // 1. Check if user is logged in & premium (Force Refresh)
-      // Prioritize this check for ALL users to ensure paid users never see Landing Page loop
+      console.log("[App] LandingWrapper: Checking if user should auto-enter dashboard...");
+
+      // Force fresh subscription check to see if user is premium
       const subData = await refreshSubscription();
+
       if (subData?.is_premium) {
-        console.log("[App] Auto-Entry: User is premium. Redirecting...");
+        console.log("[App] ✓ Premium user detected. Auto-redirecting to dashboard.");
         navigate('/dashboard');
         return;
       }
 
-      // If not premium, stop checking and show Landing Page
+      // Not premium or not logged in - show landing page
+      console.log("[App] Non-premium or logged-out user. Showing landing page.");
       setIsChecking(false);
     };
 

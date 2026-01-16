@@ -165,7 +165,7 @@ export function useSubscription() {
 
     return {
         subscription,
-        loading,
+        loading, // Expose loading state so consumers can wait before checking isPremium
         error,
         isPremium: subscription?.is_premium || false,
         checkSubscription,
