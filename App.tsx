@@ -9,8 +9,6 @@ import { useSubscription } from './hooks/useSubscription';
 
 const LandingWrapper = () => {
   const navigate = useNavigate();
-  const { refreshSubscription } = useSubscription();
-  const [isChecking, setIsChecking] = useState(true);
 
   useEffect(() => {
     const checkAutoEnter = async () => {
@@ -40,16 +38,6 @@ const LandingWrapper = () => {
     }
     navigate('/dashboard');
   };
-
-  if (isChecking) {
-    return (
-      <div className="h-screen bg-[#050505] flex items-center justify-center">
-        <div className="text-[10px] text-zinc-600 font-mono tracking-[0.3em] uppercase animate-pulse">
-          Verifying Access...
-        </div>
-      </div>
-    );
-  }
 
   return <LandingPage onEnter={handleEnter} />;
 };
