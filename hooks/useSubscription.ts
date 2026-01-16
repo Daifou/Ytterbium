@@ -15,6 +15,47 @@ export function useSubscription() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<PostgrestError | null>(null);
 
+    const refreshSubscription = async () => {
+        setLoading(true);
+        try {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) {
+                setSubscription(null);
+                return null;
+            }
+
+            // FORCE FETCH from database, bypassing potential state staleness
+            const { data, error } = await supabase
+                .from('profiles')
+                .select('id, subscription_status, plan_type, current_period_end, is_premium')
+                .eq('id', user.id)
+                .single();
+
+            if (error || !data) {
+                console.error("Refresh subscription failed or no data:", error);
+                // Don't nullify subscription immediately if error, keeps stale data which might be safer, 
+                // but for 'is_premium' we might want to be strict.
+                // Let's return null to indicate failure to verify.
+                return null;
+            }
+
+            const subData: Subscription = {
+                id: data.id,
+                status: data.subscription_status as any,
+                plan_type: data.plan_type,
+                current_period_end: data.current_period_end,
+                is_premium: data.is_premium
+            };
+            setSubscription(subData);
+            return subData;
+        } catch (err) {
+            console.error("Refresh subscription exception:", err);
+            return null;
+        } finally {
+            setLoading(false);
+        }
+    };
+
     useEffect(() => {
         let authSubscription: any;
 
@@ -127,6 +168,7 @@ export function useSubscription() {
         loading,
         error,
         isPremium: subscription?.is_premium || false,
-        checkSubscription
+        checkSubscription,
+        refreshSubscription
     };
 }

@@ -5,8 +5,35 @@ import { Dashboard } from './components/Dashboard';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { authService } from './services/authService';
 
+import { useSubscription } from './hooks/useSubscription';
+
 const LandingWrapper = () => {
   const navigate = useNavigate();
+  const { refreshSubscription } = useSubscription();
+  const [isChecking, setIsChecking] = useState(true);
+
+  useEffect(() => {
+    const checkAutoEnter = async () => {
+      // 1. Check for pending session
+      const pendingSession = localStorage.getItem('pending_session');
+      if (!pendingSession) {
+        setIsChecking(false);
+        return;
+      }
+
+      // 2. Check if user is logged in & premium (Force Refresh)
+      const subData = await refreshSubscription();
+      if (subData?.is_premium) {
+        console.log("[App] Auto-Entry: User is premium with pending session. Redirecting...");
+        navigate('/dashboard');
+        return;
+      }
+
+      setIsChecking(false);
+    };
+
+    checkAutoEnter();
+  }, []);
 
   const handleEnter = (data: any) => {
     console.log("[Router] LandingPage onEnter triggered", data);
@@ -15,6 +42,16 @@ const LandingWrapper = () => {
     }
     navigate('/dashboard');
   };
+
+  if (isChecking) {
+    return (
+      <div className="h-screen bg-[#050505] flex items-center justify-center">
+        <div className="text-[10px] text-zinc-600 font-mono tracking-[0.3em] uppercase animate-pulse">
+          Verifying Access...
+        </div>
+      </div>
+    );
+  }
 
   return <LandingPage onEnter={handleEnter} />;
 };
