@@ -745,17 +745,41 @@ export const Dashboard: React.FC = () => {
                                             </svg>
 
                                             <div className="flex flex-col md:flex-row items-center justify-center gap-12 md:gap-0 pt-20 md:pt-0">
-                                                <div ref={tasksRef} className={`w-full max-w-[16rem] min-h-[13rem] relative z-20`}>
+                                                <motion.div
+                                                    ref={tasksRef}
+                                                    drag
+                                                    dragConstraints={layoutWrapperRef}
+                                                    dragElastic={0.2}
+                                                    dragMomentum={false} // Precise control
+                                                    whileDrag={{ scale: 1.05, cursor: 'grabbing', zIndex: 100 }}
+                                                    className={`w-full max-w-[16rem] min-h-[13rem] relative z-20 cursor-grab active:cursor-grabbing`}
+                                                >
                                                     <TaskList tasks={tasks} onToggle={toggleTask} onAdd={addTask} onDelete={deleteTask} />
-                                                </div>
+                                                </motion.div>
                                                 {!isMobile && <div className="w-[16rem] relative z-0 pointer-events-none" />}
-                                                <div ref={timerRefDiv} className={`w-full max-w-[20rem] h-[15rem] relative z-30`}>
+                                                <motion.div
+                                                    ref={timerRefDiv}
+                                                    drag
+                                                    dragConstraints={layoutWrapperRef}
+                                                    dragElastic={0.2}
+                                                    dragMomentum={false}
+                                                    whileDrag={{ scale: 1.05, cursor: 'grabbing', zIndex: 100 }}
+                                                    className={`w-full max-w-[20rem] h-[15rem] relative z-30 cursor-grab active:cursor-grabbing`}
+                                                >
                                                     <FocusTimer status={status} elapsedSeconds={elapsed} durationSeconds={duration} fatigueScore={currentMetrics?.fatigueScore || 0} onStart={() => handleStart()} onPause={handlePause} onReset={handleReset} onIntensityChange={handleIntensityChange} currentIntensity={focusIntensity} currentInsight={insight} />
-                                                </div>
+                                                </motion.div>
                                                 {!isMobile && <div className="w-[16rem] relative z-0 pointer-events-none" />}
-                                                <div ref={vaultRef} className={`w-full max-w-[16rem] h-[9.25rem] mt-0 md:mt-24 relative z-20`}>
+                                                <motion.div
+                                                    ref={vaultRef}
+                                                    drag
+                                                    dragConstraints={layoutWrapperRef}
+                                                    dragElastic={0.2}
+                                                    dragMomentum={false}
+                                                    whileDrag={{ scale: 1.05, cursor: 'grabbing', zIndex: 100 }}
+                                                    className={`w-full max-w-[16rem] h-[9.25rem] mt-0 md:mt-24 relative z-20 cursor-grab active:cursor-grabbing`}
+                                                >
                                                     <GoldVault progress={(elapsed / duration) * 100} barsToday={barsToday} totalBars={totalBars} />
-                                                </div>
+                                                </motion.div>
                                             </div>
                                         </div>
                                     </div>
