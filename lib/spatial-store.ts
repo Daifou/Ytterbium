@@ -64,7 +64,7 @@ export const useSpatialStore = create<SpatialState>()(
     (set, get) => ({
       nodes: initialNodes,
       edges: initialEdges,
-      viewMode: 'spatial', // Default to spatial view
+      viewMode: 'panel', // Default to panel view initially
 
       onNodesChange: (changes) => {
         set({
@@ -94,7 +94,7 @@ export const useSpatialStore = create<SpatialState>()(
       addNode: (node) => set({ nodes: [...get().nodes, node] }),
     }),
     {
-      name: 'ytterbium-spatial-storage-v3',
+      name: 'ytterbium-spatial-storage-v4',
       partialize: (state) => ({
         nodes: state.nodes,
         edges: state.edges,

@@ -632,23 +632,7 @@ export const Dashboard: React.FC = () => {
                     intensityMode={insight.includes('Intensity') ? insight.split(' threshold')[0].replace('🚨 ', '') : 'Focus Mode'}
                 />
 
-                {/* View Toggle - Absolute Positioned */}
-                <div className="absolute top-6 right-6 z-[60] flex gap-2">
-                    <button
-                        onClick={() => setViewMode('panel')}
-                        className={`p-2 rounded-lg backdrop-blur-md border transition-all ${viewMode === 'panel' ? 'bg-white/10 border-white/20 text-white' : 'bg-black/40 border-white/5 text-gray-500 hover:text-white'}`}
-                        title="Panel View"
-                    >
-                        <LayoutGrid className="w-4 h-4" />
-                    </button>
-                    <button
-                        onClick={() => setViewMode('spatial')}
-                        className={`p-2 rounded-lg backdrop-blur-md border transition-all ${viewMode === 'spatial' ? 'bg-white/10 border-white/20 text-white' : 'bg-black/40 border-white/5 text-gray-500 hover:text-white'}`}
-                        title="Spatial Canvas"
-                    >
-                        <Maximize2 className="w-4 h-4" />
-                    </button>
-                </div>
+                {/* View Toggle Removed per user request */}
 
                 {viewMode === 'spatial' ? (
                     <div className="absolute inset-0 z-10 bg-[#050505]">
