@@ -413,14 +413,18 @@ export const Dashboard: React.FC = () => {
         const startY1 = relativeY(tasksRect) + getHeight(tasksRect) / 2;
         const endX1 = relativeX(timerRect);
         const endY1 = relativeY(timerRect) + getHeight(timerRect) / 2;
-        const controlOffset1 = 60;
+
+        const dist1 = Math.abs(endX1 - startX1);
+        const controlOffset1 = Math.max(dist1 * 0.4, 40);
         setPath1(`M ${startX1} ${startY1} C ${startX1 + controlOffset1} ${startY1} ${endX1 - controlOffset1} ${endY1} ${endX1} ${endY1}`);
 
         const startX2 = relativeX(timerRect) + getWidth(timerRect);
         const startY2 = relativeY(timerRect) + getHeight(timerRect) / 2;
         const endX2 = relativeX(vaultRect);
         const endY2 = relativeY(vaultRect) + getHeight(vaultRect) / 2;
-        const controlOffset2 = 60;
+
+        const dist2 = Math.abs(endX2 - startX2);
+        const controlOffset2 = Math.max(dist2 * 0.4, 40);
         setPath2(`M ${startX2} ${startY2} C ${startX2 + controlOffset2} ${startY2} ${endX2 - controlOffset2} ${endY2} ${endX2} ${endY2}`);
     }, []);
 
@@ -747,11 +751,13 @@ export const Dashboard: React.FC = () => {
                                             <div className="flex flex-col md:flex-row items-center justify-center gap-12 md:gap-0 pt-20 md:pt-0">
                                                 <motion.div
                                                     ref={tasksRef}
+                                                    layout
                                                     drag
                                                     dragConstraints={layoutWrapperRef}
                                                     dragElastic={0.2}
                                                     dragMomentum={false} // Precise control
                                                     onDrag={updatePaths}
+                                                    onLayoutAnimationComplete={updatePaths} // Trigger update after layout animation
                                                     whileDrag={{ scale: 1.05, cursor: 'grabbing', zIndex: 100 }}
                                                     className={`w-full max-w-[16rem] min-h-[13rem] relative z-20 cursor-grab active:cursor-grabbing`}
                                                 >
@@ -760,11 +766,13 @@ export const Dashboard: React.FC = () => {
                                                 {!isMobile && <div className="w-[16rem] relative z-0 pointer-events-none" />}
                                                 <motion.div
                                                     ref={timerRefDiv}
+                                                    layout
                                                     drag
                                                     dragConstraints={layoutWrapperRef}
                                                     dragElastic={0.2}
                                                     dragMomentum={false}
                                                     onDrag={updatePaths}
+                                                    onLayoutAnimationComplete={updatePaths}
                                                     whileDrag={{ scale: 1.05, cursor: 'grabbing', zIndex: 100 }}
                                                     className={`w-full max-w-[20rem] h-[15rem] relative z-30 cursor-grab active:cursor-grabbing`}
                                                 >
@@ -773,11 +781,13 @@ export const Dashboard: React.FC = () => {
                                                 {!isMobile && <div className="w-[16rem] relative z-0 pointer-events-none" />}
                                                 <motion.div
                                                     ref={vaultRef}
+                                                    layout
                                                     drag
                                                     dragConstraints={layoutWrapperRef}
                                                     dragElastic={0.2}
                                                     dragMomentum={false}
                                                     onDrag={updatePaths}
+                                                    onLayoutAnimationComplete={updatePaths}
                                                     whileDrag={{ scale: 1.05, cursor: 'grabbing', zIndex: 100 }}
                                                     className={`w-full max-w-[16rem] h-[9.25rem] mt-0 md:mt-24 relative z-20 cursor-grab active:cursor-grabbing`}
                                                 >
