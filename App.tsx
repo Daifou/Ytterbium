@@ -5,31 +5,8 @@ import { Dashboard } from './components/Dashboard';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { authService } from './services/authService';
 
-import { useSubscription } from './hooks/useSubscription';
-
 const LandingWrapper = () => {
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const checkAutoEnter = async () => {
-      console.log("[App] LandingWrapper: Checking if user should auto-enter dashboard...");
-
-      // Force fresh subscription check to see if user is premium
-      const subData = await refreshSubscription();
-
-      if (subData?.is_premium) {
-        console.log("[App] ✓ Premium user detected. Auto-redirecting to dashboard.");
-        navigate('/dashboard');
-        return;
-      }
-
-      // Not premium or not logged in - show landing page
-      console.log("[App] Non-premium or logged-out user. Showing landing page.");
-      setIsChecking(false);
-    };
-
-    checkAutoEnter();
-  }, []);
 
   const handleEnter = (data: any) => {
     console.log("[Router] LandingPage onEnter triggered", data);
