@@ -42,7 +42,7 @@ export const PricingModal: React.FC<PricingModalProps> = ({
                         currentUser={currentUser}
                         onAuthRequired={onAuthRequired}
                         isAuthMode={isAuthMode}
-                        isCompact={isAuthMode}
+                        isCompact={true}
                     />
                 </motion.div>
             </motion.div>

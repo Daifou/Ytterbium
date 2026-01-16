@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { User } from '@supabase/supabase-js';
 import { WhopCheckoutEmbed } from "@whop/checkout/react";
+import { authService } from '../services/authService';
 
 interface PricingCardProps {
     className?: string;
@@ -44,7 +45,7 @@ export const PricingCard: React.FC<PricingCardProps> = ({
         }
     }, [currentUser]);
 
-    const handleCheckout = (e: React.MouseEvent) => {
+    const handleCheckout = async (e: React.MouseEvent) => {
         if (isAuthMode && onAuth && !currentUser) {
             e.preventDefault();
             onAuth(isAnnual);
@@ -54,13 +55,16 @@ export const PricingCard: React.FC<PricingCardProps> = ({
         if (!currentUser) {
             e.preventDefault();
             setIsLoading(true);
+
+            // Unified Flow: Sign In -> Paywall
+            localStorage.setItem('auth_return_mode', 'paywall');
             localStorage.setItem('pending_plan', isAnnual ? 'annual' : 'monthly');
-            setTimeout(() => {
+
+            const { error } = await authService.signInWithGoogle();
+            if (error) {
+                console.error("Auth failed", error);
                 setIsLoading(false);
-                if (onAuthRequired) {
-                    onAuthRequired();
-                }
-            }, 600);
+            }
             return;
         }
 
