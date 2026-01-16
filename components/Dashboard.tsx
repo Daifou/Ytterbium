@@ -409,16 +409,16 @@ export const Dashboard: React.FC = () => {
         const getWidth = (rect: DOMRect) => rect.width / currentScale;
         const getHeight = (rect: DOMRect) => rect.height / currentScale;
 
-        const startX1 = relativeX(tasksRect) + getWidth(tasksRect) - 4;
+        const startX1 = relativeX(tasksRect) + getWidth(tasksRect);
         const startY1 = relativeY(tasksRect) + getHeight(tasksRect) / 2;
-        const endX1 = relativeX(timerRect) + 4;
+        const endX1 = relativeX(timerRect);
         const endY1 = relativeY(timerRect) + getHeight(timerRect) / 2;
         const controlOffset1 = 60;
         setPath1(`M ${startX1} ${startY1} C ${startX1 + controlOffset1} ${startY1} ${endX1 - controlOffset1} ${endY1} ${endX1} ${endY1}`);
 
-        const startX2 = relativeX(timerRect) + getWidth(timerRect) - 4;
+        const startX2 = relativeX(timerRect) + getWidth(timerRect);
         const startY2 = relativeY(timerRect) + getHeight(timerRect) / 2;
-        const endX2 = relativeX(vaultRect) + 4;
+        const endX2 = relativeX(vaultRect);
         const endY2 = relativeY(vaultRect) + getHeight(vaultRect) / 2;
         const controlOffset2 = 60;
         setPath2(`M ${startX2} ${startY2} C ${startX2 + controlOffset2} ${startY2} ${endX2 - controlOffset2} ${endY2} ${endX2} ${endY2}`);
