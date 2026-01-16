@@ -21,21 +21,21 @@ type SpatialState = {
 // Initial nodes for the spatial view
 const initialNodes: Node[] = [
   {
+    id: 'task-list',
+    type: 'taskList',
+    position: { x: -450, y: 0 },
+    data: { label: 'Contextual Tasks' },
+  },
+  {
     id: 'focus-timer',
     type: 'focusTimer',
     position: { x: 0, y: 0 },
     data: { label: 'Focus Timer' },
   },
   {
-    id: 'task-list',
-    type: 'taskList',
-    position: { x: 400, y: 0 },
-    data: { label: 'Contextual Tasks' },
-  },
-  {
     id: 'gold-vault',
     type: 'goldVault',
-    position: { x: 800, y: 0 },
+    position: { x: 450, y: 0 },
     data: { label: 'Gold Vault' },
   },
 ];
@@ -43,15 +43,15 @@ const initialNodes: Node[] = [
 const initialEdges: Edge[] = [
   {
     id: 'e1-2',
-    source: 'focus-timer',
-    target: 'task-list',
+    source: 'task-list',
+    target: 'focus-timer',
     type: 'custom',
     animated: true,
     style: { stroke: 'rgba(255, 255, 255, 0.2)', strokeWidth: 2, strokeDasharray: '5,5' },
   },
   {
     id: 'e2-3',
-    source: 'task-list',
+    source: 'focus-timer',
     target: 'gold-vault',
     type: 'custom',
     animated: true,
@@ -94,7 +94,7 @@ export const useSpatialStore = create<SpatialState>()(
       addNode: (node) => set({ nodes: [...get().nodes, node] }),
     }),
     {
-      name: 'ytterbium-spatial-storage-v2',
+      name: 'ytterbium-spatial-storage-v3',
       partialize: (state) => ({
         nodes: state.nodes,
         edges: state.edges,

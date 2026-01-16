@@ -63,8 +63,11 @@ const InfiniteCanvasContent: React.FC<InfiniteCanvasProps> = ({ children }) => {
                 edgeTypes={edgeTypes as any}
                 fitView
                 className="spatial-canvas"
-                minZoom={0.5}
-                maxZoom={2}
+                minZoom={1}
+                maxZoom={1}
+                zoomOnScroll={false}
+                zoomOnPinch={false}
+                zoomOnDoubleClick={false}
                 defaultEdgeOptions={{
                     type: 'default',
                     animated: true,
@@ -73,10 +76,10 @@ const InfiniteCanvasContent: React.FC<InfiniteCanvasProps> = ({ children }) => {
                 proOptions={{ hideAttribution: true }}
             >
                 <Background
-                    variant={BackgroundVariant.Dots}
-                    gap={20}
+                    variant={BackgroundVariant.Lines}
+                    gap={40}
                     size={1}
-                    color="rgba(255, 255, 255, 0.1)"
+                    color="rgba(110, 0, 160, 0.15)"
                 />
                 <Controls className="!bg-[#111] !border-[#222] !fill-white [&>button]:!border-b-[#222] hover:[&>button]:!bg-[#222]" />
 
