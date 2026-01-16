@@ -24,6 +24,10 @@ import { Moon } from 'lucide-react';
 import type { User } from '@supabase/supabase-js';
 import { useSubscription } from '../hooks/useSubscription';
 import { useLocation } from 'react-router-dom';
+import { InfiniteCanvas } from './InfiniteCanvas';
+import { CanvasHUD } from './CanvasHUD';
+import { useSpatialStore } from '../lib/spatial-store';
+import { LayoutGrid, Maximize2 } from 'lucide-react'; // Icons for view toggle
 
 const DEFAULT_DURATION = 25 * 60; // 25 min default
 const SCALE_FACTOR = 1.05;
@@ -63,7 +67,11 @@ export const Dashboard: React.FC = () => {
     const [focusIntensity, setFocusIntensity] = useState(5);
     const isFocusMode = mode === AppMode.FOCUS;
 
-    const [currentUser, setCurrentUser] = useState<User | null>(null);
+    const [currentUser, setCurrentUser] = useState<User | null>(null); // Restored
+
+    // Spatial Store
+    const { viewMode, setViewMode, nodes, onNodesChange } = useSpatialStore();
+
     const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
     const [isAuthLoading, setIsAuthLoading] = useState(true);
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
@@ -73,6 +81,7 @@ export const Dashboard: React.FC = () => {
     const [tasks, setTasks] = useState<Task[]>([]);
     const [alienMode, setAlienMode] = useState(false);
 
+    const [fatigueScore, setFatigueScore] = useState(0);
     const [currentMetrics, setCurrentMetrics] = useState<FatigueMetrics | null>(null);
     const [metricsHistory, setMetricsHistory] = useState<FatigueMetrics[]>([]);
     const [insight, setInsight] = useState('Initializing quantum focus systems...');
@@ -333,7 +342,10 @@ export const Dashboard: React.FC = () => {
     }, [status]);
 
     useEffect(() => {
-        const handleMetricsUpdate = (metrics: FatigueMetrics) => setCurrentMetrics(metrics);
+        const handleMetricsUpdate = (metrics: FatigueMetrics) => {
+            setCurrentMetrics(metrics);
+            setFatigueScore(metrics.fatigueScore);
+        };
         if (status === SessionStatus.RUNNING) {
             fatigueService.startTracking(handleMetricsUpdate, focusIntensity);
         } else {
@@ -483,6 +495,73 @@ export const Dashboard: React.FC = () => {
         }
     }, [countdownRemaining, handleStart, pendingStartUserId]);
 
+    // ----------------------------------------------------------------------------------
+    // SYNC STATE TO SPATIAL NODES
+    // ----------------------------------------------------------------------------------
+    useEffect(() => {
+        // We only need to sync if we are in spatial mode (or about to switch)
+        // But checking every render is fine for now; React Flow handles diffs efficiently.
+
+        // 1. Find the Focus Timer Node
+        const timerHelper = nodes.find(n => n.type === 'focusTimer');
+        if (timerHelper) {
+            // Update its data
+            // Note: In a real app we'd use a more targeted update to avoid full re-renders
+            // or share a store. Here we patch the node data.
+            const newData = {
+                ...timerHelper.data,
+                status,
+                elapsedSeconds: elapsed,
+                durationSeconds: duration,
+                fatigueScore: currentMetrics?.fatigueScore || 0,
+                currentIntensity: focusIntensity,
+                onStart: handleStart,
+                onPause: handlePause,
+                onReset: handleReset,
+                onIntensityChange: handleIntensityChange
+            };
+
+            // Only update if changed (deep comparison would be better, but strictly needed?)
+            // React Flow `applyNodeChanges` might be needed if we want to be "correct",
+            // but mutating data directly often works for simple cases, THOUGH it's bad practice.
+            // Let's use map to create a new array.
+            const newNodes = nodes.map(n => {
+                if (n.id === 'focus-timer') return { ...n, data: newData };
+                return n;
+            });
+
+            // This causes an infinite loop if we simply setNodes(newNodes) because of the dependency array.
+            // We need a way to only update when data actually changes.
+            // For MVP: Let's rely on the fact that FocusTimerNode re-renders if the store updates.
+            // Actually, we should push this data to the store using a specialized action.
+            // But `nodes` in useSpatialStore is the source of truth.
+            // A better pattern: The FocusTimerNode component itself should subscribe to a specialized store
+            // or Context that holds the dashboard state.
+
+            // Since we didn't refactor Dashboard state to a store yet, we will
+            // use a "Push" approach but throttle it or direct prop passing in InfiniteCanvas?
+            // React Flow Provider doesn't easy pass random context to nodes.
+
+            // Revised Plan:
+            // We will pass these values to the `InfiniteCanvas` component, which will
+            // use `useReactFlow` to update the nodes' data imperatively.
+
+            // Actually, creating a Context is the cleanest way.
+            // But let's stick to the Plan: "Wrap existing components".
+            // The wrapper components need access to these props.
+            // Let's render the `InfiniteCanvas` passing these props as a special `context` prop?
+            // React Flow Provider doesn't easy pass random context to nodes.
+
+            // Best quick fix: Update the store's node data ONLY when these values change.
+            // We can create a dedicated `updateNodeData` action in the store.
+            // But for now, let's leave this sync logic for a refactor step to avoid breaking things now.
+            // Instead, we will pass the props directly to a CONTEXT that the nodes can consume.
+        }
+    }, [status, elapsed, duration, currentMetrics?.fatigueScore, focusIntensity, handleStart, handlePause, handleReset, handleIntensityChange, nodes]);
+
+    // ----------------------------------------------------------------------------------
+    // LOAD USER DATA
+    // ----------------------------------------------------------------------------------
     if (isAuthLoading) {
         return (
             <div className="min-h-screen bg-[#050505] flex flex-col items-center justify-center">
@@ -510,6 +589,12 @@ export const Dashboard: React.FC = () => {
             </div>
         );
     }
+
+    const vaultState = {
+        dailyProgress: (elapsed / duration) * 100,
+        barsToday: barsToday,
+        totalBars: totalBars
+    };
 
     return (
         <>
@@ -547,117 +632,162 @@ export const Dashboard: React.FC = () => {
                     intensityMode={insight.includes('Intensity') ? insight.split(' threshold')[0].replace('🚨 ', '') : 'Focus Mode'}
                 />
 
-                <main
-                    className="
-                fixed md:top-12 md:right-12 md:bottom-12 md:left-[300px] 
-                inset-0 md:inset-auto z-10 
-                flex flex-col items-center justify-center 
-                bg-[#0A0A0C] 
-                md:rounded-[32px] 
-                md:border md:border-white/5 
-                overflow-hidden
-                shadow-2xl
-            "
-                    style={{ perspective: '1600px' }}
-                >
-                    <AIOptimizedIndicator currentInsight={insight} />
-                    <Background />
-                    <CosmicParticles />
-                    <QuantumRippleBackground zIndex={5} />
-                    <AnimatePresence mode="wait">
-                        <MotionDiv
-                            key={mode}
-                            initial={{ opacity: 0, rotateY: 3, scale: 0.96, filter: 'blur(8px)', y: 15 }}
-                            animate={{
-                                opacity: 1,
-                                rotateY: 0,
-                                scale: 1,
-                                filter: 'blur(0px)',
-                                y: 0,
-                                transition: {
-                                    duration: 0.7,
-                                    ease: [0.22, 1, 0.36, 1],
-                                    y: { type: 'spring', stiffness: 100, damping: 20 }
-                                }
-                            }}
-                            exit={{
-                                opacity: 0,
-                                rotateY: -3,
-                                scale: 0.96,
-                                filter: 'blur(8px)',
-                                y: -15,
-                                transition: { duration: 0.5, ease: "easeIn" }
-                            }}
-                            className="w-full max-w-[1800px] px-6 relative flex flex-col items-center justify-center"
-                            style={{ transformStyle: 'preserve-3d' }}
-                        >
-                            <div className="w-full h-full flex items-start justify-center pt-8 relative">
-                                <div
-                                    ref={layoutWrapperRef}
-                                    className="flex flex-col md:flex-row justify-center items-center w-full max-w-[1600px] px-4 relative"
-                                    style={{
-                                        transform: typeof window !== 'undefined' && window.innerWidth < 768 ? 'none' : `scale(${SCALE_FACTOR})`,
-                                        transformOrigin: 'center',
-                                        opacity: isFocusMode ? 1 : 0,
-                                        pointerEvents: isFocusMode ? 'auto' : 'none',
-                                        transition: 'opacity 0.5s ease-out'
-                                    }}
-                                >
-                                    {/* SVG Code reused */}
-                                    <svg className="absolute top-0 left-0 w-full h-full overflow-visible pointer-events-none z-40 hidden md:block">
-                                        <defs>
-                                            <linearGradient id="connection-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                                                <stop offset="0%" stopColor="#818cf8" stopOpacity="0.2" />
-                                                <stop offset="50%" stopColor="#c7d2fe" stopOpacity="0.4" />
-                                                <stop offset="100%" stopColor="#818cf8" stopOpacity="0.2" />
-                                            </linearGradient>
-                                            <filter id="subtle-glow" x="-50%" y="-50%" width="200%" height="200%">
-                                                <feGaussianBlur in="SourceGraphic" stdDeviation="1" result="blur" />
-                                                <feMerge>
-                                                    <feMergeNode in="blur" />
-                                                    <feMergeNode in="SourceGraphic" />
-                                                </feMerge>
-                                            </filter>
-                                            <marker id="arrow-head" markerWidth="4" markerHeight="4" refX="3.5" refY="2" orient="auto"><path d="M0,0 L4,2 L0,4 Z" fill="#c7d2fe" /></marker>
-                                        </defs>
-                                        {path1 && (<g filter="url(#subtle-glow)"><path d={path1} fill="none" stroke="url(#connection-gradient)" strokeWidth="1.5" strokeDasharray="8 8" className="transition-all duration-500"><animate attributeName="stroke-dashoffset" from="0" to="8" dur="3s" repeatCount="indefinite" calcMode="linear" /></path></g>)}
-                                        {path2 && (<g filter="url(#subtle-glow)"><path d={path2} fill="none" stroke="url(#connection-gradient)" strokeWidth="1.5" strokeDasharray="8 8" className="transition-all duration-500"><animate attributeName="stroke-dashoffset" from="0" to="8" dur="3s" repeatCount="indefinite" calcMode="linear" begin="1s" /></path></g>)}
-                                    </svg>
+                {/* View Toggle - Absolute Positioned */}
+                <div className="absolute top-6 right-6 z-[60] flex gap-2">
+                    <button
+                        onClick={() => setViewMode('panel')}
+                        className={`p-2 rounded-lg backdrop-blur-md border transition-all ${viewMode === 'panel' ? 'bg-white/10 border-white/20 text-white' : 'bg-black/40 border-white/5 text-gray-500 hover:text-white'}`}
+                        title="Panel View"
+                    >
+                        <LayoutGrid className="w-4 h-4" />
+                    </button>
+                    <button
+                        onClick={() => setViewMode('spatial')}
+                        className={`p-2 rounded-lg backdrop-blur-md border transition-all ${viewMode === 'spatial' ? 'bg-white/10 border-white/20 text-white' : 'bg-black/40 border-white/5 text-gray-500 hover:text-white'}`}
+                        title="Spatial Canvas"
+                    >
+                        <Maximize2 className="w-4 h-4" />
+                    </button>
+                </div>
 
-                                    <div className="flex flex-col md:flex-row items-center justify-center gap-12 md:gap-0 pt-20 md:pt-0">
-                                        <div ref={tasksRef} className={`w-full max-w-[16rem] min-h-[13rem] relative z-20 ${isFocusMode ? 'opacity-100' : 'opacity-0'}`}>
-                                            {isFocusMode ? <TaskList tasks={tasks} onToggle={toggleTask} onAdd={addTask} onDelete={deleteTask} /> : <div className="h-full w-full" />}
-                                        </div>
-                                        {!isMobile && <div className="w-[16rem] relative z-0 pointer-events-none" />}
-                                        <div ref={timerRefDiv} className={`w-full max-w-[20rem] h-[15rem] relative z-30 ${isFocusMode ? 'opacity-100' : 'opacity-0'}`}>
-                                            {isFocusMode ? <FocusTimer status={status} elapsedSeconds={elapsed} durationSeconds={duration} fatigueScore={currentMetrics?.fatigueScore || 0} onStart={() => handleStart()} onPause={handlePause} onReset={handleReset} onIntensityChange={handleIntensityChange} currentIntensity={focusIntensity} currentInsight={insight} /> : <div className="h-full w-full" />}
-                                        </div>
-                                        {!isMobile && <div className="w-[16rem] relative z-0 pointer-events-none" />}
-                                        <div ref={vaultRef} className={`w-full max-w-[16rem] h-[9.25rem] mt-0 md:mt-24 relative z-20 ${isFocusMode ? 'opacity-100' : 'opacity-0'}`}>
-                                            {isFocusMode ? <GoldVault progress={(elapsed / duration) * 100} barsToday={barsToday} totalBars={totalBars} /> : <div className="h-full w-full" />}
+                {viewMode === 'spatial' ? (
+                    <div className="absolute inset-0 z-10 bg-[#050505]">
+                        <InfiniteCanvas>
+                            <CanvasHUD />
+                            <NodesDataSync
+                                timerProps={{
+                                    status,
+                                    elapsedSeconds: elapsed,
+                                    durationSeconds: duration,
+                                    fatigueScore: currentMetrics?.fatigueScore || 0,
+                                    currentIntensity: focusIntensity,
+                                    onStart: handleStart,
+                                    onPause: handlePause,
+                                    onReset: handleReset,
+                                    onIntensityChange: handleIntensityChange
+                                }}
+                                taskListProps={{
+                                    tasks,
+                                    onToggle: toggleTask,
+                                    onAdd: addTask,
+                                    onDelete: deleteTask
+                                }}
+                                goldVaultProps={{
+                                    progress: vaultState.dailyProgress,
+                                    barsToday: vaultState.barsToday,
+                                    totalBars: vaultState.totalBars
+                                }}
+                            />
+                        </InfiniteCanvas>
+                    </div>
+                ) : (
+                    <main
+                        className="
+                    fixed md:top-12 md:right-12 md:bottom-12 md:left-[300px]
+                    inset-0 md:inset-auto z-10
+                    flex flex-col items-center justify-center
+                    bg-[#0A0A0C]
+                    md:rounded-[32px]
+                    md:border md:border-white/5
+                    overflow-hidden
+                    shadow-2xl
+                "
+                        style={{ perspective: '1600px' }}
+                    >
+
+                        <AIOptimizedIndicator currentInsight={insight} />
+                        <Background />
+                        <CosmicParticles />
+                        <QuantumRippleBackground zIndex={5} />
+
+                        <AnimatePresence mode="wait">
+                            <MotionDiv
+                                key={mode}
+                                initial={{ opacity: 0, rotateY: 3, scale: 0.96, filter: 'blur(8px)', y: 15 }}
+                                animate={{
+                                    opacity: 1,
+                                    rotateY: 0,
+                                    scale: 1,
+                                    filter: 'blur(0px)',
+                                    y: 0,
+                                    transition: {
+                                        duration: 0.7,
+                                        ease: [0.22, 1, 0.36, 1],
+                                        y: { type: 'spring', stiffness: 100, damping: 20 }
+                                    }
+                                }}
+                                exit={{
+                                    opacity: 0,
+                                    rotateY: -3,
+                                    scale: 0.96,
+                                    filter: 'blur(8px)',
+                                    y: -15,
+                                    transition: { duration: 0.5, ease: "easeIn" }
+                                }}
+                                className="w-full max-w-[1800px] px-6 relative flex flex-col items-center justify-center"
+                                style={{ transformStyle: 'preserve-3d' }}
+                            >
+                                {mode === AppMode.FOCUS && (
+                                    <div
+                                        className="w-full h-full flex items-start justify-center pt-8 relative"
+                                        style={{
+                                            transform: typeof window !== 'undefined' && window.innerWidth < 768 ? 'none' : `scale(${SCALE_FACTOR})`,
+                                            transformOrigin: 'center',
+                                        }}
+                                    >
+                                        <div
+                                            ref={layoutWrapperRef}
+                                            className="flex flex-col md:flex-row justify-center items-center w-full max-w-[1600px] px-4 relative"
+                                        >
+                                            {/* SVG Connectors */}
+                                            <svg className="absolute top-0 left-0 w-full h-full overflow-visible pointer-events-none z-40 hidden md:block">
+                                                <defs>
+                                                    <linearGradient id="connection-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                                        <stop offset="0%" stopColor="#818cf8" stopOpacity="0.2" />
+                                                        <stop offset="50%" stopColor="#c7d2fe" stopOpacity="0.4" />
+                                                        <stop offset="100%" stopColor="#818cf8" stopOpacity="0.2" />
+                                                    </linearGradient>
+                                                    <filter id="subtle-glow" x="-50%" y="-50%" width="200%" height="200%">
+                                                        <feGaussianBlur in="SourceGraphic" stdDeviation="1" result="blur" />
+                                                        <feMerge>
+                                                            <feMergeNode in="blur" />
+                                                            <feMergeNode in="SourceGraphic" />
+                                                        </feMerge>
+                                                    </filter>
+                                                    <marker id="arrow-head" markerWidth="4" markerHeight="4" refX="3.5" refY="2" orient="auto"><path d="M0,0 L4,2 L0,4 Z" fill="#c7d2fe" /></marker>
+                                                </defs>
+                                                {path1 && (<g filter="url(#subtle-glow)"><path d={path1} fill="none" stroke="url(#connection-gradient)" strokeWidth="1.5" strokeDasharray="8 8" className="transition-all duration-500"><animate attributeName="stroke-dashoffset" from="0" to="8" dur="3s" repeatCount="indefinite" calcMode="linear" /></path></g>)}
+                                                {path2 && (<g filter="url(#subtle-glow)"><path d={path2} fill="none" stroke="url(#connection-gradient)" strokeWidth="1.5" strokeDasharray="8 8" className="transition-all duration-500"><animate attributeName="stroke-dashoffset" from="0" to="8" dur="3s" repeatCount="indefinite" calcMode="linear" begin="1s" /></path></g>)}
+                                            </svg>
+
+                                            <div className="flex flex-col md:flex-row items-center justify-center gap-12 md:gap-0 pt-20 md:pt-0">
+                                                <div ref={tasksRef} className={`w-full max-w-[16rem] min-h-[13rem] relative z-20`}>
+                                                    <TaskList tasks={tasks} onToggle={toggleTask} onAdd={addTask} onDelete={deleteTask} />
+                                                </div>
+                                                {!isMobile && <div className="w-[16rem] relative z-0 pointer-events-none" />}
+                                                <div ref={timerRefDiv} className={`w-full max-w-[20rem] h-[15rem] relative z-30`}>
+                                                    <FocusTimer status={status} elapsedSeconds={elapsed} durationSeconds={duration} fatigueScore={currentMetrics?.fatigueScore || 0} onStart={() => handleStart()} onPause={handlePause} onReset={handleReset} onIntensityChange={handleIntensityChange} currentIntensity={focusIntensity} currentInsight={insight} />
+                                                </div>
+                                                {!isMobile && <div className="w-[16rem] relative z-0 pointer-events-none" />}
+                                                <div ref={vaultRef} className={`w-full max-w-[16rem] h-[9.25rem] mt-0 md:mt-24 relative z-20`}>
+                                                    <GoldVault progress={(elapsed / duration) * 100} barsToday={barsToday} totalBars={totalBars} />
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            </div>
+                                )}
 
-                            <AnimatePresence>
                                 {mode === AppMode.RELAX && (
-                                    <MotionDiv key="relax" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                                        <RelaxTimer onComplete={() => { setMode(AppMode.FOCUS); setStatus(SessionStatus.IDLE); setElapsed(0); }} fatigueScore={currentMetrics?.fatigueScore || 50} />
-                                    </MotionDiv>
+                                    <RelaxTimer onComplete={() => { setMode(AppMode.FOCUS); setStatus(SessionStatus.IDLE); setElapsed(0); }} fatigueScore={currentMetrics?.fatigueScore || 50} />
                                 )}
-                            </AnimatePresence>
-                            <AnimatePresence>
-                                {mode === AppMode.STATS && (
-                                    <MotionDiv key="stats" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                                        <StatsView metricsHistory={metricsHistory} />
-                                    </MotionDiv>
-                                )}
-                            </AnimatePresence>
 
-                        </MotionDiv>
-                    </AnimatePresence>
-                </main>
+                                {mode === AppMode.STATS && (
+                                    <StatsView metricsHistory={metricsHistory} />
+                                )}
+                            </MotionDiv>
+                        </AnimatePresence>
+                    </main>
+                )}
             </div>
 
             {/* Paywall Gate */}
@@ -668,7 +798,6 @@ export const Dashboard: React.FC = () => {
                     localStorage.setItem('pending_plan', isAnnual ? 'annual' : 'monthly');
                     await authService.signInWithGoogle();
                 }}
-            // Passed to PricingCard via internal ref prop drilling if needed, but PaywallModal renders PricingCard
             />
             <MacNotification
                 isVisible={!!notification}
@@ -680,4 +809,57 @@ export const Dashboard: React.FC = () => {
             />
         </>
     );
+};
+// Helper component to sync data to nodes without re-rendering the entire canvas
+const NodesDataSync = ({ timerProps, taskListProps, goldVaultProps }: any) => {
+    const { nodes, onNodesChange } = useSpatialStore();
+
+    // We use a simplified check to avoid infinite loops, 
+    // real app should use 'useReactFlow' setNodes or similar.
+    // For now, we assume this component re-renders when props change, 
+    // and we trigger a store update if the data in the store is stale.
+    // However, updating store during render is bad. We use useEffect.
+
+    useEffect(() => {
+        // We can batch update the nodes in the store
+        // This logic runs whenever props change.
+
+        let hasChanges = false;
+        const newNodes = nodes.map(node => {
+            if (node.id === 'focus-timer') {
+                // Determine if changed?
+                // For MVP simplicity, just overwrite.
+                const updated = { ...node, data: { ...node.data, ...timerProps } };
+                if (JSON.stringify(node.data) !== JSON.stringify(updated.data)) {
+                    hasChanges = true;
+                    return updated;
+                }
+            }
+            if (node.id === 'task-list') {
+                const updated = { ...node, data: { ...node.data, ...taskListProps } };
+                if (JSON.stringify(node.data) !== JSON.stringify(updated.data)) {
+                    hasChanges = true;
+                    return updated;
+                }
+            }
+            if (node.id === 'gold-vault') {
+                const updated = { ...node, data: { ...node.data, ...goldVaultProps } };
+                if (JSON.stringify(node.data) !== JSON.stringify(updated.data)) {
+                    hasChanges = true;
+                    return updated;
+                }
+            }
+            return node;
+        });
+
+        if (hasChanges) {
+            // Updating the store.
+            // CAUTION: This might trigger re-renders. unique dependency array helps.
+            // We need a direct way to setNodes without triggering this effect again if data is same.
+            // Our JSON.stringify check might be expensive but prevents loops.
+            useSpatialStore.setState({ nodes: newNodes });
+        }
+    }, [timerProps, taskListProps, goldVaultProps, nodes]);
+
+    return null;
 };
