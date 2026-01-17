@@ -681,61 +681,65 @@ export const Dashboard: React.FC = () => {
             >
                 <AIWhisper />
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-indigo-500/5 blur-[120px] rounded-full pointer-events-none z-0" />
-                <Sidebar
-                    currentMode={mode}
-                    setMode={setMode}
-                    alienMode={alienMode}
-                    toggleAlienMode={() => setAlienMode(!alienMode)}
-                    onSignOut={handleSignOut}
-                    user={currentUser}
-                    focusIntensity={focusIntensity}
-                />
 
-                <AuthModal
-                    isOpen={isAuthModalOpen}
-                    onClose={() => setIsAuthModalOpen(false)}
-                    onSuccess={(user) => {
-                        setCurrentUser(user);
-                        setIsAuthModalOpen(false);
-                    }}
-                    intensityMode={insight.includes('Intensity') ? insight.split(' threshold')[0].replace('🚨 ', '') : 'Focus Mode'}
-                />
+                {/* Main Application Layer */}
+                <div className="relative z-10 flex h-full">
+                    <Sidebar
+                        currentMode={mode}
+                        setMode={setMode}
+                        alienMode={alienMode}
+                        toggleAlienMode={() => setAlienMode(!alienMode)}
+                        onSignOut={handleSignOut}
+                        user={currentUser}
+                        focusIntensity={focusIntensity}
+                        completedCount={barsToday}
+                    />
 
-                {/* View Toggle Removed per user request */}
+                    <AuthModal
+                        isOpen={isAuthModalOpen}
+                        onClose={() => setIsAuthModalOpen(false)}
+                        onSuccess={(user) => {
+                            setCurrentUser(user);
+                            setIsAuthModalOpen(false);
+                        }}
+                        intensityMode={insight.includes('Intensity') ? insight.split(' threshold')[0].replace('🚨 ', '') : 'Focus Mode'}
+                    />
 
-                {viewMode === 'spatial' ? (
-                    <div className="absolute inset-0 z-10 bg-[#050505]">
-                        <InfiniteCanvas>
-                            <CanvasHUD />
-                            <NodesDataSync
-                                timerProps={{
-                                    status,
-                                    elapsedSeconds: elapsed,
-                                    durationSeconds: duration,
-                                    fatigueScore: currentMetrics?.fatigueScore || 0,
-                                    currentIntensity: focusIntensity,
-                                    onStart: handleStart,
-                                    onPause: handlePause,
-                                    onReset: handleReset,
-                                    onIntensityChange: handleIntensityChange
-                                }}
-                                taskListProps={{
-                                    tasks,
-                                    onToggle: toggleTask,
-                                    onAdd: addTask,
-                                    onDelete: deleteTask
-                                }}
-                                goldVaultProps={{
-                                    progress: vaultState.dailyProgress,
-                                    barsToday: vaultState.barsToday,
-                                    totalBars: vaultState.totalBars
-                                }}
-                            />
-                        </InfiniteCanvas>
-                    </div>
-                ) : (
-                    <main
-                        className="
+                    {/* View Toggle Removed per user request */}
+
+                    {viewMode === 'spatial' ? (
+                        <div className="absolute inset-0 z-10 bg-[#050505]">
+                            <InfiniteCanvas>
+                                <CanvasHUD />
+                                <NodesDataSync
+                                    timerProps={{
+                                        status,
+                                        elapsedSeconds: elapsed,
+                                        durationSeconds: duration,
+                                        fatigueScore: currentMetrics?.fatigueScore || 0,
+                                        currentIntensity: focusIntensity,
+                                        onStart: handleStart,
+                                        onPause: handlePause,
+                                        onReset: handleReset,
+                                        onIntensityChange: handleIntensityChange
+                                    }}
+                                    taskListProps={{
+                                        tasks,
+                                        onToggle: toggleTask,
+                                        onAdd: addTask,
+                                        onDelete: deleteTask
+                                    }}
+                                    goldVaultProps={{
+                                        progress: vaultState.dailyProgress,
+                                        barsToday: vaultState.barsToday,
+                                        totalBars: vaultState.totalBars
+                                    }}
+                                />
+                            </InfiniteCanvas>
+                        </div>
+                    ) : (
+                        <main
+                            className="
                     fixed md:top-12 md:right-12 md:bottom-12 md:left-[300px]
                     inset-0 md:inset-auto z-10
                     flex flex-col items-center justify-center
@@ -745,141 +749,141 @@ export const Dashboard: React.FC = () => {
                     overflow-hidden
                     shadow-2xl
                 "
-                        style={{ perspective: '1600px' }}
-                    >
+                            style={{ perspective: '1600px' }}
+                        >
 
-                        <AIOptimizedIndicator currentInsight={insight} />
-                        <Background />
-                        <CosmicParticles />
-                        <QuantumRippleBackground zIndex={5} />
+                            <AIOptimizedIndicator currentInsight={insight} />
+                            <Background />
+                            <CosmicParticles />
+                            <QuantumRippleBackground zIndex={5} />
 
-                        <AnimatePresence mode="wait">
-                            <MotionDiv
-                                key={mode}
-                                initial={{ opacity: 0, rotateY: 3, scale: 0.96, filter: 'blur(8px)', y: 15 }}
-                                animate={{
-                                    opacity: 1,
-                                    rotateY: 0,
-                                    scale: 1,
-                                    filter: 'blur(0px)',
-                                    y: 0,
-                                    transition: {
-                                        duration: 0.7,
-                                        ease: [0.22, 1, 0.36, 1],
-                                        y: { type: 'spring', stiffness: 100, damping: 20 }
-                                    }
-                                }}
-                                exit={{
-                                    opacity: 0,
-                                    rotateY: -3,
-                                    scale: 0.96,
-                                    filter: 'blur(8px)',
-                                    y: -15,
-                                    transition: { duration: 0.5, ease: "easeIn" }
-                                }}
-                                className="w-full max-w-[1800px] px-6 relative flex flex-col items-center justify-center"
-                                style={{ transformStyle: 'preserve-3d' }}
-                            >
-                                {mode === AppMode.FOCUS && (
-                                    <div
-                                        className="w-full h-full flex items-start justify-center pt-8 relative"
-                                        style={{
-                                            transform: typeof window !== 'undefined' && window.innerWidth < 768 ? 'none' : `scale(${SCALE_FACTOR})`,
-                                            transformOrigin: 'center',
-                                        }}
-                                    >
+                            <AnimatePresence mode="wait">
+                                <MotionDiv
+                                    key={mode}
+                                    initial={{ opacity: 0, rotateY: 3, scale: 0.96, filter: 'blur(8px)', y: 15 }}
+                                    animate={{
+                                        opacity: 1,
+                                        rotateY: 0,
+                                        scale: 1,
+                                        filter: 'blur(0px)',
+                                        y: 0,
+                                        transition: {
+                                            duration: 0.7,
+                                            ease: [0.22, 1, 0.36, 1],
+                                            y: { type: 'spring', stiffness: 100, damping: 20 }
+                                        }
+                                    }}
+                                    exit={{
+                                        opacity: 0,
+                                        rotateY: -3,
+                                        scale: 0.96,
+                                        filter: 'blur(8px)',
+                                        y: -15,
+                                        transition: { duration: 0.5, ease: "easeIn" }
+                                    }}
+                                    className="w-full max-w-[1800px] px-6 relative flex flex-col items-center justify-center"
+                                    style={{ transformStyle: 'preserve-3d' }}
+                                >
+                                    {mode === AppMode.FOCUS && (
                                         <div
-                                            ref={layoutWrapperRef}
-                                            className="flex flex-col md:flex-row justify-center items-center w-full max-w-[1600px] px-4 relative"
+                                            className="w-full h-full flex items-start justify-center pt-8 relative"
+                                            style={{
+                                                transform: typeof window !== 'undefined' && window.innerWidth < 768 ? 'none' : `scale(${SCALE_FACTOR})`,
+                                                transformOrigin: 'center',
+                                            }}
                                         >
-                                            {/* SVG Connectors */}
-                                            <svg className="absolute top-0 left-0 w-full h-full overflow-visible pointer-events-none z-40 hidden md:block">
-                                                <defs>
-                                                    <linearGradient id="connection-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                                                        <stop offset="0%" stopColor="#818cf8" stopOpacity="0.2" />
-                                                        <stop offset="50%" stopColor="#c7d2fe" stopOpacity="0.4" />
-                                                        <stop offset="100%" stopColor="#818cf8" stopOpacity="0.2" />
-                                                    </linearGradient>
-                                                    <filter id="subtle-glow" x="-50%" y="-50%" width="200%" height="200%">
-                                                        <feGaussianBlur in="SourceGraphic" stdDeviation="1" result="blur" />
-                                                        <feMerge>
-                                                            <feMergeNode in="blur" />
-                                                            <feMergeNode in="SourceGraphic" />
-                                                        </feMerge>
-                                                    </filter>
-                                                    <marker id="arrow-head" markerWidth="4" markerHeight="4" refX="3.5" refY="2" orient="auto"><path d="M0,0 L4,2 L0,4 Z" fill="#c7d2fe" /></marker>
-                                                </defs>
-                                                {path1 && (<g filter="url(#subtle-glow)"><path d={path1} fill="none" stroke="url(#connection-gradient)" strokeWidth="1.5" strokeDasharray="8 8" className="transition-all duration-500"><animate attributeName="stroke-dashoffset" from="0" to="8" dur="3s" repeatCount="indefinite" calcMode="linear" /></path></g>)}
-                                                {path2 && (<g filter="url(#subtle-glow)"><path d={path2} fill="none" stroke="url(#connection-gradient)" strokeWidth="1.5" strokeDasharray="8 8" className="transition-all duration-500"><animate attributeName="stroke-dashoffset" from="0" to="8" dur="3s" repeatCount="indefinite" calcMode="linear" begin="1s" /></path></g>)}
-                                            </svg>
+                                            <div
+                                                ref={layoutWrapperRef}
+                                                className="flex flex-col md:flex-row justify-center items-center w-full max-w-[1600px] px-4 relative"
+                                            >
+                                                {/* SVG Connectors */}
+                                                <svg className="absolute top-0 left-0 w-full h-full overflow-visible pointer-events-none z-40 hidden md:block">
+                                                    <defs>
+                                                        <linearGradient id="connection-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                                            <stop offset="0%" stopColor="#818cf8" stopOpacity="0.2" />
+                                                            <stop offset="50%" stopColor="#c7d2fe" stopOpacity="0.4" />
+                                                            <stop offset="100%" stopColor="#818cf8" stopOpacity="0.2" />
+                                                        </linearGradient>
+                                                        <filter id="subtle-glow" x="-50%" y="-50%" width="200%" height="200%">
+                                                            <feGaussianBlur in="SourceGraphic" stdDeviation="1" result="blur" />
+                                                            <feMerge>
+                                                                <feMergeNode in="blur" />
+                                                                <feMergeNode in="SourceGraphic" />
+                                                            </feMerge>
+                                                        </filter>
+                                                        <marker id="arrow-head" markerWidth="4" markerHeight="4" refX="3.5" refY="2" orient="auto"><path d="M0,0 L4,2 L0,4 Z" fill="#c7d2fe" /></marker>
+                                                    </defs>
+                                                    {path1 && (<g filter="url(#subtle-glow)"><path d={path1} fill="none" stroke="url(#connection-gradient)" strokeWidth="1.5" strokeDasharray="8 8" className="transition-all duration-500"><animate attributeName="stroke-dashoffset" from="0" to="8" dur="3s" repeatCount="indefinite" calcMode="linear" /></path></g>)}
+                                                    {path2 && (<g filter="url(#subtle-glow)"><path d={path2} fill="none" stroke="url(#connection-gradient)" strokeWidth="1.5" strokeDasharray="8 8" className="transition-all duration-500"><animate attributeName="stroke-dashoffset" from="0" to="8" dur="3s" repeatCount="indefinite" calcMode="linear" begin="1s" /></path></g>)}
+                                                </svg>
 
 
 
-                                            <div className="flex flex-col md:flex-row items-center justify-center gap-12 md:gap-0 pt-20 md:pt-0">
-                                                <motion.div
-                                                    ref={tasksRef}
-                                                    layout
-                                                    className={`w-full max-w-[16rem] min-h-[13rem] relative z-20`}
-                                                >
-                                                    <TaskList tasks={tasks} onToggle={toggleTask} onAdd={addTask} onDelete={deleteTask} />
-                                                </motion.div>
-                                                {!isMobile && <div className="w-[16rem] relative z-0 pointer-events-none" />}
-                                                <motion.div
-                                                    ref={timerRefDiv}
-                                                    layout
-                                                    className={`w-full max-w-[20rem] h-[15rem] relative z-30`}
-                                                >
-                                                    <FocusTimer status={status} elapsedSeconds={elapsed} durationSeconds={duration} fatigueScore={currentMetrics?.fatigueScore || 0} onStart={() => handleStart()} onPause={handlePause} onReset={handleReset} onIntensityChange={handleIntensityChange} currentIntensity={focusIntensity} currentInsight={insight} />
-                                                </motion.div>
-                                                {!isMobile && <div className="w-[16rem] relative z-0 pointer-events-none" />}
-                                                <motion.div
-                                                    ref={vaultRef}
-                                                    layout
-                                                    className={`w-full max-w-[16rem] h-[9.25rem] mt-0 md:mt-24 relative z-20`}
-                                                >
-                                                    <GoldVault progress={(elapsed / duration) * 100} barsToday={barsToday} totalBars={totalBars} />
-                                                </motion.div>
+                                                <div className="flex flex-col md:flex-row items-center justify-center gap-12 md:gap-0 pt-20 md:pt-0">
+                                                    <motion.div
+                                                        ref={tasksRef}
+                                                        layout
+                                                        className={`w-full max-w-[16rem] min-h-[13rem] relative z-20`}
+                                                    >
+                                                        <TaskList tasks={tasks} onToggle={toggleTask} onAdd={addTask} onDelete={deleteTask} />
+                                                    </motion.div>
+                                                    {!isMobile && <div className="w-[16rem] relative z-0 pointer-events-none" />}
+                                                    <motion.div
+                                                        ref={timerRefDiv}
+                                                        layout
+                                                        className={`w-full max-w-[20rem] h-[15rem] relative z-30`}
+                                                    >
+                                                        <FocusTimer status={status} elapsedSeconds={elapsed} durationSeconds={duration} fatigueScore={currentMetrics?.fatigueScore || 0} onStart={() => handleStart()} onPause={handlePause} onReset={handleReset} onIntensityChange={handleIntensityChange} currentIntensity={focusIntensity} currentInsight={insight} />
+                                                    </motion.div>
+                                                    {!isMobile && <div className="w-[16rem] relative z-0 pointer-events-none" />}
+                                                    <motion.div
+                                                        ref={vaultRef}
+                                                        layout
+                                                        className={`w-full max-w-[16rem] h-[9.25rem] mt-0 md:mt-24 relative z-20`}
+                                                    >
+                                                        <GoldVault progress={(elapsed / duration) * 100} barsToday={barsToday} totalBars={totalBars} />
+                                                    </motion.div>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                )}
+                                    )}
 
-                                {mode === AppMode.RELAX && (
-                                    <RelaxTimer onComplete={() => { setMode(AppMode.FOCUS); setStatus(SessionStatus.IDLE); setElapsed(0); }} fatigueScore={currentMetrics?.fatigueScore || 50} />
-                                )}
+                                    {mode === AppMode.RELAX && (
+                                        <RelaxTimer onComplete={() => { setMode(AppMode.FOCUS); setStatus(SessionStatus.IDLE); setElapsed(0); }} fatigueScore={currentMetrics?.fatigueScore || 50} />
+                                    )}
 
-                                {mode === AppMode.STATS && (
-                                    <StatsView metricsHistory={metricsHistory} />
-                                )}
-                            </MotionDiv>
-                        </AnimatePresence>
-                    </main>
-                )}
-            </div>
+                                    {mode === AppMode.STATS && (
+                                        <StatsView metricsHistory={metricsHistory} />
+                                    )}
+                                </MotionDiv>
+                            </AnimatePresence>
+                        </main>
+                    )}
+                </div>
 
-            {/* Paywall Gate */}
-            <PaywallModal
-                isOpen={isPaywallOpen}
-                currentUser={currentUser}
-                onAuth={async (isAnnual) => {
-                    localStorage.setItem('pending_plan', isAnnual ? 'annual' : 'monthly');
-                    await authService.signInWithGoogle();
-                }}
-            />
-            <MacNotification
-                isVisible={!!notification}
-                title={notification?.title || ''}
-                message={notification?.message || ''}
-                icon={<Moon className="w-5 h-5 text-indigo-300" />}
-                onClose={() => setNotification(null)}
-                action={notification?.action}
-            />
-        </>
-    );
+                {/* Paywall Gate */}
+                <PaywallModal
+                    isOpen={isPaywallOpen}
+                    currentUser={currentUser}
+                    onAuth={async (isAnnual) => {
+                        localStorage.setItem('pending_plan', isAnnual ? 'annual' : 'monthly');
+                        await authService.signInWithGoogle();
+                    }}
+                />
+                <MacNotification
+                    isVisible={!!notification}
+                    title={notification?.title || ''}
+                    message={notification?.message || ''}
+                    icon={<Moon className="w-5 h-5 text-indigo-300" />}
+                    onClose={() => setNotification(null)}
+                    action={notification?.action}
+                />
+            </>
+            );
 };
-// Helper component to sync data to nodes without re-rendering the entire canvas
-const NodesDataSync = ({ timerProps, taskListProps, goldVaultProps }: any) => {
-    const { nodes, onNodesChange } = useSpatialStore();
+            // Helper component to sync data to nodes without re-rendering the entire canvas
+            const NodesDataSync = ({timerProps, taskListProps, goldVaultProps}: any) => {
+    const {nodes, onNodesChange} = useSpatialStore();
 
     // We use a simplified check to avoid infinite loops, 
     // real app should use 'useReactFlow' setNodes or similar.
@@ -888,45 +892,45 @@ const NodesDataSync = ({ timerProps, taskListProps, goldVaultProps }: any) => {
     // However, updating store during render is bad. We use useEffect.
 
     useEffect(() => {
-        // We can batch update the nodes in the store
-        // This logic runs whenever props change.
+                // We can batch update the nodes in the store
+                // This logic runs whenever props change.
 
-        let hasChanges = false;
+                let hasChanges = false;
         const newNodes = nodes.map(node => {
             if (node.id === 'focus-timer') {
                 // Determine if changed?
                 // For MVP simplicity, just overwrite.
-                const updated = { ...node, data: { ...node.data, ...timerProps } };
-                if (JSON.stringify(node.data) !== JSON.stringify(updated.data)) {
-                    hasChanges = true;
-                    return updated;
+                const updated = {...node, data: {...node.data, ...timerProps } };
+            if (JSON.stringify(node.data) !== JSON.stringify(updated.data)) {
+                hasChanges = true;
+            return updated;
                 }
             }
             if (node.id === 'task-list') {
-                const updated = { ...node, data: { ...node.data, ...taskListProps } };
-                if (JSON.stringify(node.data) !== JSON.stringify(updated.data)) {
-                    hasChanges = true;
-                    return updated;
+                const updated = {...node, data: {...node.data, ...taskListProps } };
+            if (JSON.stringify(node.data) !== JSON.stringify(updated.data)) {
+                hasChanges = true;
+            return updated;
                 }
             }
             if (node.id === 'gold-vault') {
-                const updated = { ...node, data: { ...node.data, ...goldVaultProps } };
-                if (JSON.stringify(node.data) !== JSON.stringify(updated.data)) {
-                    hasChanges = true;
-                    return updated;
+                const updated = {...node, data: {...node.data, ...goldVaultProps } };
+            if (JSON.stringify(node.data) !== JSON.stringify(updated.data)) {
+                hasChanges = true;
+            return updated;
                 }
             }
             return node;
         });
 
-        if (hasChanges) {
-            // Updating the store.
-            // CAUTION: This might trigger re-renders. unique dependency array helps.
-            // We need a direct way to setNodes without triggering this effect again if data is same.
-            // Our JSON.stringify check might be expensive but prevents loops.
-            useSpatialStore.setState({ nodes: newNodes });
+            if (hasChanges) {
+                // Updating the store.
+                // CAUTION: This might trigger re-renders. unique dependency array helps.
+                // We need a direct way to setNodes without triggering this effect again if data is same.
+                // Our JSON.stringify check might be expensive but prevents loops.
+                useSpatialStore.setState({ nodes: newNodes });
         }
     }, [timerProps, taskListProps, goldVaultProps, nodes]);
 
-    return null;
+            return null;
 };

@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { AppMode } from '../types';
 import { LogOut } from 'lucide-react';
 import type { User } from '@supabase/supabase-js';
@@ -15,9 +15,10 @@ interface SidebarProps {
   onSignOut: () => void;
   user: User | null;
   focusIntensity: number;
+  completedCount: number;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ currentMode, setMode, onSignOut, user, focusIntensity }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ currentMode, setMode, onSignOut, user, focusIntensity, completedCount }) => {
 
   const isFocus = currentMode === AppMode.FOCUS;
   const isRelax = currentMode === AppMode.RELAX;
@@ -41,22 +42,22 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentMode, setMode, onSignOu
             </span>
           </div>
 
-          {/* Minimalist Toggle Pill - MATTE BLACK & INSET */}
-          <div className="relative flex w-full h-10 p-[2px] rounded-full bg-[#0A0A0A] border border-white/[0.03] shadow-inner">
-            {/* Active Indicator - Inset Glow */}
+          {/* Minimalist Toggle Pill - GLASS HARDWARE */}
+          <div className="relative flex w-full h-10 p-[2px] rounded-full bg-[#0A0A0A] border border-white/10 shadow-inner">
+            {/* Active Indicator - Subtle Glass Glow */}
             <motion.div
               initial={false}
               animate={{
                 x: isFocus ? 0 : '100%',
               }}
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
-              className="absolute top-[2px] left-[2px] w-[calc(50%-2px)] h-[calc(100%-4px)] rounded-full bg-white/[0.02] border border-[#00FF85]/20 shadow-[inset_0_0_10px_rgba(0,255,133,0.05)] z-0"
+              className="absolute top-[2px] left-[2px] w-[calc(50%-2px)] h-[calc(100%-4px)] rounded-full bg-white/[0.03] shadow-[inset_0_0_12px_rgba(255,255,255,0.05)] border border-white/[0.05] z-0"
             />
 
             {/* Focus Button */}
             <button
               onClick={() => setMode(AppMode.FOCUS)}
-              className={`flex-1 relative z-10 flex items-center justify-center text-[12px] uppercase tracking-[0.05em] font-semibold transition-all duration-300 ${isFocus ? 'text-white' : 'text-[#444] font-medium'}`}
+              className={`flex-1 relative z-10 flex items-center justify-center text-[12px] uppercase tracking-[0.05em] font-semibold transition-all duration-300 ${isFocus ? 'text-white' : 'text-[#666] font-medium'}`}
             >
               Focus
             </button>
@@ -64,19 +65,16 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentMode, setMode, onSignOu
             {/* Relax Button */}
             <button
               onClick={() => setMode(AppMode.RELAX)}
-              className={`flex-1 relative z-10 flex items-center justify-center text-[12px] uppercase tracking-[0.05em] font-semibold transition-all duration-300 ${isRelax ? 'text-white' : 'text-[#444] font-medium'}`}
+              className={`flex-1 relative z-10 flex items-center justify-center text-[12px] uppercase tracking-[0.05em] font-semibold transition-all duration-300 ${isRelax ? 'text-white' : 'text-[#666] font-medium'}`}
             >
               Relax
             </button>
           </div>
         </div>
 
-        {/* 2. MIDDLE SECTION: Metadata (VOID SPACE) */}
-        {/* Creating the "Void" - large gap achieved by flex structure or margin */}
+        {/* 2. MIDDLE SECTION: Session Architecture (Void Space) */}
         <div className="flex-1 flex flex-col justify-start px-6 pt-20">
-          {/* Section Header moved here conceptually or just the readout */}
-          <div className="mb-4 text-[10px] text-[#444] uppercase tracking-[0.2em] font-medium">Core Engine</div>
-          <SystemReadout mode={currentMode} intensity={focusIntensity} />
+          <SystemReadout mode={currentMode} intensity={focusIntensity} completedCount={completedCount} />
         </div>
 
         {/* 3. BOTTOM SECTION: Profile (Anchored to Absolute Bottom) */}
