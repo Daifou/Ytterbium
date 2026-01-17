@@ -30,7 +30,7 @@ import { useSpatialStore } from '../lib/spatial-store';
 import { LayoutGrid, Maximize2 } from 'lucide-react'; // Icons for view toggle
 
 const DEFAULT_DURATION = 25 * 60; // 25 min default
-const SCALE_FACTOR = 1.05;
+const SCALE_FACTOR = 1.0;
 const GHOST_SESSION_KEY = 'ytterbium_ghost_session_id';
 
 const MotionDiv = motion.div as any;
@@ -167,6 +167,8 @@ export const Dashboard: React.FC = () => {
     }, []);
 
     const layoutWrapperRef = useRef<HTMLDivElement>(null);
+    const line1Ref = useRef<any>(null);
+    const line2Ref = useRef<any>(null);
     const [barsToday, setBarsToday] = useState(0);
     const [totalBars, setTotalBars] = useState(0);
 
@@ -457,49 +459,60 @@ export const Dashboard: React.FC = () => {
 
     // --- MAGNETIC LEADER LINE CONNECTIVITY ---
     useEffect(() => {
-        if (isMobile || mode !== AppMode.FOCUS) return;
+        // Brute-force cleanup of any existing leader-line SVG elements in the body
+        const cleanupGhosts = () => {
+            const ghosts = document.querySelectorAll('.leader-line');
+            ghosts.forEach(g => g.remove());
+        };
 
-        let line1: any;
-        let line2: any;
+        if (isMobile || mode !== AppMode.FOCUS) {
+            cleanupGhosts();
+            if (line1Ref.current) { try { line1Ref.current.remove(); } catch (e) { } line1Ref.current = null; }
+            if (line2Ref.current) { try { line2Ref.current.remove(); } catch (e) { } line2Ref.current = null; }
+            return;
+        }
+
         let timerId: any;
 
-        // Polling to ensure DOM is fully settled and IDs are present
-        timerId = setInterval(() => {
+        const initLines = () => {
             const tasksEl = document.getElementById('task-list-node');
             const timerEl = document.getElementById('focus-timer-node');
             const vaultEl = document.getElementById('gold-vault-node');
 
-            if (tasksEl && timerEl && !line1) {
-                line1 = new LeaderLine(tasksEl, timerEl, {
+            if (tasksEl && timerEl && !line1Ref.current) {
+                line1Ref.current = new LeaderLine(tasksEl, timerEl, {
                     color: 'rgba(255, 255, 255, 0.35)',
                     size: 1,
                     dash: { len: 4, gap: 4 },
-                    path: 'fluid',
+                    path: 'arc',
                     startSocket: 'right',
                     endSocket: 'left'
                 });
             }
 
-            if (timerEl && vaultEl && !line2) {
-                line2 = new LeaderLine(timerEl, vaultEl, {
+            if (timerEl && vaultEl && !line2Ref.current) {
+                line2Ref.current = new LeaderLine(timerEl, vaultEl, {
                     color: 'rgba(255, 255, 255, 0.25)',
                     size: 1,
                     dash: { len: 4, gap: 4 },
-                    path: 'fluid',
+                    path: 'arc',
                     startSocket: 'right',
                     endSocket: 'left'
                 });
             }
 
-            if (line1 && line2) {
+            if (line1Ref.current && line2Ref.current) {
                 clearInterval(timerId);
             }
-        }, 50);
+        };
+
+        // Polling to ensure DOM is fully settled and IDs are present
+        timerId = setInterval(initLines, 50);
 
         const handleUpdate = () => {
             requestAnimationFrame(() => {
-                if (line1) line1.position();
-                if (line2) line2.position();
+                if (line1Ref.current) line1Ref.current.position();
+                if (line2Ref.current) line2Ref.current.position();
             });
         };
 
@@ -511,8 +524,9 @@ export const Dashboard: React.FC = () => {
             clearInterval(timerId);
             window.removeEventListener('resize', handleUpdate);
             observer.disconnect();
-            if (line1) try { line1.remove(); } catch (e) { }
-            if (line2) try { line2.remove(); } catch (e) { }
+            if (line1Ref.current) { try { line1Ref.current.remove(); } catch (e) { } line1Ref.current = null; }
+            if (line2Ref.current) { try { line2Ref.current.remove(); } catch (e) { } line2Ref.current = null; }
+            cleanupGhosts();
         };
     }, [isMobile, tasks, mode]);
 
@@ -864,23 +878,23 @@ export const Dashboard: React.FC = () => {
                                                     <motion.div
                                                         ref={tasksRef}
                                                         layout
-                                                        className={`w-full max-w-[14rem] min-h-[11rem] relative z-20`}
+                                                        className={`w-full max-w-[14rem] min-h-[11rem] relative z-20 overflow-visible`}
                                                     >
                                                         <TaskList tasks={tasks} onToggle={toggleTask} onAdd={addTask} onDelete={deleteTask} />
                                                     </motion.div>
-                                                    {!isMobile && <div className="w-[10rem] relative z-0 pointer-events-none" />}
+                                                    {!isMobile && <div className="w-[8rem] relative z-0 pointer-events-none" />}
                                                     <motion.div
                                                         ref={timerRefDiv}
                                                         layout
-                                                        className={`w-[14rem] h-[14rem] relative z-30`}
+                                                        className={`w-[14rem] h-[14rem] relative z-30 overflow-visible`}
                                                     >
                                                         <FocusTimer status={status} elapsedSeconds={elapsed} durationSeconds={duration} fatigueScore={currentMetrics?.fatigueScore || 0} onStart={() => handleStart()} onPause={handlePause} onReset={handleReset} onIntensityChange={handleIntensityChange} currentIntensity={focusIntensity} currentInsight={insight} />
                                                     </motion.div>
-                                                    {!isMobile && <div className="w-[10rem] relative z-0 pointer-events-none" />}
+                                                    {!isMobile && <div className="w-[8rem] relative z-0 pointer-events-none" />}
                                                     <motion.div
                                                         ref={vaultRef}
                                                         layout
-                                                        className={`w-full max-w-[14rem] h-[8rem] mt-0 md:mt-16 relative z-20`}
+                                                        className={`w-full max-w-[14rem] h-[8rem] mt-0 md:mt-24 relative z-20 overflow-visible`}
                                                     >
                                                         <GoldVault progress={(elapsed / duration) * 100} barsToday={barsToday} totalBars={totalBars} />
                                                     </motion.div>
