@@ -477,8 +477,42 @@ export const Dashboard: React.FC = () => {
             }
         };
 
-        // Delay to ensure DOM is fully settled and IDs are present
-        timerId = setTimeout(initLines, 1500);
+        // Polling to ensure DOM is fully settled and IDs are present
+        // This fixes the "blink" when switching tabs as it catches the IDs instantly
+        timerId = setInterval(() => {
+            const tasksEl = document.getElementById('task-list-node');
+            const timerEl = document.getElementById('focus-timer-node');
+            const vaultEl = document.getElementById('gold-vault-node');
+
+            if (tasksEl && timerEl && !line1) {
+                line1 = new LeaderLine(tasksEl, timerEl, {
+                    color: 'rgba(255, 255, 255, 0.35)',
+                    size: 1,
+                    dash: { len: 4, gap: 4 },
+                    path: 'fluid',
+                    startSocket: 'right',
+                    endSocket: 'left'
+                });
+            }
+
+            if (timerEl && vaultEl && !line2) {
+                line2 = new LeaderLine(timerEl, vaultEl, {
+                    color: 'rgba(255, 255, 255, 0.25)',
+                    size: 1,
+                    dash: { len: 4, gap: 4 },
+                    path: 'fluid',
+                    startSocket: 'right',
+                    endSocket: 'left'
+                });
+            }
+
+            // Once both lines are initialized, we can stop polling or just keep it 
+            // but for stability we stop once lines exist. 
+            // If nodes mount/unmount often, we'd need more complex logic.
+            if (line1 && line2) {
+                clearInterval(timerId);
+            }
+        }, 50);
 
         const handleUpdate = () => {
             requestAnimationFrame(() => {

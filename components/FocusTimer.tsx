@@ -129,7 +129,7 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({
   return (
     // Updated: Added max-w-[240px] and mx-auto to tighten width
     <div id="focus-timer-node" className={`
-      w-full max-w-[240px] mx-auto h-full
+      w-full max-w-[210px] mx-auto h-full
       bg-[#0f0f12]/60
       backdrop-blur-xl
       rounded-2xl
@@ -201,8 +201,8 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({
         </div>
       </div>
 
-      {/* Main Content Area - Updated p-4 to p-3 for width reduction */}
-      <div className="p-3 space-y-4 flex-1 flex flex-col relative z-10">
+      {/* Main Content Area - Updated p-2.5 for width reduction */}
+      <div className="p-2.5 space-y-3 flex-1 flex flex-col relative z-10">
 
         {/* Timer Display */}
         <div className="flex flex-col items-center justify-center">
