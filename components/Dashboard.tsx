@@ -890,7 +890,7 @@ export const Dashboard: React.FC = () => {
                                                     <motion.div
                                                         ref={timerRefDiv}
                                                         layout
-                                                        className={`w-full max-w-[20rem] h-[15rem] relative z-30`}
+                                                        className={`w-[14rem] h-[14rem] relative z-30`}
                                                     >
                                                         <FocusTimer status={status} elapsedSeconds={elapsed} durationSeconds={duration} fatigueScore={currentMetrics?.fatigueScore || 0} onStart={() => handleStart()} onPause={handlePause} onReset={handleReset} onIntensityChange={handleIntensityChange} currentIntensity={focusIntensity} currentInsight={insight} />
                                                     </motion.div>

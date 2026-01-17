@@ -34,18 +34,18 @@ export const SystemReadout: React.FC<SystemReadoutProps> = ({ mode, intensity, c
         // 3. FOCUS MODES
         if (intensity >= 8) {
             return {
-                name: 'DEEP ISO.',
-                description: 'High-intensity focus block. Isolate for complex problem solving.',
+                name: 'DEEP LASER FOCUS',
+                description: 'High-intensity neural isolation. Optimized for complex problem solving.',
             };
         } else if (intensity >= 4) {
             return {
-                name: 'FLOW STATE',
-                description: 'Maintaining cognitive endurance for long-form execution.',
+                name: 'BALANCED FOCUS',
+                description: 'State-stable cognitive endurance. Ideal for long-form execution.',
             };
         } else {
             return {
-                name: 'DIVERGENT',
-                description: 'Low-inhibition state. Ideal for brainstorming and pattern recognition.',
+                name: 'CREATIVE FOCUS',
+                description: 'Low-inhibition neural state. Optimized for ideation and design.',
             };
         }
     }, [mode, intensity]);
