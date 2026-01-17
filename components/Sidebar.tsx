@@ -51,13 +51,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentMode, setMode, onSignOu
                 x: isFocus ? 0 : '100%',
               }}
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
-              className="absolute top-[2px] left-[2px] w-[calc(50%-2px)] h-[calc(100%-4px)] rounded-full bg-white/[0.03] shadow-[inset_0_0_12px_rgba(255,255,255,0.05)] border border-white/[0.05] z-0"
+              className="absolute top-[2px] left-[2px] w-[calc(50%-2px)] h-[calc(100%-4px)] rounded-full bg-white/[0.03] shadow-[inset_0_1px_4px_rgba(0,0,0,0.5),inset_0_0_8px_rgba(255,255,255,0.03)] border border-white/[0.05] z-0"
             />
 
             {/* Focus Button */}
             <button
               onClick={() => setMode(AppMode.FOCUS)}
-              className={`flex-1 relative z-10 flex items-center justify-center text-[12px] uppercase tracking-[0.05em] font-semibold transition-all duration-300 ${isFocus ? 'text-white' : 'text-[#666] font-medium'}`}
+              className={`flex-1 relative z-10 flex items-center justify-center text-[12px] uppercase tracking-[0.05em] font-semibold transition-all duration-300 ${isFocus ? 'text-white' : 'text-white/40 font-medium'}`}
             >
               Focus
             </button>
@@ -65,7 +65,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentMode, setMode, onSignOu
             {/* Relax Button */}
             <button
               onClick={() => setMode(AppMode.RELAX)}
-              className={`flex-1 relative z-10 flex items-center justify-center text-[12px] uppercase tracking-[0.05em] font-semibold transition-all duration-300 ${isRelax ? 'text-white' : 'text-[#666] font-medium'}`}
+              className={`flex-1 relative z-10 flex items-center justify-center text-[12px] uppercase tracking-[0.05em] font-semibold transition-all duration-300 ${isRelax ? 'text-white' : 'text-white/40 font-medium'}`}
             >
               Relax
             </button>
@@ -78,7 +78,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentMode, setMode, onSignOu
         </div>
 
         {/* 3. BOTTOM SECTION: Profile (Anchored to Absolute Bottom) */}
-        <footer className="p-6 mb-4 mt-auto">
+        <footer className="p-6 pb-6 mt-auto">
           <div className="group flex items-center gap-4 cursor-pointer pt-6 border-t border-white/[0.02]" onClick={onSignOut}>
             {/* Avatar */}
             <div className="relative w-8 h-8 rounded-full bg-[#111] border border-white/[0.05] flex items-center justify-center group-hover:border-white/[0.1] transition-colors">
@@ -92,7 +92,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentMode, setMode, onSignOu
               <span className="text-[12px] text-[#EAEAEA] font-medium tracking-wide">
                 {displayEmail.split('@')[0]}
               </span>
-              <span className="text-[10px] text-[#444] uppercase tracking-wider font-medium opacity-30 group-hover:opacity-50 transition-opacity">
+              <span className="text-[9px] text-[#EAEAEA]/30 uppercase tracking-wider font-medium group-hover:opacity-50 transition-opacity">
                 {displayRole}
               </span>
             </div>

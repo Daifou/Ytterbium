@@ -64,26 +64,23 @@ export const SystemReadout: React.FC<SystemReadoutProps> = ({ mode, intensity, c
                     transition={{ duration: 0.3 }}
                     className="flex flex-col gap-10" // Generous gap
                 >
-                    {/* KEY VALUE PAIRS - CLEAN & BENEFIT DRIVEN */}
-                    <div className="space-y-3">
-                        {/* STATE ROW */}
-                        <div className="flex items-baseline relative h-4">
-                            <span className="absolute left-0 text-[10px] text-[#666] tracking-[0.08em] font-medium uppercase w-[60px]">
-                                State
-                            </span>
-                            <span className="absolute left-[80px] text-[12px] text-white font-normal leading-none uppercase tracking-wider">
-                                {readoutData.name}
-                            </span>
+                    {/* PREMIUM DIAGNOSTIC CARD */}
+                    <div className="relative bg-white/[0.02] rounded-xl p-4 border-t border-white/[0.05] overflow-hidden">
+                        {/* Corner Detail */}
+                        <div className="absolute top-3 right-3 text-[8px] font-mono text-white/20 whitespace-nowrap">
+                            REF_ID: 04-B
                         </div>
 
-                        {/* PROFILE ROW - BENEFITS */}
-                        <div className="flex items-baseline relative min-h-[4rem]">
-                            <span className="absolute left-0 top-0 text-[10px] text-[#666] tracking-[0.08em] font-medium uppercase w-[60px]">
-                                Benefit
-                            </span>
-                            <span className="absolute left-[80px] top-0 text-[11px] text-[#888] font-normal leading-[1.6]">
-                                {readoutData.description}
-                            </span>
+                        <div className="space-y-4">
+                            {/* STATE */}
+                            <div className="flex flex-col gap-1">
+                                <span className="text-[10px] text-[#00FF85] tracking-[0.08em] font-bold uppercase">
+                                    {readoutData.name}
+                                </span>
+                                <span className="text-[11px] text-[#A0A0A0] font-normal leading-[1.6]">
+                                    {readoutData.description}
+                                </span>
+                            </div>
                         </div>
                     </div>
 
@@ -106,7 +103,7 @@ export const SystemReadout: React.FC<SystemReadoutProps> = ({ mode, intensity, c
                                             className={`
                                                 w-8 h-2 rounded-[1px] transition-all duration-500
                                                 ${isComplete ? 'bg-[#333] border border-[#333]' : ''}
-                                                ${isActive ? 'bg-[#00FF85] border border-[#00FF85] shadow-[0_0_10px_rgba(0,255,133,0.4)] animate-pulse' : ''}
+                                                ${isActive ? 'bg-[#00FF85] border border-[#00FF85] shadow-[0_0_12px_rgba(0,255,133,0.7)] animate-pulse' : ''}
                                                 ${!isComplete && !isActive ? 'bg-transparent border border-white/[0.1]' : ''}
                                             `}
                                         />
