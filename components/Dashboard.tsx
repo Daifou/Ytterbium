@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import LeaderLine from 'leader-line-new';
+import LeaderLine from 'react-leader-line';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sidebar } from './Sidebar';
 import { FocusTimer } from './FocusTimer';
@@ -444,73 +444,7 @@ export const Dashboard: React.FC = () => {
 
 
 
-    useEffect(() => {
-        if (!tasksRef.current || !timerRefDiv.current || !layoutWrapperRef.current) return;
 
-        let line1: any;
-        let line2: any;
-        let timeoutId: any;
-
-        const initLines = () => {
-            if (line1) line1.remove();
-            if (line2) line2.remove();
-
-            if (tasksRef.current && timerRefDiv.current) {
-                line1 = new LeaderLine(
-                    tasksRef.current,
-                    timerRefDiv.current,
-                    {
-                        color: 'rgba(255, 255, 255, 0.35)',
-                        size: 1,
-                        dash: { len: 4, gap: 4 },
-                        path: 'fluid',
-                        startSocket: 'right',
-                        endSocket: 'left'
-                    }
-                );
-            }
-
-            if (timerRefDiv.current && vaultRef.current) {
-                line2 = new LeaderLine(
-                    timerRefDiv.current,
-                    vaultRef.current,
-                    {
-                        color: 'rgba(255, 255, 255, 0.25)',
-                        size: 1,
-                        dash: { len: 4, gap: 4 },
-                        path: 'fluid',
-                        startSocket: 'right',
-                        endSocket: 'left'
-                    }
-                );
-            }
-        };
-
-        // Delay initialization to ensure DOM and framer-motion have settled
-        timeoutId = setTimeout(initLines, 1000);
-
-        const handleResize = () => {
-            requestAnimationFrame(() => {
-                if (line1) line1.position();
-                if (line2) line2.position();
-            });
-        };
-
-        window.addEventListener('resize', handleResize);
-        const resizeObserver = new ResizeObserver(handleResize);
-        if (layoutWrapperRef.current) resizeObserver.observe(layoutWrapperRef.current);
-        if (tasksRef.current) resizeObserver.observe(tasksRef.current);
-        if (timerRefDiv.current) resizeObserver.observe(timerRefDiv.current);
-        if (vaultRef.current) resizeObserver.observe(vaultRef.current);
-
-        return () => {
-            clearTimeout(timeoutId);
-            window.removeEventListener('resize', handleResize);
-            resizeObserver.disconnect();
-            if (line1) try { line1.remove(); } catch (e) { }
-            if (line2) try { line2.remove(); } catch (e) { }
-        };
-    }, [mode, tasks, isFocusMode]);
 
     // Load Tasks
     useEffect(() => {
@@ -856,6 +790,32 @@ export const Dashboard: React.FC = () => {
                                                 ref={layoutWrapperRef}
                                                 className="flex flex-col md:flex-row justify-center items-center w-full max-w-[1600px] px-4 relative"
                                             >
+                                                {/* LeaderLine Connections */}
+                                                {!isMobile && (
+                                                    <>
+                                                        <LeaderLine
+                                                            start="task-list-node"
+                                                            end="focus-timer-node"
+                                                            color="rgba(255, 255, 255, 0.3)"
+                                                            size={1}
+                                                            dash={{ len: 4, gap: 4 }}
+                                                            startSocket="right"
+                                                            endSocket="left"
+                                                            path="fluid"
+                                                        />
+                                                        <LeaderLine
+                                                            start="focus-timer-node"
+                                                            end="gold-vault-node"
+                                                            color="rgba(255, 255, 255, 0.2)"
+                                                            size={1}
+                                                            dash={{ len: 4, gap: 4 }}
+                                                            startSocket="right"
+                                                            endSocket="left"
+                                                            path="fluid"
+                                                        />
+                                                    </>
+                                                )}
+
                                                 <div className="flex flex-col md:flex-row items-center justify-center gap-12 md:gap-0 pt-20 md:pt-0">
                                                     <motion.div
                                                         ref={tasksRef}
