@@ -87,19 +87,20 @@ export const SystemReadout: React.FC<SystemReadoutProps> = ({ mode, intensity, c
                     {/* SESSION ARCHITECTURE TRACKER CARD */}
                     <div className="relative bg-white/[0.02] rounded-xl p-4 border-t border-white/[0.05] overflow-hidden shadow-[inset_0_0_0_0.5px_rgba(255,255,255,0.05)]">
                         <div className="flex flex-col gap-4">
-                            <div className="flex items-center justify-start gap-2">
-                                <span className="text-[10px] text-white/50 tracking-[0.1em] font-medium uppercase min-w-fit">
+                            {/* Header Logic: Unified Horizontal Line */}
+                            <div className="flex items-center justify-between">
+                                <span className="text-[10px] text-white/50 tracking-[0.1em] font-medium uppercase">
                                     Session Architecture
                                 </span>
-                                {/* Numeric Counter - Exactly 8px from title */}
-                                <span className="text-[10px] font-mono text-[#666] tracking-widest uppercase ml-[8px]">
+                                {/* Numeric Counter - Mono spaced for precision */}
+                                <span className="text-[10px] font-mono text-[#666] tracking-widest uppercase">
                                     0{Math.min(completedCount, sessionTarget)} / 0{sessionTarget}
                                 </span>
                             </div>
 
                             <div className="flex items-center justify-start">
-                                {/* Visual Stepper - God-Tier Blades */}
-                                <div className="flex gap-2">
+                                {/* Visual Stepper - Surgical Blades */}
+                                <div className="flex gap-2.5">
                                     {Array.from({ length: sessionTarget }).map((_, i) => {
                                         const isComplete = i < completedCount;
                                         const isActive = i === completedCount && mode === AppMode.FOCUS;
@@ -110,7 +111,7 @@ export const SystemReadout: React.FC<SystemReadoutProps> = ({ mode, intensity, c
                                                 className={`
                                                     w-[2px] h-[16px] rounded-[0.5px] transition-all duration-500
                                                     ${isComplete ? 'bg-[#2A332E]' : ''}
-                                                    ${isActive ? 'bg-[#00FF85] shadow-[0_0_12px_#00FF85] animate-pulse' : ''}
+                                                    ${isActive ? 'bg-[#00FF85] shadow-[0_0_12px_#00FF85]' : ''}
                                                     ${!isComplete && !isActive ? 'bg-transparent border border-white/10' : ''}
                                                 `}
                                             />

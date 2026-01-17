@@ -470,6 +470,8 @@ export const Dashboard: React.FC = () => {
 
         const dist1 = Math.abs(endX1 - startX1);
         const controlOffset1 = Math.max(dist1 * 0.4, 40);
+
+        // Return perfect Bézier path
         setPath1(`M ${startX1} ${startY1} C ${startX1 + controlOffset1} ${startY1} ${endX1 - controlOffset1} ${endY1} ${endX1} ${endY1}`);
 
         const startX2 = relativeX(timerRect) + getWidth(timerRect);
@@ -854,21 +856,36 @@ export const Dashboard: React.FC = () => {
                                                 <svg className="absolute top-0 left-0 w-full h-full overflow-visible pointer-events-none z-40 hidden md:block">
                                                     <defs>
                                                         <linearGradient id="connection-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                                                            <stop offset="0%" stopColor="#818cf8" stopOpacity="0.2" />
-                                                            <stop offset="50%" stopColor="#c7d2fe" stopOpacity="0.4" />
-                                                            <stop offset="100%" stopColor="#818cf8" stopOpacity="0.2" />
+                                                            <stop offset="0%" stopColor="#00FF85" stopOpacity="0" />
+                                                            <stop offset="50%" stopColor="#00FF85" stopOpacity="0.4" />
+                                                            <stop offset="100%" stopColor="#00FF85" stopOpacity="0" />
                                                         </linearGradient>
                                                         <filter id="subtle-glow" x="-50%" y="-50%" width="200%" height="200%">
-                                                            <feGaussianBlur in="SourceGraphic" stdDeviation="1" result="blur" />
+                                                            <feGaussianBlur in="SourceGraphic" stdDeviation="2" result="blur" />
                                                             <feMerge>
                                                                 <feMergeNode in="blur" />
                                                                 <feMergeNode in="SourceGraphic" />
                                                             </feMerge>
                                                         </filter>
-                                                        <marker id="arrow-head" markerWidth="4" markerHeight="4" refX="3.5" refY="2" orient="auto"><path d="M0,0 L4,2 L0,4 Z" fill="#c7d2fe" /></marker>
                                                     </defs>
-                                                    {path1 && (<g filter="url(#subtle-glow)"><path d={path1} fill="none" stroke="url(#connection-gradient)" strokeWidth="1.5" strokeDasharray="8 8" className="transition-all duration-500"><animate attributeName="stroke-dashoffset" from="0" to="8" dur="3s" repeatCount="indefinite" calcMode="linear" /></path></g>)}
-                                                    {path2 && (<g filter="url(#subtle-glow)"><path d={path2} fill="none" stroke="url(#connection-gradient)" strokeWidth="1.5" strokeDasharray="8 8" className="transition-all duration-500"><animate attributeName="stroke-dashoffset" from="0" to="8" dur="3s" repeatCount="indefinite" calcMode="linear" begin="1s" /></path></g>)}
+                                                    {path1 && (
+                                                        <g filter="url(#subtle-glow)">
+                                                            {/* Static Background Dashed Line */}
+                                                            <path d={path1} fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="1" strokeDasharray="4 4" />
+                                                            {/* Pulsing Gradient Overlay */}
+                                                            <path d={path1} fill="none" stroke="url(#connection-gradient)" strokeWidth="1.5" strokeDasharray="8 8" className="transition-all duration-500">
+                                                                <animate attributeName="stroke-dashoffset" from="0" to="-16" dur="2s" repeatCount="indefinite" calcMode="linear" />
+                                                            </path>
+                                                        </g>
+                                                    )}
+                                                    {path2 && (
+                                                        <g filter="url(#subtle-glow)">
+                                                            <path d={path2} fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="1" strokeDasharray="4 4" />
+                                                            <path d={path2} fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="1.5" strokeDasharray="8 8" className="transition-all duration-500">
+                                                                <animate attributeName="stroke-dashoffset" from="0" to="-16" dur="3s" repeatCount="indefinite" calcMode="linear" />
+                                                            </path>
+                                                        </g>
+                                                    )}
                                                 </svg>
 
 
