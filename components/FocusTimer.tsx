@@ -138,7 +138,7 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({
       transition-all duration-700 ease-in-out
 
       /* Standard border (reverts to this when not running) */
-      border ${(!isRunning && !isFinished) ? 'border-white/[0.08]' : 'border-transparent'}
+      border ${(!isRunning && !isFinished) ? 'border-white/[0.05]' : 'border-transparent'}
 
       /* [UPDATED] Spectral Edge Glow Pseudo-element */
       /* Adds a VERY subtle pulsing Emerald glow when the session is running */
@@ -176,9 +176,9 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({
       {/* Header: Title bar aesthetic */}
       <div className="
         px-2.5 py-1.5 
-        border-b border-white/[0.08] 
+        border-b border-white/[0.05] 
         flex justify-between items-center 
-        bg-gradient-to-r from-white/[0.03] to-white/[0.01]
+        bg-zinc-900/40
         relative z-10 shrink-0
         backdrop-blur-sm
         after:absolute after:inset-0 after:rounded-t-2xl after:bg-gradient-to-b after:from-white/[0.04] after:to-transparent after:pointer-events-none
@@ -201,8 +201,8 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({
         </div>
       </div>
 
-      {/* Main Content Area - Updated p-4 to p-3 for width reduction */}
-      <div className="p-3 space-y-4 flex-1 flex flex-col relative z-10">
+      {/* Main Content Area - Optimized for density */}
+      <div className="p-2.5 space-y-3 flex-1 flex flex-col relative z-10">
 
         {/* Timer Display */}
         <div className="flex flex-col items-center justify-center">
@@ -350,7 +350,7 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({
         <div className="mt-auto shrink-0 space-y-2">
 
           {/* Action Buttons */}
-          <div className="pt-2 border-t border-white/[0.08]">
+          <div className="pt-2 border-t border-white/[0.05]">
             <div className="flex items-center justify-center gap-2">
               {status === SessionStatus.RUNNING ? (
                 <>
@@ -399,7 +399,7 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({
           </div>
 
           {/* Footer */}
-          <div className="pt-2 border-t border-white/[0.08]">
+          <div className="pt-2 border-t border-white/[0.05]">
             <div className="flex items-center justify-between">
               <div className="text-[8px] text-gray-500 tracking-tighter">
                 {status === SessionStatus.IDLE ? 'Ready' :

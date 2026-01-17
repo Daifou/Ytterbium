@@ -23,9 +23,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentMode, setMode, onSignOu
   const isFocus = currentMode === AppMode.FOCUS;
   const isRelax = currentMode === AppMode.RELAX;
 
-  const userInitials = user?.email ? user.email.substring(0, 2).toUpperCase() : 'Y';
+  const userInitials = user?.email ? user.email.substring(0, 1).toUpperCase() : 'Y';
   const displayEmail = 'daifalla.harkat2003';
-  const displayRole = 'Design Engineer';
 
   return (
     <>
@@ -82,17 +81,17 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentMode, setMode, onSignOu
 
         {/* 3. BOTTOM SECTION: Profile (Anchored to Absolute Bottom) */}
         <footer className="p-6 pb-8 mt-auto">
-          <div className="group flex items-center gap-4 cursor-pointer pt-6 border-t border-white/[0.02]" onClick={onSignOut}>
-            {/* Avatar */}
-            <div className="relative w-8 h-8 rounded-full bg-[#111] border border-white/15 flex items-center justify-center group-hover:border-white/[0.25] transition-colors overflow-hidden">
-              <span className="text-[12px] text-white font-sans font-medium leading-none flex items-center justify-center w-full h-full pb-[0.5px] uppercase">{userInitials[0]}</span>
-              {/* Online Dot - Tight to Avatar */}
+          <div className="group flex items-center gap-4 cursor-pointer pt-6 border-t border-white/[0.05]" onClick={onSignOut}>
+            {/* Avatar - Perfect Circle with 1px Border */}
+            <div className="relative w-8 h-8 rounded-full bg-transparent border border-white/15 flex items-center justify-center group-hover:border-white/25 transition-colors overflow-hidden">
+              <span className="text-[12px] text-white font-sans font-medium leading-none flex items-center justify-center w-full h-full pb-[0.5px] uppercase">{userInitials}</span>
+              {/* Online Dot */}
               <div className="absolute -bottom-0.5 -right-0.5 w-2 h-2 bg-[#00FF85] rounded-full border-[2px] border-[#080808]" />
             </div>
 
-            {/* Profile Text */}
+            {/* Profile Text - Signature Style */}
             <div className="flex flex-col">
-              <span className="text-[12px] text-[#FFFFFF] font-medium tracking-wide">
+              <span className="text-[12px] text-white/90 font-medium tracking-wide group-hover:text-white transition-colors">
                 {displayEmail.split('@')[0]}
               </span>
             </div>

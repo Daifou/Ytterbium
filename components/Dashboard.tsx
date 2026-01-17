@@ -877,23 +877,23 @@ export const Dashboard: React.FC = () => {
                                                     <motion.div
                                                         ref={tasksRef}
                                                         layout
-                                                        className={`w-full max-w-[16rem] min-h-[13rem] relative z-20`}
+                                                        className="w-full max-w-[14rem] min-h-[11rem] relative z-20 scale-[0.8] origin-right md:origin-center"
                                                     >
                                                         <TaskList tasks={tasks} onToggle={toggleTask} onAdd={addTask} onDelete={deleteTask} />
                                                     </motion.div>
-                                                    {!isMobile && <div className="w-[16rem] relative z-0 pointer-events-none" />}
+                                                    {!isMobile && <div className="w-[12rem] relative z-0 pointer-events-none" />}
                                                     <motion.div
                                                         ref={timerRefDiv}
                                                         layout
-                                                        className={`w-full max-w-[20rem] h-[15rem] relative z-30`}
+                                                        className="w-full max-w-[20rem] h-[15rem] relative z-30"
                                                     >
                                                         <FocusTimer status={status} elapsedSeconds={elapsed} durationSeconds={duration} fatigueScore={currentMetrics?.fatigueScore || 0} onStart={() => handleStart()} onPause={handlePause} onReset={handleReset} onIntensityChange={handleIntensityChange} currentIntensity={focusIntensity} currentInsight={insight} />
                                                     </motion.div>
-                                                    {!isMobile && <div className="w-[16rem] relative z-0 pointer-events-none" />}
+                                                    {!isMobile && <div className="w-[12rem] relative z-0 pointer-events-none" />}
                                                     <motion.div
                                                         ref={vaultRef}
                                                         layout
-                                                        className={`w-full max-w-[16rem] h-[9.25rem] mt-0 md:mt-24 relative z-20`}
+                                                        className="w-full max-w-[14rem] h-[8rem] mt-0 md:mt-24 relative z-20 scale-[0.8] origin-left md:origin-center"
                                                     >
                                                         <GoldVault progress={(elapsed / duration) * 100} barsToday={barsToday} totalBars={totalBars} />
                                                     </motion.div>

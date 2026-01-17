@@ -10,13 +10,13 @@ interface GoldVaultProps {
 
 export const GoldVault: React.FC<GoldVaultProps> = ({ progress = 0, barsToday = 0, totalBars = 0 }) => {
     return (
-        <div className="w-full h-full bg-[#0f0f12]/60 backdrop-blur-xl border border-white/[0.08] rounded-2xl overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.5)] transition-all hover:shadow-[0_12px_48px_rgba(0,0,0,0.6)] relative flex flex-col group/panel">
+        <div className="w-full h-full bg-[#030303]/80 backdrop-blur-xl border border-white/[0.05] rounded-2xl overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.5)] transition-all hover:shadow-[0_12px_48px_rgba(0,0,0,0.6)] relative flex flex-col group/panel">
 
             {/* Header */}
-            <div className="px-3 py-1.5 border-b border-white/[0.03] flex justify-between items-center bg-zinc-900/90 relative z-10 shrink-0">
+            <div className="px-3 py-1.5 border-b border-white/[0.05] flex justify-between items-center bg-zinc-900/40 relative z-10 shrink-0">
                 <div className="flex items-center gap-2">
-                    <Pickaxe className="w-3.5 h-3.5 text-[#D4AF37]" />
-                    <h3 className="text-[11px] font-medium text-gray-400">Gold Vault</h3>
+                    <Pickaxe className="w-3.5 h-3.5 text-[#D4AF37] opacity-60" />
+                    <h3 className="text-[10px] font-medium text-gray-400 uppercase tracking-widest">Resource Vault</h3>
                 </div>
                 <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[#D4AF37] bg-white/[0.02] border border-white/[0.05] shadow-sm">
                     <span className="text-[9px] font-bold tracking-widest uppercase">
@@ -30,8 +30,8 @@ export const GoldVault: React.FC<GoldVaultProps> = ({ progress = 0, barsToday = 
                 {/* Progress Section */}
                 <div className="px-3 py-1.5 hover:bg-white/5 transition-all">
                     <div className="flex items-center justify-between mb-1">
-                        <span className="text-[10px] text-gray-400 uppercase tracking-tighter">Batch Progress</span>
-                        <span className="text-[10px] font-medium text-[#D4AF37]">{Math.round(progress)}%</span>
+                        <span className="text-[10px] text-gray-400 uppercase tracking-widest">Batch Progress</span>
+                        <span className="text-[12px] font-medium text-[#D4AF37] opacity-80">{Math.round(progress)}%</span>
                     </div>
                     <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
                         <motion.div
@@ -50,10 +50,10 @@ export const GoldVault: React.FC<GoldVaultProps> = ({ progress = 0, barsToday = 
                 <div className="px-3 py-1.5 hover:bg-white/5 transition-all">
                     <div className="flex items-center justify-between mb-1">
                         <div className="flex items-center gap-2">
-                            <Layers className="w-3.5 h-3.5 text-gray-500" />
-                            <span className="text-[10px] text-gray-400 uppercase tracking-tighter">Today's Yield</span>
+                            <Layers className="w-3.5 h-3.5 text-gray-600" />
+                            <span className="text-[10px] text-gray-400 uppercase tracking-widest">Today's Yield</span>
                         </div>
-                        <span className="text-[10px] font-bold text-white tabular-nums tracking-widest">{barsToday} Bars</span>
+                        <span className="text-[12px] font-bold text-white tabular-nums tracking-wider">{barsToday} Bars</span>
                     </div>
                     {barsToday > 0 ? (
                         <div className="flex h-1 items-center gap-0.5 overflow-hidden rounded bg-white/[0.02]">
@@ -94,7 +94,7 @@ export const GoldVault: React.FC<GoldVaultProps> = ({ progress = 0, barsToday = 
                                     />
                                 ))}
                             </div>
-                            <span className="text-[11px] font-medium text-gray-200">{totalBars}</span>
+                            <span className="text-[12px] font-medium text-gray-200">{totalBars}</span>
                         </div>
                     </div>
                 </div>
