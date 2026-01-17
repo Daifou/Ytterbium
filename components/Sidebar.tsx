@@ -1,12 +1,7 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AppMode } from '../types';
-import {
-  Target,
-  Wind,
-  BarChart2,
-  LogOut
-} from 'lucide-react';
+import { LogOut } from 'lucide-react';
 import type { User } from '@supabase/supabase-js';
 
 import { SystemReadout } from './SystemReadout';
@@ -19,127 +14,100 @@ interface SidebarProps {
   toggleAlienMode: () => void;
   onSignOut: () => void;
   user: User | null;
-  focusIntensity: number; // [NEW] Prop for Readout
+  focusIntensity: number;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({ currentMode, setMode, onSignOut, user, focusIntensity }) => {
 
   const isFocus = currentMode === AppMode.FOCUS;
   const isRelax = currentMode === AppMode.RELAX;
-  const isStats = currentMode === AppMode.STATS;
 
   const userInitials = user?.email ? user.email.substring(0, 2).toUpperCase() : 'Y';
-  // Use specific name requested if possible, or fallback to user email
   const displayEmail = 'daifalla.harkat2003';
   const displayRole = 'Design Engineer';
 
   return (
     <>
-      {/* DESKTOP SIDEBAR - MINIMALIST UTILITY */}
-      <aside className="fixed left-0 top-0 h-full w-[260px] hidden md:flex flex-col z-50 bg-[#080808] border-r border-white/[0.03] font-sans select-none antialiased">
+      {/* DESKTOP SIDEBAR - MINIMALIST CONSTRAINT LAYER */}
+      <aside className="fixed left-0 top-0 h-full w-[260px] hidden md:flex flex-col z-50 bg-[#080808] border-r border-[#EAEAEA]/[0.02] font-sans select-none antialiased">
 
-        {/* 1. TOP SECTION: SidebarHeader */}
-        <header className="px-6 py-8">
-          <div className="flex items-center gap-2">
-            <Logo className="w-10 h-10" />
-            <span className="text-[12px] font-semibold text-[#EAEAEA] tracking-[0.2em] uppercase opacity-90">
+        {/* 1. TOP SECTION: Logo + Toggle */}
+        <div className="flex flex-col px-6 pt-10 gap-8">
+          {/* Header */}
+          <div className="flex items-center gap-3">
+            <Logo className="w-8 h-8 opacity-90" />
+            <span className="text-[11px] font-semibold text-[#EAEAEA] tracking-[0.25em] uppercase opacity-80">
               Ytterbium
             </span>
           </div>
-        </header>
 
-        {/* 2. CENTERPIECE: SidebarContent */}
-        <div className="flex-1 px-4 flex flex-col gap-6">
+          {/* Minimalist Toggle Pill */}
+          <div className="relative flex w-full max-w-[200px] h-9 p-[2px] rounded-full bg-white/[0.01] border border-white/[0.02]">
+            {/* Active Indicator - Ghostly Slide */}
+            <motion.div
+              initial={false}
+              animate={{
+                x: isFocus ? 0 : '100%',
+              }}
+              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+              className="absolute top-[2px] left-[2px] w-[calc(50%-2px)] h-[calc(100%-4px)] rounded-full bg-white/[0.05] border border-[#00FF85]/30 shadow-[0_0_15px_-3px_rgba(0,255,133,0.1)] backdrop-blur-sm z-0"
+            />
 
-          {/* Segmented Toggle (Focus/Relax) */}
-          <div className="bg-[#111] p-1 rounded-full border border-white/[0.05] relative flex h-10">
-            <AnimatePresence mode="wait">
-              <motion.div
-                initial={false}
-                animate={{ x: isFocus ? 0 : '100%' }}
-                transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                className="absolute top-1 bottom-1 left-1 w-[calc(50%-4px)] bg-[#1A1A1A] rounded-full border border-white/[0.08] shadow-lg"
-              />
-            </AnimatePresence>
-
+            {/* Focus Button */}
             <button
               onClick={() => setMode(AppMode.FOCUS)}
-              className={`relative z-10 flex-1 flex items-center justify-center gap-2 text-[12px] font-medium transition-colors duration-200 ${isFocus ? 'text-white' : 'text-[#8A8A8A] hover:text-[#EAEAEA]'}`}
+              className={`flex-1 relative z-10 text-[12px] uppercase tracking-[0.05em] font-semibold transition-all duration-300 ${isFocus ? 'text-white' : 'text-[#666] opacity-50 font-medium'}`}
             >
-              <Target className={`w-3.5 h-3.5 ${isFocus ? 'opacity-100' : 'opacity-40'}`} />
               Focus
             </button>
 
+            {/* Relax Button */}
             <button
               onClick={() => setMode(AppMode.RELAX)}
-              className={`relative z-10 flex-1 flex items-center justify-center gap-2 text-[12px] font-medium transition-colors duration-200 ${isRelax ? 'text-white' : 'text-[#8A8A8A] hover:text-[#EAEAEA]'}`}
+              className={`flex-1 relative z-10 text-[12px] uppercase tracking-[0.05em] font-semibold transition-all duration-300 ${isRelax ? 'text-white' : 'text-[#666] opacity-50 font-medium'}`}
             >
-              <Wind className={`w-3.5 h-3.5 ${isRelax ? 'opacity-100' : 'opacity-40'}`} />
               Relax
             </button>
           </div>
-
-          {/* Insights Menu Item */}
-          <div className="flex flex-col">
-            <button
-              onClick={() => setMode(AppMode.STATS)}
-              className={`
-                        group flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-300 text-[13px] font-medium
-                        ${isStats ? 'bg-white/[0.03] text-[#EAEAEA] border border-white/[0.05]' : 'text-[#8A8A8A] hover:text-[#EAEAEA] border border-transparent'}
-                    `}
-            >
-              <BarChart2 className={`w-4 h-4 transition-transform group-hover:scale-110 ${isStats ? 'text-blue-500' : 'text-[#8A8A8A]'}`} />
-              <span>Insights</span>
-              {isStats && <div className="ml-auto w-1 h-1 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.6)]" />}
-            </button>
-          </div>
-
-          {/* [NEW] SYSTEM READOUT INTERSTITIAL */}
-          <div className="flex-1 flex flex-col justify-center pb-12">
-            <SystemReadout mode={currentMode} intensity={focusIntensity} />
-          </div>
-
         </div>
 
-        {/* 3. BOTTOM SECTION: SidebarFooter */}
-        <footer className="p-4 mb-2">
-          <button
-            onClick={onSignOut}
-            className="flex items-center gap-3 p-3 rounded-2xl hover:bg-white/[0.02] active:scale-[0.98] transition-all w-full group text-left border border-transparent hover:border-white/[0.05]"
-          >
-            {/* Avatar Circle */}
-            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#1A1A1A] to-[#0A0A0A] border border-white/[0.1] flex items-center justify-center group-hover:border-white/[0.2] transition-colors relative shadow-2xl">
-              <span className="text-[10px] font-bold text-[#666] group-hover:text-blue-400 transition-colors uppercase tracking-widest">{userInitials}</span>
-              <div className="absolute bottom-0 right-0 w-2 h-2 bg-green-500 rounded-full border-2 border-[#080808]" />
+        {/* 2. MIDDLE SECTION: Metadata (64px Gap) */}
+        {/* Gap is enforced by padding-top of this container or margin-bottom of previous */}
+        <div className="flex-1 flex flex-col justify-start px-6 pt-16">
+          <SystemReadout mode={currentMode} intensity={focusIntensity} />
+        </div>
+
+        {/* 3. BOTTOM SECTION: Profile (Anchored) */}
+        <footer className="p-6 mb-2">
+          <div className="group flex items-center gap-4 cursor-pointer" onClick={onSignOut}>
+            {/* Avatar */}
+            <div className="relative w-8 h-8 rounded-full bg-[#111] border border-white/[0.05] flex items-center justify-center group-hover:border-white/[0.1] transition-colors">
+              <span className="text-[10px] text-[#666] font-medium">{userInitials}</span>
+              {/* Online Dot - Tight to Avatar */}
+              <div className="absolute -bottom-0.5 -right-0.5 w-2 h-2 bg-[#00FF85] rounded-full border-[2px] border-[#080808]" />
             </div>
 
-            {/* Profile Info */}
-            <div className="flex flex-col flex-1 min-w-0">
-              <span className="text-[12px] font-semibold text-[#EAEAEA] truncate group-hover:text-blue-400 transition-colors">
-                {displayEmail}
+            {/* Profile Text - Invisible Hierarchy */}
+            <div className="flex flex-col">
+              <span className="text-[12px] text-[#EAEAEA] font-medium tracking-wide">
+                {displayEmail.split('@')[0]}
               </span>
-              <span className="text-[11px] font-medium text-[#555] group-hover:text-[#888] transition-colors">
+              <span className="text-[10px] text-[#444] uppercase tracking-wider font-medium opacity-30 group-hover:opacity-50 transition-opacity">
                 {displayRole}
               </span>
             </div>
-
-            <LogOut className="w-3.5 h-3.5 text-[#444] opacity-0 group-hover:opacity-100 transition-all transform translate-x-1 group-hover:translate-x-0" />
-          </button>
+          </div>
         </footer>
 
       </aside>
 
-      {/* MOBILE NAV (Preserved) */}
-      <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-sm h-16 md:hidden z-[100] flex items-center justify-around bg-[#0A0A0C]/90 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.5)] px-2">
-        <button onClick={() => setMode(AppMode.FOCUS)} className={`flex flex-col items-center gap-1 ${currentMode === AppMode.FOCUS ? 'text-blue-400' : 'text-gray-500'}`}>
-          <Target className="w-5 h-5" />
-        </button>
-        <button onClick={() => setMode(AppMode.STATS)} className={`flex flex-col items-center gap-1 ${currentMode === AppMode.STATS ? 'text-blue-400' : 'text-gray-500'}`}>
-          <BarChart2 className="w-5 h-5" />
-        </button>
-        <button onClick={() => setMode(AppMode.RELAX)} className={`flex flex-col items-center gap-1 ${currentMode === AppMode.RELAX ? 'text-blue-400' : 'text-gray-500'}`}>
-          <Wind className="w-5 h-5" />
-        </button>
+      {/* MOBILE NAV (Preserved simple version) */}
+      <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-sm h-14 md:hidden z-[100] flex items-center justify-between bg-[#0A0A0C]/90 backdrop-blur-xl border border-white/10 rounded-full px-6 shadow-2xl">
+        <span className="text-[10px] text-[#666] tracking-widest uppercase">Ytterbium System</span>
+        <div className="flex gap-4">
+          <button onClick={() => setMode(AppMode.FOCUS)} className={`w-2 h-2 rounded-full ${isFocus ? 'bg-[#00FF85]' : 'bg-[#333]'}`} />
+          <button onClick={() => setMode(AppMode.RELAX)} className={`w-2 h-2 rounded-full ${isRelax ? 'bg-[#00FF85]' : 'bg-[#333]'}`} />
+        </div>
       </nav>
     </>
   );
