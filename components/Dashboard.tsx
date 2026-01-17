@@ -484,7 +484,7 @@ export const Dashboard: React.FC = () => {
                     color: 'rgba(255, 255, 255, 0.35)',
                     size: 1,
                     dash: { len: 4, gap: 4 },
-                    path: 'arc',
+                    path: 'fluid',
                     startSocket: 'right',
                     endSocket: 'left'
                 });
@@ -495,7 +495,7 @@ export const Dashboard: React.FC = () => {
                     color: 'rgba(255, 255, 255, 0.25)',
                     size: 1,
                     dash: { len: 4, gap: 4 },
-                    path: 'arc',
+                    path: 'fluid',
                     startSocket: 'right',
                     endSocket: 'left'
                 });
