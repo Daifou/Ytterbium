@@ -855,13 +855,8 @@ export const Dashboard: React.FC = () => {
                                                 {/* SVG Connectors */}
                                                 <svg className="absolute top-0 left-0 w-full h-full overflow-visible pointer-events-none z-40 hidden md:block">
                                                     <defs>
-                                                        <linearGradient id="connection-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                                                            <stop offset="0%" stopColor="#00FF85" stopOpacity="0" />
-                                                            <stop offset="50%" stopColor="#00FF85" stopOpacity="0.4" />
-                                                            <stop offset="100%" stopColor="#00FF85" stopOpacity="0" />
-                                                        </linearGradient>
                                                         <filter id="subtle-glow" x="-50%" y="-50%" width="200%" height="200%">
-                                                            <feGaussianBlur in="SourceGraphic" stdDeviation="2" result="blur" />
+                                                            <feGaussianBlur in="SourceGraphic" stdDeviation="1.5" result="blur" />
                                                             <feMerge>
                                                                 <feMergeNode in="blur" />
                                                                 <feMergeNode in="SourceGraphic" />
@@ -870,20 +865,26 @@ export const Dashboard: React.FC = () => {
                                                     </defs>
                                                     {path1 && (
                                                         <g filter="url(#subtle-glow)">
-                                                            {/* Static Background Dashed Line */}
-                                                            <path d={path1} fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="1" strokeDasharray="4 4" />
-                                                            {/* Pulsing Gradient Overlay */}
-                                                            <path d={path1} fill="none" stroke="url(#connection-gradient)" strokeWidth="1.5" strokeDasharray="8 8" className="transition-all duration-500">
-                                                                <animate attributeName="stroke-dashoffset" from="0" to="-16" dur="2s" repeatCount="indefinite" calcMode="linear" />
-                                                            </path>
+                                                            <path
+                                                                d={path1}
+                                                                fill="none"
+                                                                stroke="rgba(255,255,255,0.08)"
+                                                                strokeWidth="1"
+                                                                strokeDasharray="4 4"
+                                                                className="transition-all duration-1000"
+                                                            />
                                                         </g>
                                                     )}
                                                     {path2 && (
                                                         <g filter="url(#subtle-glow)">
-                                                            <path d={path2} fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="1" strokeDasharray="4 4" />
-                                                            <path d={path2} fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="1.5" strokeDasharray="8 8" className="transition-all duration-500">
-                                                                <animate attributeName="stroke-dashoffset" from="0" to="-16" dur="3s" repeatCount="indefinite" calcMode="linear" />
-                                                            </path>
+                                                            <path
+                                                                d={path2}
+                                                                fill="none"
+                                                                stroke="rgba(255,255,255,0.08)"
+                                                                strokeWidth="1"
+                                                                strokeDasharray="4 4"
+                                                                className="transition-all duration-1000"
+                                                            />
                                                         </g>
                                                     )}
                                                 </svg>

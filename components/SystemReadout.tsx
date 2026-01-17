@@ -65,7 +65,7 @@ export const SystemReadout: React.FC<SystemReadoutProps> = ({ mode, intensity, c
                     className="flex flex-col gap-12" // Enforce strict spacing (48px = gap-12)
                 >
                     {/* PREMIUM DIAGNOSTIC CARD */}
-                    <div className="relative bg-white/[0.02] rounded-xl p-4 border-t border-white/[0.05] overflow-hidden shadow-[inset_0_0_0_0.5px_rgba(255,255,255,0.05)]">
+                    <div className="relative bg-white/[0.02] rounded-xl p-4 border-t border-white/[0.05] overflow-hidden shadow-[inset_0_0_0_0.5px_rgba(255,255,255,0.05)] min-h-[100px] flex flex-col justify-center">
                         {/* Corner Detail */}
                         <div className="absolute top-3 right-3 text-[8px] font-mono text-white/20 whitespace-nowrap">
                             REF_ID: 04-B
@@ -85,15 +85,15 @@ export const SystemReadout: React.FC<SystemReadoutProps> = ({ mode, intensity, c
                     </div>
 
                     {/* SESSION ARCHITECTURE TRACKER CARD */}
-                    <div className="relative bg-white/[0.02] rounded-xl p-4 border-t border-white/[0.05] overflow-hidden shadow-[inset_0_0_0_0.5px_rgba(255,255,255,0.05)]">
+                    <div className="relative bg-white/[0.02] rounded-xl p-4 border-t border-white/[0.05] overflow-hidden shadow-[inset_0_0_0_0.5px_rgba(255,255,255,0.05)] min-h-[100px] flex flex-col justify-center">
                         <div className="flex flex-col gap-4">
-                            {/* Header Logic: Unified Horizontal Line */}
-                            <div className="flex items-center justify-between">
-                                <span className="text-[10px] text-white/50 tracking-[0.1em] font-medium uppercase">
+                            {/* Header Logic: Zero-Wrap Single Line */}
+                            <div className="flex items-center justify-between w-full">
+                                <span className="text-[10px] text-white/50 tracking-[0.1em] font-medium uppercase whitespace-nowrap">
                                     Session Architecture
                                 </span>
-                                {/* Numeric Counter - Mono spaced for precision */}
-                                <span className="text-[10px] font-mono text-[#666] tracking-widest uppercase">
+                                {/* Numeric Counter - Forced horizontal alignment */}
+                                <span className="text-[10px] font-mono text-[#666] tracking-widest uppercase whitespace-nowrap ml-4">
                                     0{Math.min(completedCount, sessionTarget)} / 0{sessionTarget}
                                 </span>
                             </div>
