@@ -5,13 +5,16 @@
   width: 8px;
   height: 8px;
 }
+
 ::-webkit-scrollbar-track {
   background: transparent;
 }
+
 ::-webkit-scrollbar-thumb {
   background: #27272a;
   border-radius: 4px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
   background: #3f3f46;
 }
@@ -79,4 +82,9 @@
 .node-active {
   box-shadow: 0 0 0 1px #00F5FF, 0 0 20px rgba(0, 245, 255, 0.4);
   border-color: #00F5FF;
+}
+
+/* Leader Line Visibility Lockdown */
+.leader-line {
+  z-index: 10000 !important;
 }

@@ -449,6 +449,7 @@ export const Dashboard: React.FC = () => {
 
         let line1: any;
         let line2: any;
+        let timeoutId: any;
 
         const initLines = () => {
             if (line1) line1.remove();
@@ -459,9 +460,9 @@ export const Dashboard: React.FC = () => {
                     tasksRef.current,
                     timerRefDiv.current,
                     {
-                        color: 'rgba(255, 255, 255, 0.12)',
+                        color: 'rgba(255, 255, 255, 0.35)',
                         size: 1,
-                        dash: { animation: false },
+                        dash: { len: 4, gap: 4 },
                         path: 'fluid',
                         startSocket: 'right',
                         endSocket: 'left'
@@ -474,9 +475,9 @@ export const Dashboard: React.FC = () => {
                     timerRefDiv.current,
                     vaultRef.current,
                     {
-                        color: 'rgba(255, 255, 255, 0.08)',
+                        color: 'rgba(255, 255, 255, 0.25)',
                         size: 1,
-                        dash: { animation: false },
+                        dash: { len: 4, gap: 4 },
                         path: 'fluid',
                         startSocket: 'right',
                         endSocket: 'left'
@@ -485,11 +486,14 @@ export const Dashboard: React.FC = () => {
             }
         };
 
-        initLines();
+        // Delay initialization to ensure DOM and framer-motion have settled
+        timeoutId = setTimeout(initLines, 1000);
 
         const handleResize = () => {
-            if (line1) line1.position();
-            if (line2) line2.position();
+            requestAnimationFrame(() => {
+                if (line1) line1.position();
+                if (line2) line2.position();
+            });
         };
 
         window.addEventListener('resize', handleResize);
@@ -500,10 +504,11 @@ export const Dashboard: React.FC = () => {
         if (vaultRef.current) resizeObserver.observe(vaultRef.current);
 
         return () => {
+            clearTimeout(timeoutId);
             window.removeEventListener('resize', handleResize);
             resizeObserver.disconnect();
-            if (line1) line1.remove();
-            if (line2) line2.remove();
+            if (line1) try { line1.remove(); } catch (e) { }
+            if (line2) try { line2.remove(); } catch (e) { }
         };
     }, [mode, tasks, isFocusMode]);
 
