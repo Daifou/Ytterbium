@@ -90,7 +90,7 @@ export const SystemReadout: React.FC<SystemReadoutProps> = ({ mode, intensity, c
                             {/* Header Logic: Zero-Wrap Single Line Lockdown */}
                             <div className="flex items-center justify-between w-full">
                                 <span className="text-[10px] text-white/50 tracking-[0.1em] font-medium uppercase whitespace-nowrap overflow-hidden text-ellipsis mr-2">
-                                    Session Architecture
+                                    Sessions
                                 </span>
                                 {/* Numeric Counter - Forced horizontal alignment - ZERO WRAP */}
                                 <span className="text-[10px] font-mono text-[#666] tracking-widest uppercase whitespace-nowrap flex-shrink-0">

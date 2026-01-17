@@ -441,44 +441,29 @@ export const Dashboard: React.FC = () => {
             }
         }
     }, [currentMetrics?.fatigueScore, status, focusIntensity, elapsed]);
+
+    // --- NOTIFICATION SOUND EFFECT ---
+    useEffect(() => {
+        if (notification) {
+            try {
+                const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+                audio.volume = 0.5;
+                audio.play();
+            } catch (e) {
+                console.error("Audio playback failed", e);
+            }
+        }
+    }, [notification]);
+
     // --- MAGNETIC LEADER LINE CONNECTIVITY ---
     useEffect(() => {
-        if (isMobile) return;
+        if (isMobile || mode !== AppMode.FOCUS) return;
 
         let line1: any;
         let line2: any;
         let timerId: any;
 
-        const initLines = () => {
-            const tasksEl = document.getElementById('task-list-node');
-            const timerEl = document.getElementById('focus-timer-node');
-            const vaultEl = document.getElementById('gold-vault-node');
-
-            if (tasksEl && timerEl) {
-                line1 = new LeaderLine(tasksEl, timerEl, {
-                    color: 'rgba(255, 255, 255, 0.35)',
-                    size: 1,
-                    dash: { len: 4, gap: 4 },
-                    path: 'fluid',
-                    startSocket: 'right',
-                    endSocket: 'left'
-                });
-            }
-
-            if (timerEl && vaultEl) {
-                line2 = new LeaderLine(timerEl, vaultEl, {
-                    color: 'rgba(255, 255, 255, 0.25)',
-                    size: 1,
-                    dash: { len: 4, gap: 4 },
-                    path: 'fluid',
-                    startSocket: 'right',
-                    endSocket: 'left'
-                });
-            }
-        };
-
         // Polling to ensure DOM is fully settled and IDs are present
-        // This fixes the "blink" when switching tabs as it catches the IDs instantly
         timerId = setInterval(() => {
             const tasksEl = document.getElementById('task-list-node');
             const timerEl = document.getElementById('focus-timer-node');
@@ -506,9 +491,6 @@ export const Dashboard: React.FC = () => {
                 });
             }
 
-            // Once both lines are initialized, we can stop polling or just keep it 
-            // but for stability we stop once lines exist. 
-            // If nodes mount/unmount often, we'd need more complex logic.
             if (line1 && line2) {
                 clearInterval(timerId);
             }
@@ -526,13 +508,13 @@ export const Dashboard: React.FC = () => {
         if (layoutWrapperRef.current) observer.observe(layoutWrapperRef.current);
 
         return () => {
-            clearTimeout(timerId);
+            clearInterval(timerId);
             window.removeEventListener('resize', handleUpdate);
             observer.disconnect();
             if (line1) try { line1.remove(); } catch (e) { }
             if (line2) try { line2.remove(); } catch (e) { }
         };
-    }, [isMobile, tasks]);
+    }, [isMobile, tasks, mode]);
 
     // Load Tasks
     useEffect(() => {
