@@ -9,57 +9,79 @@ interface SystemReadoutProps {
 
 interface ProfileConfig {
     name: string;
-    stateSummary: string;
-    characteristics: string[];
-    accentColor: string;
+    description: string;
+    metrics: { label: string; value: string }[];
+    statusFlavor: string;
 }
 
 export const SystemReadout: React.FC<SystemReadoutProps> = ({ mode, intensity }) => {
 
     const readoutData = useMemo<ProfileConfig>(() => {
+        // 1. RELAX MODE
         if (mode === AppMode.RELAX) {
             return {
-                name: 'DEEP REST',
-                stateSummary: 'Recovery Active',
-                characteristics: ['Parasympathetic', 'Dopamine Reset'],
-                accentColor: 'text-[#00FF85]'
+                name: 'RECOVERY START',
+                description: 'Optimized for parasympathetic activation and default mode network (DMN) connectivity.',
+                metrics: [
+                    { label: 'THROUGHPUT', value: 'LOW' },
+                    { label: 'DOPAMINE', value: 'RESET' },
+                    { label: 'WAVEFORM', value: 'ALPHA' }
+                ],
+                statusFlavor: 'DISENGAGED'
             };
         }
+        // 2. STATS (Fallback for now, treating as Analysis)
         if (mode === AppMode.STATS) {
             return {
-                name: 'ANALYTICS',
-                stateSummary: 'Review Mode',
-                characteristics: ['Pattern Audit', 'Metric Sync'],
-                accentColor: 'text-[#00FF85]'
+                name: 'META-ANALYSIS',
+                description: 'Review of long-term cognitive patterning and fatigue markers.',
+                metrics: [
+                    { label: 'SCOPE', value: 'GLOBAL' },
+                    { label: 'SOURCE', value: 'LOCAL' },
+                    { label: 'STATE', value: 'AUDIT' }
+                ],
+                statusFlavor: 'REVIEW'
             };
         }
-        // FOCUS MODES
+
+        // 3. FOCUS MODES
         if (intensity >= 8) {
             return {
-                name: 'DEEP LASER',
-                stateSummary: 'High Cognitive Load',
-                characteristics: ['Beta Dominance', 'Zero Tolerance'],
-                accentColor: 'text-[#00FF85]'
+                name: 'HYPER-FOCUS',
+                description: 'Maximal prefrontal cortex engagement. Zero external tolerance. High metabolic cost.',
+                metrics: [
+                    { label: 'LOAD', value: 'PEAK' },
+                    { label: 'LATENCY', value: '0MS' },
+                    { label: 'GATE', value: 'LOCKED' }
+                ],
+                statusFlavor: 'NOMINAL'
             };
         } else if (intensity >= 4) {
             return {
-                name: 'BALANCED',
-                stateSummary: 'Sustainable Flow',
-                characteristics: ['Alpha-Theta', 'Adaptive Gate'],
-                accentColor: 'text-[#00FF85]'
+                name: 'BALANCED FLOW',
+                description: 'Sustainable neural synchronization. Ideal for complex synthesis and routine execution.',
+                metrics: [
+                    { label: 'STABILITY', value: '98%' },
+                    { label: 'WAVEFORM', value: 'BETA' },
+                    { label: 'GATE', value: 'ADAPTIVE' }
+                ],
+                statusFlavor: 'NOMINAL'
             };
         } else {
             return {
-                name: 'CREATIVE',
-                stateSummary: 'Associative Link',
-                characteristics: ['Low Inhibition', 'Divergent'],
-                accentColor: 'text-[#00FF85]'
+                name: 'DIVERGENT',
+                description: 'Lowered latent inhibition. Optimized for associative linking and creative capture.',
+                metrics: [
+                    { label: 'NOISE', value: 'ALLOWED' },
+                    { label: 'SCOPE', value: 'BROAD' },
+                    { label: 'GATE', value: 'OPEN' }
+                ],
+                statusFlavor: 'ACTIVE'
             };
         }
     }, [mode, intensity]);
 
     return (
-        // NO CONTAINER - PURE TEXT
         <div className="w-full font-sans select-none">
             <AnimatePresence mode="wait">
                 <motion.div
@@ -67,53 +89,55 @@ export const SystemReadout: React.FC<SystemReadoutProps> = ({ mode, intensity })
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    transition={{ duration: 0.4 }}
+                    transition={{ duration: 0.3 }}
                     className="flex flex-col gap-6"
                 >
-                    {/* 1. STATE INDICATOR */}
-                    <div className="flex flex-col gap-1">
-                        <span className="text-[10px] text-[#666] tracking-[0.1em] font-medium uppercase">
-                            State
-                        </span>
-                        <div className="flex items-center gap-2">
-                            <div className="w-1.5 h-1.5 bg-[#00FF85] rounded-full shadow-[0_0_8px_rgba(0,255,133,0.5)]" />
-                            <span className="text-[13px] text-white font-normal tracking-wide">
+                    {/* KEY VALUE PAIRS - THE GRID */}
+                    <div className="space-y-3">
+                        {/* STATE ROW */}
+                        <div className="flex items-baseline relative h-4">
+                            <span className="absolute left-0 text-[10px] text-[#666] tracking-[0.08em] font-medium uppercase w-[60px]">
+                                State
+                            </span>
+                            <span className="absolute left-[80px] text-[12px] text-white font-normal leading-none">
                                 {readoutData.name}
                             </span>
                         </div>
-                    </div>
 
-                    {/* 2. PROFILE DATA */}
-                    <div className="flex flex-col gap-1">
-                        <span className="text-[10px] text-[#666] tracking-[0.1em] font-medium uppercase">
-                            Profile
-                        </span>
-                        <span className="text-[13px] text-white/90 font-normal tracking-wide">
-                            {readoutData.stateSummary}
-                        </span>
-                    </div>
+                        {/* PROFILE ROW */}
+                        <div className="flex items-baseline relative min-h-[4rem]">
+                            <span className="absolute left-0 top-0 text-[10px] text-[#666] tracking-[0.08em] font-medium uppercase w-[60px]">
+                                Profile
+                            </span>
+                            <span className="absolute left-[80px] top-0 text-[11px] text-[#888] font-normal leading-[1.6]">
+                                {readoutData.description}
+                            </span>
+                        </div>
 
-                    {/* 3. ACTIVE GATES (Characteristics) */}
-                    <div className="flex flex-col gap-2 pt-2">
-                        {readoutData.characteristics.map((char, i) => (
-                            <div key={i} className="flex items-center justify-between group">
-                                <span className="text-[10px] text-[#444] uppercase tracking-[0.1em]">
-                                    Gate 0{i + 1}
+                        {/* DYNAMIC METRICS */}
+                        {readoutData.metrics.map((m, i) => (
+                            <div key={i} className="flex items-baseline relative h-4">
+                                <span className="absolute left-0 text-[10px] text-[#666] tracking-[0.08em] font-medium uppercase w-[60px]">
+                                    {m.label}
                                 </span>
-                                <span className="text-[11px] text-[#888] font-mono tracking-tight">
-                                    {char}
+                                <span className="absolute left-[80px] text-[10px] font-mono text-[#00FF85] tracking-wide">
+                                    {m.value}
                                 </span>
                             </div>
                         ))}
                     </div>
 
-                    {/* DIVIDER LINE (Subtle) */}
+                    {/* DIVIDER */}
                     <div className="w-full h-[1px] bg-white/[0.03] mt-2 mb-2" />
 
-                    {/* SYSTEM STATUS (Dummy Data for "Tech" feel) */}
-                    <div className="flex justify-between items-center">
-                        <span className="text-[10px] text-[#444] uppercase tracking-[0.1em]">Sys.Load</span>
-                        <span className="text-[10px] text-[#00FF85] font-mono">NOMINAL</span>
+                    {/* SYS.LOAD */}
+                    <div className="flex items-baseline relative h-4">
+                        <span className="absolute left-0 text-[10px] text-[#666] tracking-[0.08em] font-medium uppercase w-[60px]">
+                            Sys.Load
+                        </span>
+                        <span className="absolute left-[80px] text-[10px] font-mono text-[#00FF85] tracking-wide">
+                            {readoutData.statusFlavor}
+                        </span>
                     </div>
 
                 </motion.div>

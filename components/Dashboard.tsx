@@ -748,18 +748,78 @@ export const Dashboard: React.FC = () => {
                                                 {path2 && (<g filter="url(#subtle-glow)"><path d={path2} fill="none" stroke="url(#connection-gradient)" strokeWidth="1.5" strokeDasharray="8 8" className="transition-all duration-500"><animate attributeName="stroke-dashoffset" from="0" to="8" dur="3s" repeatCount="indefinite" calcMode="linear" begin="1s" /></path></g>)}
                                             </svg>
 
+    // ----------------------------------------------------------------------------------
+    // TIMER PERSISTENCE (LOCAL STORAGE)
+    // ----------------------------------------------------------------------------------
+    useEffect(() => {
+        // SAVE STATE
+        if (status === SessionStatus.RUNNING) {
+            const state = {
+                                                status,
+                                                mode,
+                                                duration,
+                                                focusIntensity,
+                                                // store the theoretical start time to calculate accurate elapsed on reload
+                                                startTime: Date.now() - (elapsed * 1000),
+                                            lastUpdated: Date.now()
+            };
+                                            localStorage.setItem('ytterbium_active_session', JSON.stringify(state));
+        } else if (status === SessionStatus.PAUSED) {
+             const state = {
+                                                status,
+                                                mode,
+                                                duration,
+                                                focusIntensity,
+                                                elapsed, // Fixed elapsed for paused state
+                                                lastUpdated: Date.now()
+            };
+                                            localStorage.setItem('ytterbium_active_session', JSON.stringify(state));
+        } else if (status === SessionStatus.IDLE) {
+                                                localStorage.removeItem('ytterbium_active_session');
+        }
+    }, [status, mode, duration, focusIntensity, elapsed]);
+
+    useEffect(() => {
+        // RESTORE STATE ON MOUNT
+        const saved = localStorage.getItem('ytterbium_active_session');
+                                            if (saved) {
+            try {
+                const parsed = JSON.parse(saved);
+                                            // Validate if simplified
+                                            if (parsed.status === SessionStatus.RUNNING) {
+                    const now = Date.now();
+                                            const diff = Math.floor((now - parsed.startTime) / 1000);
+                                            // Check if legitimate (e.g. less than 24 hours)
+                                            if (diff < 86400) {
+                                                setMode(parsed.mode);
+                                            setDuration(parsed.duration);
+                                            setFocusIntensity(parsed.focusIntensity);
+                                            setElapsed(diff); // Catch up to now
+                                            setStatus(SessionStatus.RUNNING);
+                                            setInsight('Session restored. Neural sync re-established.');
+                    }
+                } else if (parsed.status === SessionStatus.PAUSED) {
+                                                setMode(parsed.mode);
+                                            setDuration(parsed.duration);
+                                            setFocusIntensity(parsed.focusIntensity);
+                                            setElapsed(parsed.elapsed);
+                                            setStatus(SessionStatus.PAUSED);
+                                            setInsight('Paused session restored.');
+                }
+            } catch (e) {
+                                                console.error("Failed to restore session", e);
+                                            localStorage.removeItem('ytterbium_active_session');
+            }
+        }
+    }, []);
+
+                                            // ... existing code ...
+
                                             <div className="flex flex-col md:flex-row items-center justify-center gap-12 md:gap-0 pt-20 md:pt-0">
                                                 <motion.div
                                                     ref={tasksRef}
                                                     layout
-                                                    drag
-                                                    dragConstraints={layoutWrapperRef}
-                                                    dragElastic={0.2}
-                                                    dragMomentum={false} // Precise control
-                                                    onDrag={updatePaths}
-                                                    onLayoutAnimationComplete={updatePaths} // Trigger update after layout animation
-                                                    whileDrag={{ scale: 1.05, cursor: 'grabbing', zIndex: 100 }}
-                                                    className={`w-full max-w-[16rem] min-h-[13rem] relative z-20 cursor-grab active:cursor-grabbing`}
+                                                    className={`w-full max-w-[16rem] min-h-[13rem] relative z-20`}
                                                 >
                                                     <TaskList tasks={tasks} onToggle={toggleTask} onAdd={addTask} onDelete={deleteTask} />
                                                 </motion.div>
@@ -767,14 +827,7 @@ export const Dashboard: React.FC = () => {
                                                 <motion.div
                                                     ref={timerRefDiv}
                                                     layout
-                                                    drag
-                                                    dragConstraints={layoutWrapperRef}
-                                                    dragElastic={0.2}
-                                                    dragMomentum={false}
-                                                    onDrag={updatePaths}
-                                                    onLayoutAnimationComplete={updatePaths}
-                                                    whileDrag={{ scale: 1.05, cursor: 'grabbing', zIndex: 100 }}
-                                                    className={`w-full max-w-[20rem] h-[15rem] relative z-30 cursor-grab active:cursor-grabbing`}
+                                                    className={`w-full max-w-[20rem] h-[15rem] relative z-30`}
                                                 >
                                                     <FocusTimer status={status} elapsedSeconds={elapsed} durationSeconds={duration} fatigueScore={currentMetrics?.fatigueScore || 0} onStart={() => handleStart()} onPause={handlePause} onReset={handleReset} onIntensityChange={handleIntensityChange} currentIntensity={focusIntensity} currentInsight={insight} />
                                                 </motion.div>
@@ -782,14 +835,7 @@ export const Dashboard: React.FC = () => {
                                                 <motion.div
                                                     ref={vaultRef}
                                                     layout
-                                                    drag
-                                                    dragConstraints={layoutWrapperRef}
-                                                    dragElastic={0.2}
-                                                    dragMomentum={false}
-                                                    onDrag={updatePaths}
-                                                    onLayoutAnimationComplete={updatePaths}
-                                                    whileDrag={{ scale: 1.05, cursor: 'grabbing', zIndex: 100 }}
-                                                    className={`w-full max-w-[16rem] h-[9.25rem] mt-0 md:mt-24 relative z-20 cursor-grab active:cursor-grabbing`}
+                                                    className={`w-full max-w-[16rem] h-[9.25rem] mt-0 md:mt-24 relative z-20`}
                                                 >
                                                     <GoldVault progress={(elapsed / duration) * 100} barsToday={barsToday} totalBars={totalBars} />
                                                 </motion.div>
