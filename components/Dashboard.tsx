@@ -57,6 +57,60 @@ const LoadingPercentage = () => {
     return <div className="text-[9px] text-zinc-600 font-mono tracking-widest">({Math.min(99, progress)}%)</div>;
 };
 
+// Helper component to sync data to nodes without re-rendering the entire canvas
+const NodesDataSync = ({ timerProps, taskListProps, goldVaultProps }: any) => {
+    const { nodes, onNodesChange } = useSpatialStore();
+
+    // We use a simplified check to avoid infinite loops, 
+    // real app should use 'useReactFlow' setNodes or similar.
+    // For now, we assume this component re-renders when props change, 
+    // and we trigger a store update if the data in the store is stale.
+    // However, updating store during render is bad. We use useEffect.
+
+    useEffect(() => {
+        // We can batch update the nodes in the store
+        // This logic runs whenever props change.
+
+        let hasChanges = false;
+        const newNodes = nodes.map(node => {
+            if (node.id === 'focus-timer') {
+                // Determine if changed?
+                // For MVP simplicity, just overwrite.
+                const updated = { ...node, data: { ...node.data, ...timerProps } };
+                if (JSON.stringify(node.data) !== JSON.stringify(updated.data)) {
+                    hasChanges = true;
+                    return updated;
+                }
+            }
+            if (node.id === 'task-list') {
+                const updated = { ...node, data: { ...node.data, ...taskListProps } };
+                if (JSON.stringify(node.data) !== JSON.stringify(updated.data)) {
+                    hasChanges = true;
+                    return updated;
+                }
+            }
+            if (node.id === 'gold-vault') {
+                const updated = { ...node, data: { ...node.data, ...goldVaultProps } };
+                if (JSON.stringify(node.data) !== JSON.stringify(updated.data)) {
+                    hasChanges = true;
+                    return updated;
+                }
+            }
+            return node;
+        });
+
+        if (hasChanges) {
+            // Updating the store.
+            // CAUTION: This might trigger re-renders. unique dependency array helps.
+            // We need a direct way to setNodes without triggering this effect again if data is same.
+            // Our JSON.stringify check might be expensive but prevents loops.
+            useSpatialStore.setState({ nodes: newNodes });
+        }
+    }, [timerProps, taskListProps, goldVaultProps, nodes]);
+
+    return null;
+};
+
 export const Dashboard: React.FC = () => {
     const location = useLocation();
     const [mode, setMode] = useState<AppMode>(AppMode.FOCUS);
