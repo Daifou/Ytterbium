@@ -21,124 +21,110 @@ export const SystemReadout: React.FC<SystemReadoutProps> = ({ mode, intensity })
         // 1. RELAX MODE
         if (mode === AppMode.RELAX) {
             return {
-                name: 'DEEP_REST',
-                stateSummary: 'Neural recovery active',
+                name: 'DEEP REST',
+                stateSummary: 'Recovery Active',
                 characteristics: [
-                    'Parasympathetic activation',
-                    'Dopamine resensitization'
+                    'Parasympathetic',
+                    'Dopamine Reset'
                 ],
-                recommendation: 'Visual disengagement',
-                accentColor: 'text-emerald-400'
+                recommendation: 'Disengage Visuals',
+                accentColor: 'text-[#00FF85]'
             };
         }
 
-        // 2. STATS MODE (Fallback/Specific)
+        // 2. STATS MODE
         if (mode === AppMode.STATS) {
             return {
-                name: 'ANALYTICS',
-                stateSummary: 'Metacognitive review',
+                name: 'AUDIT',
+                stateSummary: 'Meta-Review',
                 characteristics: [
-                    'Pattern recognition',
-                    'Performance audit'
+                    'Pattern Match',
+                    'Perf. Audit'
                 ],
-                recommendation: 'Evaluate fatigue metrics',
-                accentColor: 'text-indigo-400'
+                recommendation: 'Review Metrics',
+                accentColor: 'text-white'
             };
         }
 
-        // 3. FOCUS MODES (Based on Intensity)
+        // 3. FOCUS MODES - Monochromatic Hierarchy
         if (intensity >= 8) {
             return {
-                name: 'DEEP_LASER',
-                stateSummary: 'Maximal cognitive load',
+                name: 'LASER',
+                stateSummary: 'Maximal Load',
                 characteristics: [
-                    'High beta wave dominance',
-                    'Zero external tolerance'
+                    'High Beta',
+                    'Zero Tolerance'
                 ],
-                recommendation: 'Maintain singular thread',
-                accentColor: 'text-cyan-400'
+                recommendation: 'Single Thread',
+                accentColor: 'text-[#00FF85]'
             };
         } else if (intensity >= 4) {
             return {
-                name: 'BALANCED',
-                stateSummary: 'Sustainable flow state',
+                name: 'FLOW',
+                stateSummary: 'Steady State',
                 characteristics: [
-                    'Alpha-Theta oscillation',
-                    'Adaptive focus gating'
+                    'Alpha-Theta',
+                    'Adaptive Gate'
                 ],
-                recommendation: 'Standard work blocks',
-                accentColor: 'text-blue-400'
+                recommendation: 'Standard Block',
+                accentColor: 'text-white'
             };
         } else {
             return {
-                name: 'CREATIVE',
-                stateSummary: 'Associative thinking',
+                name: 'IDEATION',
+                stateSummary: 'Associative',
                 characteristics: [
-                    'Reduced latent inhibition',
-                    'Divergent thought paths'
+                    'Low Inhibition',
+                    'Divergent'
                 ],
-                recommendation: 'Capture tangential ideas',
-                accentColor: 'text-purple-400'
+                recommendation: 'Capture Ideas',
+                accentColor: 'text-gray-400'
             };
         }
     }, [mode, intensity]);
 
     return (
         <div className="w-full px-1">
-            <div className="w-full rounded-md bg-[#0A0A0A] border border-white/[0.05] font-mono text-[10px] leading-relaxed text-[#666] select-none overflow-hidden">
-                {/* MAC TERMINAL HEADER */}
-                <div className="flex items-center gap-1.5 px-3 py-2 border-b border-white/[0.03] bg-white/[0.01]">
-                    <div className="flex gap-1.5">
-                        <div className="w-2.5 h-2.5 rounded-full bg-[#FF5F56] border border-[#E0443E]" />
-                        <div className="w-2.5 h-2.5 rounded-full bg-[#FFBD2E] border border-[#DEA123]" />
-                        <div className="w-2.5 h-2.5 rounded-full bg-[#27C93F] border border-[#1AAB29]" />
-                    </div>
-                    <div className="flex-1 text-center pr-8 opacity-20 text-[9px] tracking-[0.2em]">YT_CORE_DRV</div>
+            {/* Precision Geometry: minimal border, no background fill to keep it airy */}
+            <div className="w-full font-mono text-[9px] leading-relaxed text-[#444] select-none">
+
+                {/* Tech Header Line */}
+                <div className="flex items-center gap-2 mb-3 opacity-50">
+                    <div className="w-1 h-1 bg-[#00FF85] rounded-full animate-pulse" />
+                    <div className="h-[1px] flex-1 bg-white/[0.1]" />
+                    <div className="text-[8px] tracking-[0.2em] font-medium">SYS_RD_01</div>
                 </div>
 
-                <div className="p-3">
+                <div className="px-1">
                     <AnimatePresence mode="wait">
                         <motion.div
                             key={readoutData.name}
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            transition={{ duration: 0.3 }}
+                            initial={{ opacity: 0, y: 5 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -5 }}
+                            transition={{ duration: 0.4, ease: "circOut" }}
                         >
                             {/* HEADER */}
-                            <div className="mb-3 border-b border-white/[0.05] pb-2">
-                                <div className="flex justify-between items-center mb-0.5">
-                                    <span className="uppercase tracking-wider">SYSTEM MODE:</span>
-                                    <span className={`${readoutData.accentColor} font-bold`}>{mode}</span>
-                                </div>
-                                <div className="flex justify-between items-center">
-                                    <span className="uppercase tracking-wider">PROFILE:</span>
-                                    <span className="text-[#EAEAEA] font-bold tracking-widest">{readoutData.name}</span>
+                            <div className="mb-4">
+                                <div className="flex justify-between items-end mb-1">
+                                    <span className="uppercase tracking-[0.15em] text-[#666]">Profile</span>
+                                    <span className={`font-bold tracking-[0.1em] ${readoutData.accentColor} drop-shadow-[0_0_8px_rgba(0,255,133,0.1)]`}>{readoutData.name}</span>
                                 </div>
                             </div>
 
                             {/* STATE */}
-                            <div className="mb-3">
-                                <div className="flex items-center gap-2 mb-1">
-                                    <span className="text-[#EAEAEA]">STATE:</span>
-                                    <span>{readoutData.stateSummary}</span>
+                            <div className="mb-4 space-y-1">
+                                <div className="flex items-center justify-between border-l border-white/[0.1] pl-2">
+                                    <span className="text-[#555] tracking-wide">STATE</span>
+                                    <span className="text-[#EAEAEA] tracking-wide">{readoutData.stateSummary}</span>
                                 </div>
-                                <ul className="flex flex-col gap-0.5 pl-0">
+                                <div className="flex flex-col gap-1 pl-2 pt-1">
                                     {readoutData.characteristics.map((char, i) => (
-                                        <li key={i} className="flex items-center gap-1.5">
-                                            <span className={`w-1 h-1 rounded-full ${readoutData.accentColor.replace('text-', 'bg-')} opacity-50`} />
+                                        <div key={i} className="flex items-center justify-between text-[#666]">
+                                            <span className="tracking-wide text-[8px] opacity-70">VAR_0{i + 1}</span>
                                             <span>{char}</span>
-                                        </li>
+                                        </div>
                                     ))}
-                                </ul>
-                            </div>
-
-                            {/* RECOMMENDATION */}
-                            <div>
-                                <span className="block text-[#EAEAEA] mb-0.5 uppercase tracking-wider text-[9px]">RECOMMENDED:</span>
-                                <div className="flex items-center gap-1.5 text-[#888]">
-                                    <span className="text-cyan-500">→</span>
-                                    <span>{readoutData.recommendation}</span>
                                 </div>
                             </div>
 

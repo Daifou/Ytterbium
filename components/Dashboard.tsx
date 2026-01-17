@@ -727,69 +727,65 @@ export const Dashboard: React.FC = () => {
                                             ref={layoutWrapperRef}
                                             className="flex flex-col md:flex-row justify-center items-center w-full max-w-[1600px] px-4 relative"
                                         >
-                                            {/* SVG Connectors */}
+                                            {/* SVG Connectors - PRECISION GEOMETRY: Thin, monochrome, hairline */}
                                             <svg className="absolute top-0 left-0 w-full h-full overflow-visible pointer-events-none z-40 hidden md:block">
                                                 <defs>
                                                     <linearGradient id="connection-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                                                        <stop offset="0%" stopColor="#818cf8" stopOpacity="0.2" />
-                                                        <stop offset="50%" stopColor="#c7d2fe" stopOpacity="0.4" />
-                                                        <stop offset="100%" stopColor="#818cf8" stopOpacity="0.2" />
+                                                        <stop offset="0%" stopColor="#ffffff" stopOpacity="0.05" />
+                                                        <stop offset="50%" stopColor="#ffffff" stopOpacity="0.2" />
+                                                        <stop offset="100%" stopColor="#ffffff" stopOpacity="0.05" />
                                                     </linearGradient>
-                                                    <filter id="subtle-glow" x="-50%" y="-50%" width="200%" height="200%">
-                                                        <feGaussianBlur in="SourceGraphic" stdDeviation="1" result="blur" />
-                                                        <feMerge>
-                                                            <feMergeNode in="blur" />
-                                                            <feMergeNode in="SourceGraphic" />
-                                                        </feMerge>
-                                                    </filter>
-                                                    <marker id="arrow-head" markerWidth="4" markerHeight="4" refX="3.5" refY="2" orient="auto"><path d="M0,0 L4,2 L0,4 Z" fill="#c7d2fe" /></marker>
                                                 </defs>
-                                                {path1 && (<g filter="url(#subtle-glow)"><path d={path1} fill="none" stroke="url(#connection-gradient)" strokeWidth="1.5" strokeDasharray="8 8" className="transition-all duration-500"><animate attributeName="stroke-dashoffset" from="0" to="8" dur="3s" repeatCount="indefinite" calcMode="linear" /></path></g>)}
-                                                {path2 && (<g filter="url(#subtle-glow)"><path d={path2} fill="none" stroke="url(#connection-gradient)" strokeWidth="1.5" strokeDasharray="8 8" className="transition-all duration-500"><animate attributeName="stroke-dashoffset" from="0" to="8" dur="3s" repeatCount="indefinite" calcMode="linear" begin="1s" /></path></g>)}
+                                                {/* Law of Precision: Stroke width 1 or 0.5 */}
+                                                {path1 && (<path d={path1} fill="none" stroke="url(#connection-gradient)" strokeWidth="1" strokeDasharray="4 4" className="transition-all duration-500" />)}
+                                                {path2 && (<path d={path2} fill="none" stroke="url(#connection-gradient)" strokeWidth="1" strokeDasharray="4 4" className="transition-all duration-500" />)}
                                             </svg>
 
-                                            <div className="flex flex-col md:flex-row items-center justify-center gap-12 md:gap-0 pt-20 md:pt-0">
+                                            <div className="flex flex-col md:flex-row items-center justify-center gap-16 md:gap-8 pt-20 md:pt-0">
                                                 <motion.div
                                                     ref={tasksRef}
                                                     layout
                                                     drag
                                                     dragConstraints={layoutWrapperRef}
-                                                    dragElastic={0.2}
-                                                    dragMomentum={false} // Precise control
+                                                    dragElastic={0.1}
+                                                    dragMomentum={false}
                                                     onDrag={updatePaths}
-                                                    onLayoutAnimationComplete={updatePaths} // Trigger update after layout animation
-                                                    whileDrag={{ scale: 1.05, cursor: 'grabbing', zIndex: 100 }}
-                                                    className={`w-full max-w-[16rem] min-h-[13rem] relative z-20 cursor-grab active:cursor-grabbing`}
+                                                    onLayoutAnimationComplete={updatePaths}
+                                                    whileDrag={{ scale: 1.02, cursor: 'grabbing', zIndex: 100 }}
+                                                    className={`w-full max-w-[17rem] min-h-[16rem] relative z-20 cursor-grab active:cursor-grabbing`}
                                                 >
                                                     <TaskList tasks={tasks} onToggle={toggleTask} onAdd={addTask} onDelete={deleteTask} />
                                                 </motion.div>
                                                 {!isMobile && <div className="w-[16rem] relative z-0 pointer-events-none" />}
+
                                                 <motion.div
                                                     ref={timerRefDiv}
                                                     layout
                                                     drag
                                                     dragConstraints={layoutWrapperRef}
-                                                    dragElastic={0.2}
+                                                    dragElastic={0.1}
                                                     dragMomentum={false}
                                                     onDrag={updatePaths}
                                                     onLayoutAnimationComplete={updatePaths}
-                                                    whileDrag={{ scale: 1.05, cursor: 'grabbing', zIndex: 100 }}
-                                                    className={`w-full max-w-[20rem] h-[15rem] relative z-30 cursor-grab active:cursor-grabbing`}
+                                                    whileDrag={{ scale: 1.02, cursor: 'grabbing', zIndex: 100 }}
+                                                    // Increased size for Breathing Room
+                                                    className={`w-full max-w-[24rem] h-[19rem] relative z-30 cursor-grab active:cursor-grabbing`}
                                                 >
                                                     <FocusTimer status={status} elapsedSeconds={elapsed} durationSeconds={duration} fatigueScore={currentMetrics?.fatigueScore || 0} onStart={() => handleStart()} onPause={handlePause} onReset={handleReset} onIntensityChange={handleIntensityChange} currentIntensity={focusIntensity} currentInsight={insight} />
                                                 </motion.div>
+
                                                 {!isMobile && <div className="w-[16rem] relative z-0 pointer-events-none" />}
                                                 <motion.div
                                                     ref={vaultRef}
                                                     layout
                                                     drag
                                                     dragConstraints={layoutWrapperRef}
-                                                    dragElastic={0.2}
+                                                    dragElastic={0.1}
                                                     dragMomentum={false}
                                                     onDrag={updatePaths}
                                                     onLayoutAnimationComplete={updatePaths}
-                                                    whileDrag={{ scale: 1.05, cursor: 'grabbing', zIndex: 100 }}
-                                                    className={`w-full max-w-[16rem] h-[9.25rem] mt-0 md:mt-24 relative z-20 cursor-grab active:cursor-grabbing`}
+                                                    whileDrag={{ scale: 1.02, cursor: 'grabbing', zIndex: 100 }}
+                                                    className={`w-full max-w-[17rem] h-[12rem] mt-0 md:mt-32 relative z-20 cursor-grab active:cursor-grabbing`}
                                                 >
                                                     <GoldVault progress={(elapsed / duration) * 100} barsToday={barsToday} totalBars={totalBars} />
                                                 </motion.div>
