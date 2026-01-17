@@ -932,6 +932,7 @@ export const Dashboard: React.FC = () => {
                     onClose={() => setNotification(null)}
                     action={notification?.action}
                 />
-            </>
-            );
+            </div>
+        </>
+    );
 };
