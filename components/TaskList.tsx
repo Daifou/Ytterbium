@@ -63,7 +63,7 @@ export const TaskList: React.FC<TaskListProps> = ({ tasks, onToggle, onAdd, onDe
   };
 
   return (
-    <div ref={containerRef} className="w-full h-full bg-[#030303]/80 backdrop-blur-xl border border-white/[0.05] rounded-2xl overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.5)] transition-all hover:shadow-[0_12px_48px_rgba(0,0,0,0.6)] relative flex flex-col group/panel">
+    <div ref={containerRef} className="w-full h-full bg-[#0f0f12]/60 backdrop-blur-xl border border-white/[0.08] rounded-2xl overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.5)] transition-all hover:shadow-[0_12px_48px_rgba(0,0,0,0.6)] relative flex flex-col group/panel">
 
       {/* Energetic Link Layer - Abstract Neural Line */}
       <svg className="absolute top-0 left-4 w-4 h-full pointer-events-none z-0 opacity-30">
@@ -89,8 +89,8 @@ export const TaskList: React.FC<TaskListProps> = ({ tasks, onToggle, onAdd, onDe
         />
       </svg>
 
-      <div className="px-3 py-1.5 border-b border-white/[0.05] flex justify-between items-center bg-zinc-900/40 relative z-10 shrink-0">
-        <h3 className="text-[10px] font-medium text-gray-400 uppercase tracking-widest">Contextual Tasks</h3>
+      <div className="px-3 py-1.5 border-b border-white/[0.03] flex justify-between items-center bg-zinc-900/90 relative z-10 shrink-0">
+        <h3 className="text-[11px] font-medium text-gray-400">Contextual Tasks</h3>
         <button onClick={() => setIsAdding(true)} className="text-gray-500 hover:text-white transition-colors">
           <Plus className="w-3.5 h-3.5" />
         </button>
@@ -124,7 +124,7 @@ export const TaskList: React.FC<TaskListProps> = ({ tasks, onToggle, onAdd, onDe
                       <Circle className="w-3.5 h-3.5 opacity-50" />
                     )}
                   </button>
-                  <span className={`text-[12px] transition-colors ${task.completed ? 'text-gray-500 line-through' : 'text-gray-200 group-hover:text-white'}`}>
+                  <span className={`text-[11px] transition-colors ${task.completed ? 'text-gray-500 line-through' : 'text-gray-200 group-hover:text-white'}`}>
                     {task.title}
                   </span>
                 </div>
