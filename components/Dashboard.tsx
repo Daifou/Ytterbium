@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import LeaderLine from 'react-leader-line';
+import LeaderLine from 'leader-line-new';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sidebar } from './Sidebar';
 import { FocusTimer } from './FocusTimer';
@@ -441,10 +441,64 @@ export const Dashboard: React.FC = () => {
             }
         }
     }, [currentMetrics?.fatigueScore, status, focusIntensity, elapsed]);
+    // --- MAGNETIC LEADER LINE CONNECTIVITY ---
+    useEffect(() => {
+        if (isMobile) return;
 
+        let line1: any;
+        let line2: any;
+        let timerId: any;
 
+        const initLines = () => {
+            const tasksEl = document.getElementById('task-list-node');
+            const timerEl = document.getElementById('focus-timer-node');
+            const vaultEl = document.getElementById('gold-vault-node');
 
+            if (tasksEl && timerEl) {
+                line1 = new LeaderLine(tasksEl, timerEl, {
+                    color: 'rgba(255, 255, 255, 0.35)',
+                    size: 1,
+                    dash: { len: 4, gap: 4 },
+                    path: 'fluid',
+                    startSocket: 'right',
+                    endSocket: 'left'
+                });
+            }
 
+            if (timerEl && vaultEl) {
+                line2 = new LeaderLine(timerEl, vaultEl, {
+                    color: 'rgba(255, 255, 255, 0.25)',
+                    size: 1,
+                    dash: { len: 4, gap: 4 },
+                    path: 'fluid',
+                    startSocket: 'right',
+                    endSocket: 'left'
+                });
+            }
+        };
+
+        // Delay to ensure DOM is fully settled and IDs are present
+        timerId = setTimeout(initLines, 1500);
+
+        const handleUpdate = () => {
+            requestAnimationFrame(() => {
+                if (line1) line1.position();
+                if (line2) line2.position();
+            });
+        };
+
+        window.addEventListener('resize', handleUpdate);
+        const observer = new ResizeObserver(handleUpdate);
+        if (layoutWrapperRef.current) observer.observe(layoutWrapperRef.current);
+
+        return () => {
+            clearTimeout(timerId);
+            window.removeEventListener('resize', handleUpdate);
+            observer.disconnect();
+            if (line1) try { line1.remove(); } catch (e) { }
+            if (line2) try { line2.remove(); } catch (e) { }
+        };
+    }, [isMobile, tasks]);
 
     // Load Tasks
     useEffect(() => {
@@ -790,32 +844,6 @@ export const Dashboard: React.FC = () => {
                                                 ref={layoutWrapperRef}
                                                 className="flex flex-col md:flex-row justify-center items-center w-full max-w-[1600px] px-4 relative"
                                             >
-                                                {/* LeaderLine Connections */}
-                                                {!isMobile && (
-                                                    <>
-                                                        <LeaderLine
-                                                            start="task-list-node"
-                                                            end="focus-timer-node"
-                                                            color="rgba(255, 255, 255, 0.3)"
-                                                            size={1}
-                                                            dash={{ len: 4, gap: 4 }}
-                                                            startSocket="right"
-                                                            endSocket="left"
-                                                            path="fluid"
-                                                        />
-                                                        <LeaderLine
-                                                            start="focus-timer-node"
-                                                            end="gold-vault-node"
-                                                            color="rgba(255, 255, 255, 0.2)"
-                                                            size={1}
-                                                            dash={{ len: 4, gap: 4 }}
-                                                            startSocket="right"
-                                                            endSocket="left"
-                                                            path="fluid"
-                                                        />
-                                                    </>
-                                                )}
-
                                                 <div className="flex flex-col md:flex-row items-center justify-center gap-12 md:gap-0 pt-20 md:pt-0">
                                                     <motion.div
                                                         ref={tasksRef}
