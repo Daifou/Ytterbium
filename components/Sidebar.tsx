@@ -2,11 +2,10 @@ import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AppMode } from '../types';
 import {
-  Hexagon,
+  Target,
   Wind,
   BarChart2,
-  LogOut,
-  Circle
+  LogOut
 } from 'lucide-react';
 import type { User } from '@supabase/supabase-js';
 
@@ -20,7 +19,7 @@ interface SidebarProps {
   toggleAlienMode: () => void;
   onSignOut: () => void;
   user: User | null;
-  focusIntensity: number;
+  focusIntensity: number; // [NEW] Prop for Readout
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({ currentMode, setMode, onSignOut, user, focusIntensity }) => {
@@ -36,134 +35,110 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentMode, setMode, onSignOu
 
   return (
     <>
-      {/* DESKTOP SIDEBAR - LUXURY INSTRUMENT PANEL */}
-      <aside className="fixed left-0 top-0 h-full w-[260px] hidden md:flex flex-col z-50 bg-[#050505] border-r border-white/[0.05] font-sans antialiased">
+      {/* DESKTOP SIDEBAR - MINIMALIST UTILITY */}
+      <aside className="fixed left-0 top-0 h-full w-[260px] hidden md:flex flex-col z-50 bg-[#080808] border-r border-white/[0.03] font-sans select-none antialiased">
 
-        {/* 1. TOP SECTION: Branding */}
-        <header className="px-8 py-10">
-          <div className="flex items-center gap-3 opacity-80 hover:opacity-100 transition-opacity duration-500">
-            <Logo className="w-8 h-8 opacity-90" />
-            <span className="text-[10px] uppercase font-bold text-white tracking-[0.25em] opacity-40">
+        {/* 1. TOP SECTION: SidebarHeader */}
+        <header className="px-6 py-8">
+          <div className="flex items-center gap-2">
+            <Logo className="w-10 h-10" />
+            <span className="text-[12px] font-semibold text-[#EAEAEA] tracking-[0.2em] uppercase opacity-90">
               Ytterbium
             </span>
           </div>
         </header>
 
-        {/* 2. CENTERPIECE: Navigation */}
-        <div className="flex-1 px-6 flex flex-col gap-8">
+        {/* 2. CENTERPIECE: SidebarContent */}
+        <div className="flex-1 px-4 flex flex-col gap-6">
 
-          {/* Mode Selector - Minimalist Pill */}
-          <div className="flex flex-col gap-3">
-             <div className="text-[9px] uppercase tracking-[0.2em] text-white/30 font-medium pl-2">
-                Core Engine
-             </div>
-             
-             <div className="flex flex-col gap-1">
-                {/* FOCUS BUTTON */}
-                <button
-                    onClick={() => setMode(AppMode.FOCUS)}
-                    className={`
-                        group flex items-center gap-4 px-4 py-3 rounded-lg transition-all duration-500
-                        ${isFocus ? 'bg-white/[0.03]' : 'bg-transparent hover:bg-white/[0.01]'}
-                    `}
-                >
-                    <div className={`relative flex items-center justify-center w-4 h-4 transition-all duration-500 ${isFocus ? 'text-[#00FF85]' : 'text-white/20 group-hover:text-white/40'}`}>
-                        <Hexagon className="w-full h-full stroke-[1.5px]" />
-                        {isFocus && <motion.div layoutId="active-dot" className="absolute w-1 h-1 bg-[#00FF85] rounded-full shadow-[0_0_8px_#00FF85]" />}
-                    </div>
-                    <span className={`text-[11px] uppercase tracking-[0.1em] font-medium transition-all duration-500 ${isFocus ? 'text-white opacity-100' : 'text-white opacity-40 group-hover:opacity-70'}`}>
-                        Focus
-                    </span>
-                </button>
+          {/* Segmented Toggle (Focus/Relax) */}
+          <div className="bg-[#111] p-1 rounded-full border border-white/[0.05] relative flex h-10">
+            <AnimatePresence mode="wait">
+              <motion.div
+                initial={false}
+                animate={{ x: isFocus ? 0 : '100%' }}
+                transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                className="absolute top-1 bottom-1 left-1 w-[calc(50%-4px)] bg-[#1A1A1A] rounded-full border border-white/[0.08] shadow-lg"
+              />
+            </AnimatePresence>
 
-                {/* RELAX BUTTON */}
-                <button
-                    onClick={() => setMode(AppMode.RELAX)}
-                    className={`
-                        group flex items-center gap-4 px-4 py-3 rounded-lg transition-all duration-500
-                        ${isRelax ? 'bg-white/[0.03]' : 'bg-transparent hover:bg-white/[0.01]'}
-                    `}
-                >
-                    <div className={`relative flex items-center justify-center w-4 h-4 transition-all duration-500 ${isRelax ? 'text-[#00FF85]' : 'text-white/20 group-hover:text-white/40'}`}>
-                         <Wind className="w-full h-full stroke-[1.5px]" />
-                         {isRelax && <motion.div layoutId="active-dot" className="absolute w-1 h-1 bg-[#00FF85] rounded-full shadow-[0_0_8px_#00FF85]" />}
-                    </div>
-                    <span className={`text-[11px] uppercase tracking-[0.1em] font-medium transition-all duration-500 ${isRelax ? 'text-white opacity-100' : 'text-white opacity-40 group-hover:opacity-70'}`}>
-                        Relax
-                    </span>
-                </button>
-             </div>
-          </div>
-
-
-          {/* Insights Section */}
-          <div className="flex flex-col gap-3">
-             <div className="text-[9px] uppercase tracking-[0.2em] text-white/30 font-medium pl-2">
-                Analytics
-             </div>
-             
             <button
-              onClick={() => setMode(AppMode.STATS)}
-              className={`
-                    group flex items-center gap-4 px-4 py-3 rounded-lg transition-all duration-500
-                    ${isStats ? 'bg-white/[0.03]' : 'bg-transparent hover:bg-white/[0.01]'}
-              `}
+              onClick={() => setMode(AppMode.FOCUS)}
+              className={`relative z-10 flex-1 flex items-center justify-center gap-2 text-[12px] font-medium transition-colors duration-200 ${isFocus ? 'text-white' : 'text-[#8A8A8A] hover:text-[#EAEAEA]'}`}
             >
-               <div className={`relative flex items-center justify-center w-4 h-4 transition-all duration-500 ${isStats ? 'text-[#00FF85]' : 'text-white/20 group-hover:text-white/40'}`}>
-                    <BarChart2 className="w-full h-full stroke-[1.5px]" />
-                     {isStats && <motion.div layoutId="active-dot" className="absolute w-1 h-1 bg-[#00FF85] rounded-full shadow-[0_0_8px_#00FF85]" />}
-               </div>
-               <span className={`text-[11px] uppercase tracking-[0.1em] font-medium transition-all duration-500 ${isStats ? 'text-white opacity-100' : 'text-white opacity-40 group-hover:opacity-70'}`}>
-                  Insights
-              </span>
+              <Target className={`w-3.5 h-3.5 ${isFocus ? 'opacity-100' : 'opacity-40'}`} />
+              Focus
+            </button>
+
+            <button
+              onClick={() => setMode(AppMode.RELAX)}
+              className={`relative z-10 flex-1 flex items-center justify-center gap-2 text-[12px] font-medium transition-colors duration-200 ${isRelax ? 'text-white' : 'text-[#8A8A8A] hover:text-[#EAEAEA]'}`}
+            >
+              <Wind className={`w-3.5 h-3.5 ${isRelax ? 'opacity-100' : 'opacity-40'}`} />
+              Relax
             </button>
           </div>
 
-          {/* System Readout - Pushed to bottom of flex area */}
-          <div className="mt-auto pb-8 opacity-60 hover:opacity-100 transition-opacity duration-500">
+          {/* Insights Menu Item */}
+          <div className="flex flex-col">
+            <button
+              onClick={() => setMode(AppMode.STATS)}
+              className={`
+                        group flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-300 text-[13px] font-medium
+                        ${isStats ? 'bg-white/[0.03] text-[#EAEAEA] border border-white/[0.05]' : 'text-[#8A8A8A] hover:text-[#EAEAEA] border border-transparent'}
+                    `}
+            >
+              <BarChart2 className={`w-4 h-4 transition-transform group-hover:scale-110 ${isStats ? 'text-blue-500' : 'text-[#8A8A8A]'}`} />
+              <span>Insights</span>
+              {isStats && <div className="ml-auto w-1 h-1 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.6)]" />}
+            </button>
+          </div>
+
+          {/* [NEW] SYSTEM READOUT INTERSTITIAL */}
+          <div className="flex-1 flex flex-col justify-center pb-12">
             <SystemReadout mode={currentMode} intensity={focusIntensity} />
           </div>
 
         </div>
 
-        {/* 3. FOOTER: Account */}
-        <footer className="p-6 border-t border-white/[0.05]">
+        {/* 3. BOTTOM SECTION: SidebarFooter */}
+        <footer className="p-4 mb-2">
           <button
             onClick={onSignOut}
-            className="flex items-center gap-4 w-full group"
+            className="flex items-center gap-3 p-3 rounded-2xl hover:bg-white/[0.02] active:scale-[0.98] transition-all w-full group text-left border border-transparent hover:border-white/[0.05]"
           >
-            {/* Minimal Avatar */}
-            <div className="w-8 h-8 rounded-full bg-[#1A1A1A] border border-white/[0.1] flex items-center justify-center group-hover:border-white/[0.3] transition-colors relative">
-              <span className="text-[9px] font-bold text-white/40 group-hover:text-white transition-colors">{userInitials}</span>
-              <div className="absolute top-0 right-0 w-1.5 h-1.5 bg-[#00FF85] rounded-full border border-[#050505]" />
+            {/* Avatar Circle */}
+            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#1A1A1A] to-[#0A0A0A] border border-white/[0.1] flex items-center justify-center group-hover:border-white/[0.2] transition-colors relative shadow-2xl">
+              <span className="text-[10px] font-bold text-[#666] group-hover:text-blue-400 transition-colors uppercase tracking-widest">{userInitials}</span>
+              <div className="absolute bottom-0 right-0 w-2 h-2 bg-green-500 rounded-full border-2 border-[#080808]" />
             </div>
 
-            {/* Profile Info - Invisible Hierarchy */}
-            <div className="flex flex-col items-start min-w-0">
-              <span className="text-[10px] font-medium text-white/80 group-hover:text-white transition-colors tracking-wide truncate max-w-[140px]">
-                {displayEmail.split('@')[0]}
+            {/* Profile Info */}
+            <div className="flex flex-col flex-1 min-w-0">
+              <span className="text-[12px] font-semibold text-[#EAEAEA] truncate group-hover:text-blue-400 transition-colors">
+                {displayEmail}
               </span>
-              <span className="text-[9px] uppercase tracking-[0.1em] text-white/30 group-hover:text-white/50 transition-colors">
-                Online
+              <span className="text-[11px] font-medium text-[#555] group-hover:text-[#888] transition-colors">
+                {displayRole}
               </span>
             </div>
-            
-            <LogOut className="ml-auto w-3 h-3 text-white/20 group-hover:text-white/60 transition-colors" />
+
+            <LogOut className="w-3.5 h-3.5 text-[#444] opacity-0 group-hover:opacity-100 transition-all transform translate-x-1 group-hover:translate-x-0" />
           </button>
         </footer>
 
       </aside>
 
-      {/* MOBILE NAV (Refined) */}
-      <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-sm h-14 md:hidden z-[100] flex items-center justify-around bg-[#050505]/80 backdrop-blur-xl border border-white/10 rounded-full shadow-[0_10px_40px_-10px_rgba(0,0,0,0.8)] px-2">
-        <button onClick={() => setMode(AppMode.FOCUS)} className={`flex flex-col items-center gap-1 transition-colors ${currentMode === AppMode.FOCUS ? 'text-[#00FF85]' : 'text-zinc-600'}`}>
-          <Hexagon className="w-5 h-5 stroke-[1.5px]" />
+      {/* MOBILE NAV (Preserved) */}
+      <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-sm h-16 md:hidden z-[100] flex items-center justify-around bg-[#0A0A0C]/90 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.5)] px-2">
+        <button onClick={() => setMode(AppMode.FOCUS)} className={`flex flex-col items-center gap-1 ${currentMode === AppMode.FOCUS ? 'text-blue-400' : 'text-gray-500'}`}>
+          <Target className="w-5 h-5" />
         </button>
-        <button onClick={() => setMode(AppMode.STATS)} className={`flex flex-col items-center gap-1 transition-colors ${currentMode === AppMode.STATS ? 'text-[#00FF85]' : 'text-zinc-600'}`}>
-          <BarChart2 className="w-5 h-5 stroke-[1.5px]" />
+        <button onClick={() => setMode(AppMode.STATS)} className={`flex flex-col items-center gap-1 ${currentMode === AppMode.STATS ? 'text-blue-400' : 'text-gray-500'}`}>
+          <BarChart2 className="w-5 h-5" />
         </button>
-        <button onClick={() => setMode(AppMode.RELAX)} className={`flex flex-col items-center gap-1 transition-colors ${currentMode === AppMode.RELAX ? 'text-[#00FF85]' : 'text-zinc-600'}`}>
-          <Wind className="w-5 h-5 stroke-[1.5px]" />
+        <button onClick={() => setMode(AppMode.RELAX)} className={`flex flex-col items-center gap-1 ${currentMode === AppMode.RELAX ? 'text-blue-400' : 'text-gray-500'}`}>
+          <Wind className="w-5 h-5" />
         </button>
       </nav>
     </>

@@ -1,71 +1,103 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Database, Hexagon, Layers } from 'lucide-react';
+import { Database, Coins, Pickaxe, Layers } from 'lucide-react';
 
 interface GoldVaultProps {
-    progress: number;
+    progress: number; // 0-100 representing current bar mining progress
     barsToday: number;
     totalBars: number;
 }
 
 export const GoldVault: React.FC<GoldVaultProps> = ({ progress = 0, barsToday = 0, totalBars = 0 }) => {
     return (
-        // LAW OF BREATHING ROOM: Double padding (p-6)
-        // LAW OF PRECISION GEOMETRY: rounded-3xl, 1px border
-        <div className="w-full h-full bg-[#050505] border border-white/[0.05] rounded-3xl overflow-hidden shadow-[0_20px_50px_-20px_rgba(0,0,0,0.5)] relative flex flex-col">
+        <div className="w-full h-full bg-[#0f0f12]/60 backdrop-blur-xl border border-white/[0.08] rounded-2xl overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.5)] transition-all hover:shadow-[0_12px_48px_rgba(0,0,0,0.6)] relative flex flex-col group/panel">
 
             {/* Header */}
-            <div className="px-6 py-5 flex justify-between items-center relative z-10 shrink-0">
-                <div className="flex items-center gap-3">
-                    <Hexagon className="w-3.5 h-3.5 text-[#00FF85] stroke-[1.5px]" />
-                    <h3 className="text-[10px] uppercase tracking-[0.2em] font-medium text-[#444]">Resource Vault</h3>
+            <div className="px-3 py-1.5 border-b border-white/[0.03] flex justify-between items-center bg-zinc-900/90 relative z-10 shrink-0">
+                <div className="flex items-center gap-2">
+                    <Pickaxe className="w-3.5 h-3.5 text-[#D4AF37]" />
+                    <h3 className="text-[11px] font-medium text-gray-400">Gold Vault</h3>
+                </div>
+                <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[#D4AF37] bg-white/[0.02] border border-white/[0.05] shadow-sm">
+                    <span className="text-[9px] font-bold tracking-widest uppercase">
+                        {progress >= 100 ? '● COMPLETE' : '● EXTRACTING'}
+                    </span>
                 </div>
             </div>
 
             {/* Content */}
-            <div className="relative z-10 flex-1 px-6 pb-6 space-y-6">
-
-                {/* Current Extraction Block */}
-                <div className="space-y-2">
-                    <div className="flex justify-between items-end">
-                        <span className="text-[9px] uppercase tracking-wider text-[#555]">Batch Status</span>
-                        <span className="text-[10px] font-mono text-[#EAEAEA]">{Math.round(progress)}%</span>
+            <div className="relative z-10 flex-1 overflow-y-auto custom-scrollbar">
+                {/* Progress Section */}
+                <div className="px-3 py-1.5 hover:bg-white/5 transition-all">
+                    <div className="flex items-center justify-between mb-1">
+                        <span className="text-[10px] text-gray-400 uppercase tracking-tighter">Batch Progress</span>
+                        <span className="text-[10px] font-medium text-[#D4AF37]">{Math.round(progress)}%</span>
                     </div>
-                    <div className="h-[2px] w-full bg-[#111] overflow-hidden">
+                    <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
                         <motion.div
                             initial={{ width: 0 }}
                             animate={{ width: `${progress}%` }}
-                            transition={{ duration: 0.5, ease: "circOut" }}
-                            className="h-full bg-[#00FF85] shadow-[0_0_8px_rgba(0,255,133,0.5)]"
+                            transition={{ duration: 0.5, ease: "easeOut" }}
+                            className="h-full"
+                            style={{
+                                background: 'linear-gradient(90deg, #8B735B 0%, #D4AF37 100%)'
+                            }}
                         />
                     </div>
                 </div>
 
-                {/* Metrics Grid */}
-                <div className="grid grid-cols-2 gap-4">
-                    {/* Today's Yield */}
-                    <div className="p-3 rounded-xl border border-white/[0.05] bg-white/[0.01]">
-                        <div className="flex items-center gap-2 mb-2">
-                            <Layers className="w-3 h-3 text-[#333]" />
-                            <span className="text-[8px] uppercase tracking-wider text-[#444]">Yield</span>
+                {/* Today's Yield */}
+                <div className="px-3 py-1.5 hover:bg-white/5 transition-all">
+                    <div className="flex items-center justify-between mb-1">
+                        <div className="flex items-center gap-2">
+                            <Layers className="w-3.5 h-3.5 text-gray-500" />
+                            <span className="text-[10px] text-gray-400 uppercase tracking-tighter">Today's Yield</span>
                         </div>
-                        <div className="text-xl font-light text-white tracking-tighter tabular-nums">
-                            {barsToday}
-                        </div>
+                        <span className="text-[10px] font-bold text-white tabular-nums tracking-widest">{barsToday} Bars</span>
                     </div>
-
-                    {/* Total Reserve */}
-                    <div className="p-3 rounded-xl border border-white/[0.05] bg-white/[0.01]">
-                        <div className="flex items-center gap-2 mb-2">
-                            <Database className="w-3 h-3 text-[#333]" />
-                            <span className="text-[8px] uppercase tracking-wider text-[#444]">Total</span>
+                    {barsToday > 0 ? (
+                        <div className="flex h-1 items-center gap-0.5 overflow-hidden rounded bg-white/[0.02]">
+                            {Array.from({ length: Math.min(8, barsToday) }).map((_, i) => (
+                                <motion.div
+                                    key={i}
+                                    initial={{ opacity: 0, scaleX: 0 }}
+                                    animate={{ opacity: 1, scaleX: 1 }}
+                                    transition={{ delay: i * 0.05, duration: 0.3 }}
+                                    className="h-full flex-1 rounded-[1px]"
+                                    style={{
+                                        background: 'linear-gradient(180deg, #D4AF37 0%, #8B735B 100%)'
+                                    }}
+                                />
+                            ))}
+                            {barsToday > 8 && (
+                                <span className="ml-1 text-[9px] text-[#D4AF37]">+{barsToday - 8}</span>
+                            )}
                         </div>
-                        <div className="text-xl font-light text-white tracking-tighter tabular-nums">
-                            {totalBars}
+                    ) : (
+                        <div className="h-1 w-full rounded bg-white/[0.02]" />
+                    )}
+                </div>
+
+                {/* Total Reserve */}
+                <div className="px-2 py-0.5 hover:bg-white/5 transition-all">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                            <Coins className="w-3 h-3 text-gray-500" />
+                            <span className="text-[11px] text-gray-400">Total Reserve</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <div className="flex gap-0.5">
+                                {Array.from({ length: 4 }).map((_, i) => (
+                                    <div
+                                        key={i}
+                                        className={`h-1 w-1 rounded-full ${totalBars > i * 10 ? 'bg-[#D4AF37] shadow-[0_0_4px_#D4AF37]' : 'bg-white/10'}`}
+                                    />
+                                ))}
+                            </div>
+                            <span className="text-[11px] font-medium text-gray-200">{totalBars}</span>
                         </div>
                     </div>
                 </div>
-
             </div>
         </div>
     );

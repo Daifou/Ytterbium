@@ -7,37 +7,47 @@ interface AIOptimizedIndicatorProps {
     currentInsight: string;
 }
 
+/**
+ * A fixed, minimalist indicator for AI activity, placed in the top right.
+ */
 export const AIOptimizedIndicator: React.FC<AIOptimizedIndicatorProps> = ({ currentInsight }) => {
     return (
         <MotionDiv
+            // Position fixed to the top-right corner.
+            // Adjusted from top-6 to top-10 (40px) to align it visually lower, 
+            // closer to the 'Ytterbium' logo's baseline.
             initial={{ x: 50, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             transition={{ type: "spring", stiffness: 100, damping: 20, delay: 0.5 }}
-            className="absolute top-8 right-8 z-[60] pointer-events-auto"
+            className="absolute top-6 right-8 z-[60] pointer-events-auto"
         >
             <div
-                className="px-3 py-1.5 bg-[#050505]/80 backdrop-blur-md border border-white/[0.05] rounded-full shadow-lg flex items-center gap-2 cursor-default transition-all duration-300 hover:border-white/[0.1]"
+                className="px-4 py-2 bg-zinc-900/40 backdrop-blur-md border border-white/5 rounded-full shadow-lg flex items-center gap-2 cursor-default transition-all duration-300 hover:ring-2 ring-emerald-400/30"
                 title={currentInsight}
             >
-                {/* SIGNAL BEACON */}
-                <div className="relative flex items-center justify-center h-2 w-2">
+
+                {/* The Signaling Circle Component */}
+                <div className="relative flex items-center justify-center h-3 w-3">
+                    {/* Pulsing Ring (Subtle Signal) */}
                     <motion.div
                         animate={{
-                            scale: [1, 2, 1],
-                            opacity: [0.5, 0, 0.5]
+                            scale: [1, 1.8, 1],
+                            opacity: [0.5, 0.2, 0.5]
                         }}
                         transition={{
-                            duration: 3,
+                            duration: 2.5,
                             repeat: Infinity,
                             ease: "easeInOut"
                         }}
-                        className="absolute h-full w-full rounded-full bg-[#00FF85]/50"
+                        className="absolute h-full w-full rounded-full bg-emerald-400/70"
                     />
-                    <div className="relative h-1 w-1 rounded-full bg-[#00FF85] shadow-[0_0_4px_#00FF85]"></div>
+
+                    {/* Inner Circle (solid light green) */}
+                    <div className="relative h-2 w-2 rounded-full bg-emerald-400 shadow-lg shadow-emerald-400/50"></div>
                 </div>
 
-                <span className="text-[9px] font-medium text-white/60 uppercase tracking-[0.2em] leading-none">
-                    AI Active
+                <span className="text-xs font-semibold text-emerald-300 uppercase tracking-widest leading-none">
+                    AI-Enhanced
                 </span>
             </div>
         </MotionDiv>
