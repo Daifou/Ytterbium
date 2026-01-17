@@ -33,14 +33,17 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentMode, setMode, onSignOu
       <aside className="fixed left-0 top-0 h-full w-[260px] hidden md:flex flex-col z-50 bg-[#080808] border-r border-[#EAEAEA]/[0.02] font-sans select-none antialiased">
 
         {/* 1. TOP SECTION: Logo + Toggle - Pushed Higher */}
-        <div className="flex flex-col px-6 pt-8 gap-8">
+        <div className="flex flex-col px-6 pt-8 gap-12">
           {/* Header */}
-          <div className="flex items-center gap-3">
+          <a
+            href="/"
+            className="flex items-center gap-3 group/logo transition-opacity duration-300 hover:opacity-80"
+          >
             <Logo className="w-8 h-8 opacity-90" />
             <span className="text-[11px] font-semibold text-[#EAEAEA] tracking-[0.25em] uppercase opacity-80">
               Ytterbium
             </span>
-          </div>
+          </a>
 
           {/* Minimalist Toggle Pill - GLASS HARDWARE */}
           <div className="relative flex w-full h-10 p-[2px] rounded-full bg-[#0A0A0A] border border-white/10 shadow-inner">
@@ -73,7 +76,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentMode, setMode, onSignOu
         </div>
 
         {/* 2. MIDDLE SECTION: Session Architecture (Void Space) */}
-        <div className="flex-1 flex flex-col justify-start px-6 pt-20">
+        <div className="flex-1 flex flex-col justify-start px-6 pt-12">
           <SystemReadout mode={currentMode} intensity={focusIntensity} completedCount={completedCount} />
         </div>
 
@@ -81,19 +84,16 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentMode, setMode, onSignOu
         <footer className="p-6 pb-6 mt-auto">
           <div className="group flex items-center gap-4 cursor-pointer pt-6 border-t border-white/[0.02]" onClick={onSignOut}>
             {/* Avatar */}
-            <div className="relative w-8 h-8 rounded-full bg-[#111] border border-white/[0.05] flex items-center justify-center group-hover:border-white/[0.1] transition-colors">
-              <span className="text-[10px] text-[#666] font-medium">{userInitials}</span>
+            <div className="relative w-8 h-8 rounded-full bg-[#111] border border-white/[0.1] flex items-center justify-center group-hover:border-white/[0.2] transition-colors overflow-hidden">
+              <span className="text-[11px] text-[#FFFFFF] font-medium leading-none flex items-center justify-center w-full h-full pb-[1px]">{userInitials[0]}</span>
               {/* Online Dot - Tight to Avatar */}
               <div className="absolute -bottom-0.5 -right-0.5 w-2 h-2 bg-[#00FF85] rounded-full border-[2px] border-[#080808]" />
             </div>
 
             {/* Profile Text */}
             <div className="flex flex-col">
-              <span className="text-[12px] text-[#EAEAEA] font-medium tracking-wide">
+              <span className="text-[12px] text-[#FFFFFF] font-medium tracking-wide">
                 {displayEmail.split('@')[0]}
-              </span>
-              <span className="text-[9px] text-[#EAEAEA]/30 uppercase tracking-wider font-medium group-hover:opacity-50 transition-opacity">
-                {displayRole}
               </span>
             </div>
           </div>

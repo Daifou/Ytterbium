@@ -61,8 +61,8 @@ export const SystemReadout: React.FC<SystemReadoutProps> = ({ mode, intensity, c
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    transition={{ duration: 0.3 }}
-                    className="flex flex-col gap-10" // Generous gap
+                    transition={{ duration: 0.02 }} // 20ms fade-in as requested
+                    className="flex flex-col gap-12" // Enforce strict spacing (48px = gap-12)
                 >
                     {/* PREMIUM DIAGNOSTIC CARD */}
                     <div className="relative bg-white/[0.02] rounded-xl p-4 border-t border-white/[0.05] overflow-hidden">
@@ -85,14 +85,20 @@ export const SystemReadout: React.FC<SystemReadoutProps> = ({ mode, intensity, c
                     </div>
 
                     {/* SESSION ARCHITECTURE TRACKER */}
-                    <div className="flex flex-col gap-3">
-                        <span className="text-[10px] text-white/50 tracking-[0.15em] font-medium uppercase">
-                            Session Architecture
-                        </span>
+                    <div className="flex flex-col gap-4">
+                        <div className="flex items-center justify-between">
+                            <span className="text-[10px] text-white/50 tracking-[0.1em] font-medium uppercase">
+                                Session Architecture
+                            </span>
+                            {/* Numeric Counter - Inline */}
+                            <span className="text-[10px] font-mono text-[#666] tracking-widest uppercase">
+                                0{Math.min(completedCount, sessionTarget)} / 0{sessionTarget}
+                            </span>
+                        </div>
 
-                        <div className="flex items-center justify-start gap-4">
-                            {/* Visual Stepper */}
-                            <div className="flex gap-1.5">
+                        <div className="flex items-center justify-start gap-2 pt-1">
+                            {/* Visual Stepper - Vertical Blades */}
+                            <div className="flex gap-2">
                                 {Array.from({ length: sessionTarget }).map((_, i) => {
                                     const isComplete = i < completedCount;
                                     const isActive = i === completedCount && mode === AppMode.FOCUS;
@@ -101,20 +107,15 @@ export const SystemReadout: React.FC<SystemReadoutProps> = ({ mode, intensity, c
                                         <div
                                             key={i}
                                             className={`
-                                                w-8 h-2 rounded-[1px] transition-all duration-500
-                                                ${isComplete ? 'bg-[#333] border border-[#333]' : ''}
-                                                ${isActive ? 'bg-[#00FF85] border border-[#00FF85] shadow-[0_0_12px_rgba(0,255,133,0.7)] animate-pulse' : ''}
-                                                ${!isComplete && !isActive ? 'bg-transparent border border-white/[0.1]' : ''}
+                                                w-[4px] h-[12px] rounded-[1px] transition-all duration-500
+                                                ${isComplete ? 'bg-[#2A332E]' : ''}
+                                                ${isActive ? 'bg-[#00FF85] shadow-[0_0_10px_#00FF85] animate-pulse' : ''}
+                                                ${!isComplete && !isActive ? 'bg-transparent border border-white/10' : ''}
                                             `}
                                         />
                                     );
                                 })}
                             </div>
-
-                            {/* Numeric Counter */}
-                            <span className="text-[10px] font-mono text-[#666] tracking-widest">
-                                0{Math.min(completedCount, sessionTarget)} / 0{sessionTarget}
-                            </span>
                         </div>
                     </div>
 
