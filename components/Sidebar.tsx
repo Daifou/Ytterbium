@@ -37,7 +37,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentMode, setMode, onSignOu
           {/* Header */}
           <a
             href="/"
-            className="flex items-center gap-3 group/logo transition-opacity duration-300 hover:opacity-80"
+            className="flex items-center gap-3 group/logo transition-all duration-300 hover:opacity-70 hover:translate-y-[-1px]"
           >
             <Logo className="w-8 h-8 opacity-90" />
             <span className="text-[11px] font-semibold text-[#EAEAEA] tracking-[0.25em] uppercase opacity-80">
@@ -81,11 +81,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentMode, setMode, onSignOu
         </div>
 
         {/* 3. BOTTOM SECTION: Profile (Anchored to Absolute Bottom) */}
-        <footer className="p-6 pb-6 mt-auto">
+        <footer className="p-6 pb-8 mt-auto">
           <div className="group flex items-center gap-4 cursor-pointer pt-6 border-t border-white/[0.02]" onClick={onSignOut}>
             {/* Avatar */}
-            <div className="relative w-8 h-8 rounded-full bg-[#111] border border-white/[0.1] flex items-center justify-center group-hover:border-white/[0.2] transition-colors overflow-hidden">
-              <span className="text-[11px] text-[#FFFFFF] font-medium leading-none flex items-center justify-center w-full h-full pb-[1px]">{userInitials[0]}</span>
+            <div className="relative w-8 h-8 rounded-full bg-[#111] border border-white/15 flex items-center justify-center group-hover:border-white/[0.25] transition-colors overflow-hidden">
+              <span className="text-[12px] text-white font-sans font-medium leading-none flex items-center justify-center w-full h-full pb-[0.5px] uppercase">{userInitials[0]}</span>
               {/* Online Dot - Tight to Avatar */}
               <div className="absolute -bottom-0.5 -right-0.5 w-2 h-2 bg-[#00FF85] rounded-full border-[2px] border-[#080808]" />
             </div>
