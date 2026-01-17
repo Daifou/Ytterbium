@@ -87,13 +87,13 @@ export const SystemReadout: React.FC<SystemReadoutProps> = ({ mode, intensity, c
                     {/* SESSION ARCHITECTURE TRACKER CARD */}
                     <div className="relative bg-white/[0.02] rounded-xl p-4 border-t border-white/[0.05] overflow-hidden shadow-[inset_0_0_0_0.5px_rgba(255,255,255,0.05)] min-h-[100px] flex flex-col justify-center">
                         <div className="flex flex-col gap-4">
-                            {/* Header Logic: Zero-Wrap Single Line */}
+                            {/* Header Logic: Zero-Wrap Single Line Lockdown */}
                             <div className="flex items-center justify-between w-full">
-                                <span className="text-[10px] text-white/50 tracking-[0.1em] font-medium uppercase whitespace-nowrap">
+                                <span className="text-[10px] text-white/50 tracking-[0.1em] font-medium uppercase whitespace-nowrap overflow-hidden text-ellipsis mr-2">
                                     Session Architecture
                                 </span>
-                                {/* Numeric Counter - Forced horizontal alignment */}
-                                <span className="text-[10px] font-mono text-[#666] tracking-widest uppercase whitespace-nowrap ml-4">
+                                {/* Numeric Counter - Forced horizontal alignment - ZERO WRAP */}
+                                <span className="text-[10px] font-mono text-[#666] tracking-widest uppercase whitespace-nowrap flex-shrink-0">
                                     0{Math.min(completedCount, sessionTarget)} / 0{sessionTarget}
                                 </span>
                             </div>

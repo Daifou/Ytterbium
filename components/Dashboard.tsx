@@ -1,5 +1,5 @@
-// components/Dashboard.tsx
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import LeaderLine from 'leader-line-new';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sidebar } from './Sidebar';
 import { FocusTimer } from './FocusTimer';
@@ -167,8 +167,6 @@ export const Dashboard: React.FC = () => {
     }, []);
 
     const layoutWrapperRef = useRef<HTMLDivElement>(null);
-    const [path1, setPath1] = useState<string>('');
-    const [path2, setPath2] = useState<string>('');
     const [barsToday, setBarsToday] = useState(0);
     const [totalBars, setTotalBars] = useState(0);
 
@@ -444,58 +442,58 @@ export const Dashboard: React.FC = () => {
         }
     }, [currentMetrics?.fatigueScore, status, focusIntensity, elapsed]);
 
-    // Layout paths (copy of updatePaths)
-    const getPathCoords = useCallback((path: string, type: 'start' | 'end') => {
-        // simplified for brevity
-        return { x: 0, y: 0 };
-    }, []);
 
-    const updatePaths = useCallback(() => {
-        if (!layoutWrapperRef.current || !tasksRef.current || !timerRefDiv.current || !vaultRef.current) return;
-        const wrapperRect = layoutWrapperRef.current.getBoundingClientRect();
-        const tasksRect = tasksRef.current.getBoundingClientRect();
-        const timerRect = timerRefDiv.current.getBoundingClientRect();
-        const vaultRect = vaultRef.current.getBoundingClientRect();
-        const currentScale = typeof window !== 'undefined' && window.innerWidth < 768 ? 1 : SCALE_FACTOR;
-
-        const relativeX = (rect: DOMRect) => (rect.left - wrapperRect.left) / currentScale;
-        const relativeY = (rect: DOMRect) => (rect.top - wrapperRect.top) / currentScale;
-        const getWidth = (rect: DOMRect) => rect.width / currentScale;
-        const getHeight = (rect: DOMRect) => rect.height / currentScale;
-
-        const startX1 = relativeX(tasksRect) + getWidth(tasksRect);
-        const startY1 = relativeY(tasksRect) + getHeight(tasksRect) / 2;
-        const endX1 = relativeX(timerRect);
-        const endY1 = relativeY(timerRect) + getHeight(timerRect) / 2;
-
-        const dist1 = Math.abs(endX1 - startX1);
-        const controlOffset1 = Math.max(dist1 * 0.4, 40);
-
-        // Return perfect Bézier path
-        setPath1(`M ${startX1} ${startY1} C ${startX1 + controlOffset1} ${startY1} ${endX1 - controlOffset1} ${endY1} ${endX1} ${endY1}`);
-
-        const startX2 = relativeX(timerRect) + getWidth(timerRect);
-        const startY2 = relativeY(timerRect) + getHeight(timerRect) / 2;
-        const endX2 = relativeX(vaultRect);
-        const endY2 = relativeY(vaultRect) + getHeight(vaultRect) / 2;
-
-        const dist2 = Math.abs(endX2 - startX2);
-        const controlOffset2 = Math.max(dist2 * 0.4, 40);
-        setPath2(`M ${startX2} ${startY2} C ${startX2 + controlOffset2} ${startY2} ${endX2 - controlOffset2} ${endY2} ${endX2} ${endY2}`);
-    }, []);
 
     useEffect(() => {
-        if (!layoutWrapperRef.current) return;
-        let animationFrameId: number;
-        let startTime = Date.now();
-        const tick = () => {
-            updatePaths();
-            if (Date.now() - startTime < 1500) animationFrameId = requestAnimationFrame(tick);
+        if (!tasksRef.current || !timerRefDiv.current || !layoutWrapperRef.current) return;
+
+        let line1: any;
+        let line2: any;
+
+        const initLines = () => {
+            if (line1) line1.remove();
+            if (line2) line2.remove();
+
+            if (tasksRef.current && timerRefDiv.current) {
+                line1 = new LeaderLine(
+                    tasksRef.current,
+                    timerRefDiv.current,
+                    {
+                        color: 'rgba(255, 255, 255, 0.12)',
+                        size: 1,
+                        dash: { animation: false },
+                        path: 'fluid',
+                        startSocket: 'right',
+                        endSocket: 'left'
+                    }
+                );
+            }
+
+            if (timerRefDiv.current && vaultRef.current) {
+                line2 = new LeaderLine(
+                    timerRefDiv.current,
+                    vaultRef.current,
+                    {
+                        color: 'rgba(255, 255, 255, 0.08)',
+                        size: 1,
+                        dash: { animation: false },
+                        path: 'fluid',
+                        startSocket: 'right',
+                        endSocket: 'left'
+                    }
+                );
+            }
         };
-        tick();
-        const handleResize = () => updatePaths();
+
+        initLines();
+
+        const handleResize = () => {
+            if (line1) line1.position();
+            if (line2) line2.position();
+        };
+
         window.addEventListener('resize', handleResize);
-        const resizeObserver = new ResizeObserver(() => requestAnimationFrame(updatePaths));
+        const resizeObserver = new ResizeObserver(handleResize);
         if (layoutWrapperRef.current) resizeObserver.observe(layoutWrapperRef.current);
         if (tasksRef.current) resizeObserver.observe(tasksRef.current);
         if (timerRefDiv.current) resizeObserver.observe(timerRefDiv.current);
@@ -503,10 +501,11 @@ export const Dashboard: React.FC = () => {
 
         return () => {
             window.removeEventListener('resize', handleResize);
-            cancelAnimationFrame(animationFrameId);
             resizeObserver.disconnect();
+            if (line1) line1.remove();
+            if (line2) line2.remove();
         };
-    }, [updatePaths, mode, tasks, isFocusMode]);
+    }, [mode, tasks, isFocusMode]);
 
     // Load Tasks
     useEffect(() => {
@@ -852,45 +851,6 @@ export const Dashboard: React.FC = () => {
                                                 ref={layoutWrapperRef}
                                                 className="flex flex-col md:flex-row justify-center items-center w-full max-w-[1600px] px-4 relative"
                                             >
-                                                {/* SVG Connectors */}
-                                                <svg className="absolute top-0 left-0 w-full h-full overflow-visible pointer-events-none z-40 hidden md:block">
-                                                    <defs>
-                                                        <filter id="subtle-glow" x="-50%" y="-50%" width="200%" height="200%">
-                                                            <feGaussianBlur in="SourceGraphic" stdDeviation="1.5" result="blur" />
-                                                            <feMerge>
-                                                                <feMergeNode in="blur" />
-                                                                <feMergeNode in="SourceGraphic" />
-                                                            </feMerge>
-                                                        </filter>
-                                                    </defs>
-                                                    {path1 && (
-                                                        <g filter="url(#subtle-glow)">
-                                                            <path
-                                                                d={path1}
-                                                                fill="none"
-                                                                stroke="rgba(255,255,255,0.08)"
-                                                                strokeWidth="1"
-                                                                strokeDasharray="4 4"
-                                                                className="transition-all duration-1000"
-                                                            />
-                                                        </g>
-                                                    )}
-                                                    {path2 && (
-                                                        <g filter="url(#subtle-glow)">
-                                                            <path
-                                                                d={path2}
-                                                                fill="none"
-                                                                stroke="rgba(255,255,255,0.08)"
-                                                                strokeWidth="1"
-                                                                strokeDasharray="4 4"
-                                                                className="transition-all duration-1000"
-                                                            />
-                                                        </g>
-                                                    )}
-                                                </svg>
-
-
-
                                                 <div className="flex flex-col md:flex-row items-center justify-center gap-12 md:gap-0 pt-20 md:pt-0">
                                                     <motion.div
                                                         ref={tasksRef}
