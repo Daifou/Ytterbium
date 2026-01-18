@@ -118,7 +118,7 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({
   return (
     // Updated: Added max-w-[240px] and mx-auto to tighten width
     <div id="focus-timer-node" className={`
-      w-[14rem] h-full
+      w-[14rem] h-auto
       bg-[#0f0f12]/60
       backdrop-blur-xl
       rounded-2xl
@@ -182,11 +182,11 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({
         </div>
       </div>
 
-      {/* Main Content Area - Updated p-2.5 for width reduction */}
-      <div className="p-2.5 space-y-3 flex-1 flex flex-col relative z-10">
+      {/* Main Content Area - Further tightened */}
+      <div className="p-2 space-y-2 flex-1 flex flex-col relative z-10">
 
         {/* Timer Display */}
-        <div className="flex flex-col items-center justify-center py-2">
+        <div className="flex flex-col items-center justify-center py-1">
           <div className={`
             text-3xl font-mono font-bold tracking-tight tabular-nums
             ${isFinished ? 'text-primary' : 'text-neutral-100'}
@@ -195,7 +195,7 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({
           </div>
 
           {/* Progress indicator */}
-          <div className="w-full max-w-[120px] flex flex-col gap-1 mt-3">
+          <div className="w-full max-w-[120px] flex flex-col gap-1 mt-2">
             <div className="w-full h-1 bg-neutral-800 rounded-full overflow-hidden">
               <motion.div
                 className={`h-full ${isFinished || isRunning ? 'bg-primary' : 'bg-neutral-600'}`}
@@ -211,9 +211,9 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({
         </div>
 
         {/* Configuration/Status Area */}
-        <div className="space-y-3">
+        <div className="space-y-2">
           {status === SessionStatus.IDLE ? (
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1.5">
                   <Target className="w-2.5 h-2.5 text-gray-500 drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]" />
@@ -274,7 +274,7 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({
               </div>
             </div>
           ) : (
-            <div className="space-y-1.5">
+            <div className="space-y-1">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1.5">
                   <Activity className="w-2.5 h-2.5 text-gray-500 drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]" />
@@ -310,10 +310,10 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({
         </div>
 
         {/* Grouped Controls (Action Buttons and Footer) */}
-        <div className="mt-auto shrink-0 space-y-2">
+        <div className="mt-auto shrink-0 space-y-1.5">
 
           {/* Action Buttons */}
-          <div className="pt-3 border-t border-neutral-800">
+          <div className="pt-2 border-t border-neutral-800">
             <div className="flex items-center justify-center gap-2">
               {status === SessionStatus.RUNNING ? (
                 <>
