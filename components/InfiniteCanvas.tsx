@@ -79,7 +79,7 @@ const InfiniteCanvasContent: React.FC<InfiniteCanvasProps> = ({ children }) => {
                     variant={BackgroundVariant.Dots}
                     gap={24}
                     size={1}
-                    color="rgba(255, 255, 255, 0.15)"
+                    color="rgba(255, 255, 255, 0.1)"
                 />
                 <Controls className="!bg-[#111] !border-[#222] !fill-white [&>button]:!border-b-[#222] hover:[&>button]:!bg-[#222]" />
 

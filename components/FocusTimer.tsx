@@ -335,9 +335,6 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({
               )}
             </div>
           </div>
-
-
-
         </div>
       </div>
     </div>
