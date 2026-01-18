@@ -78,11 +78,6 @@ export const SystemReadout: React.FC<SystemReadoutProps> = ({
                 >
                     {/* PREMIUM DIAGNOSTIC CARD */}
                     <div className="relative bg-neutral-950/50 rounded-lg p-3.5 border border-neutral-700/30 overflow-hidden flex flex-col justify-center">
-                        {/* Corner Detail */}
-                        <div className="absolute top-3 right-3 text-[8px] font-mono text-white/20 whitespace-nowrap">
-                            REF_ID: 04-B
-                        </div>
-
                         <div className="space-y-4">
                             {/* STATE */}
                             <div className="flex flex-col gap-1.5">
@@ -144,22 +139,19 @@ export const SystemReadout: React.FC<SystemReadoutProps> = ({
                                 }}
                                 className="relative group"
                             >
-                                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-600 group-focus-within:text-primary transition-colors">
-                                    <Sparkles className="w-3.5 h-3.5" />
-                                </div>
                                 <input
                                     type="text"
                                     value={taskInput}
                                     onChange={(e) => setTaskInput(e.target.value)}
                                     placeholder="Enter your task..."
-                                    className="w-full bg-neutral-950/40 border border-neutral-800 rounded-full pl-9 pr-3 py-2.5 text-[11px] text-neutral-200 placeholder-neutral-600 focus:outline-none focus:border-primary/50 focus:bg-neutral-900/40 transition-all font-sans"
+                                    className="w-full bg-neutral-950/40 border border-neutral-800 rounded-full pl-4 pr-10 py-2.5 text-[11px] text-neutral-200 placeholder-neutral-600 focus:outline-none focus:border-primary/50 focus:bg-neutral-900/40 transition-all font-sans"
                                 />
                                 {taskInput.trim() && (
                                     <button
                                         type="submit"
-                                        className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-md hover:bg-neutral-800 text-neutral-500 transition-colors"
+                                        className="absolute right-1.5 top-1/2 -translate-y-1/2 w-7 h-7 flex items-center justify-center rounded-full bg-primary/20 text-primary hover:bg-primary/30 transition-all"
                                     >
-                                        <ArrowRight className="w-3 h-3" />
+                                        <ArrowRight className="w-3.5 h-3.5" />
                                     </button>
                                 )}
                             </form>

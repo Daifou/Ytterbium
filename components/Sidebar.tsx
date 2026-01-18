@@ -48,8 +48,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
             className="flex items-center gap-3 group/logo transition-all duration-300 hover:opacity-70 hover:translate-y-[-1px]"
           >
             <Logo className="w-8 h-8 opacity-100" />
-            <span className="text-[12px] font-bold text-neutral-100 tracking-[0.1em] lowercase py-2">
-              ytterbium
+            <span className="text-[12px] font-bold text-neutral-100 tracking-[0.1em] py-2">
+              Ytterbium
             </span>
           </a>
 
