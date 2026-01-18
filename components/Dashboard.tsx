@@ -398,8 +398,8 @@ export const Dashboard: React.FC = () => {
         try {
             // Import ollamaService if not already (it is in LandingPage, but Dashboard needs it too)
             // Actually Dashboard.tsx imports are at top. Let's check.
-            const { ollamaService } = await import('../services/ollamaService');
-            const aiResult = await ollamaService.analyzeTask(taskText);
+            const { aiService } = await import('../services/aiService');
+            const aiResult = await aiService.analyzeTask(taskText);
             setSidebarAnalysis({
                 intensity: aiResult.suggestedIntensity,
                 insight: aiResult.explanation,

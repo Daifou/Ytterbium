@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ollamaService } from '../services/ollamaService';
+import { aiService } from '../services/aiService';
 import { supabase } from '../services/supabase';
 import { databaseService } from '../services/databaseService';
 import type { User } from '@supabase/supabase-js';
@@ -89,13 +89,13 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
         setStage('analyzing');
 
         try {
-            const aiResult = await ollamaService.analyzeTask(task);
+            const aiResult = await aiService.analyzeTask(task);
             setAnalysisResult({
                 intensity: aiResult.suggestedIntensity,
                 insight: aiResult.explanation,
                 type: aiResult.taskType,
                 focusMode: aiResult.focusMode,
-                suggestedSessions: Math.ceil(aiResult.suggestedIntensity / 3.33),
+                suggestedSessions: aiResult.suggestedSessions,
             });
             setStage('result');
         } catch (error) {
