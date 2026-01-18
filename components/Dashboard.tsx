@@ -884,7 +884,7 @@ export const Dashboard: React.FC = () => {
                         "
                             style={{
                                 perspective: '1600px',
-                                backgroundImage: 'radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px)',
+                                backgroundImage: 'radial-gradient(rgba(255, 255, 255, 0.15) 1px, transparent 1px)',
                                 backgroundSize: '24px 24px'
                             }}
                         >

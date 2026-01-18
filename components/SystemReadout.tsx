@@ -62,7 +62,7 @@ export const SystemReadout: React.FC<SystemReadoutProps> = ({
         }
     }, [mode, intensity]);
 
-    const sessionTarget = 4;
+    const sessionTarget = sidebarAnalysis?.suggestedSessions || 4;
     const currentSessionIndex = completedCount;
 
     return (
