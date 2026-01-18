@@ -510,7 +510,6 @@ export const Dashboard: React.FC = () => {
 
     // --- MAGNETIC LEADER LINE CONNECTIVITY ---
     useEffect(() => {
-        // Brute-force cleanup of any existing leader-line SVG elements in the body
         const cleanupGhosts = () => {
             const ghosts = document.querySelectorAll('.leader-line');
             ghosts.forEach(g => g.remove());
@@ -532,23 +531,29 @@ export const Dashboard: React.FC = () => {
 
             if (tasksEl && timerEl && !line1Ref.current) {
                 line1Ref.current = new LeaderLine(tasksEl, timerEl, {
-                    color: 'rgba(255, 255, 255, 0.35)',
-                    size: 1,
-                    dash: { len: 4, gap: 4 },
-                    path: 'fluid',
+                    color: 'rgba(255, 77, 0, 0.4)', // Using primary brand color
+                    size: 1.5,
+                    path: 'magnet',
                     startSocket: 'right',
-                    endSocket: 'left'
+                    endSocket: 'left',
+                    startPlug: 'disc',
+                    endPlug: 'arrow3',
+                    endPlugSize: 1.5,
+                    dash: { len: 6, gap: 4, animation: true }
                 });
             }
 
             if (timerEl && vaultEl && !line2Ref.current) {
                 line2Ref.current = new LeaderLine(timerEl, vaultEl, {
-                    color: 'rgba(255, 255, 255, 0.25)',
-                    size: 1,
-                    dash: { len: 4, gap: 4 },
-                    path: 'fluid',
+                    color: 'rgba(255, 77, 0, 0.25)',
+                    size: 1.2,
+                    path: 'magnet',
                     startSocket: 'right',
-                    endSocket: 'left'
+                    endSocket: 'left',
+                    startPlug: 'disc',
+                    endPlug: 'arrow3',
+                    endPlugSize: 1.5,
+                    dash: { len: 6, gap: 4, animation: true }
                 });
             }
 
@@ -557,8 +562,7 @@ export const Dashboard: React.FC = () => {
             }
         };
 
-        // Polling to ensure DOM is fully settled and IDs are present
-        timerId = setInterval(initLines, 50);
+        timerId = setInterval(initLines, 100);
 
         const handleUpdate = () => {
             requestAnimationFrame(() => {
@@ -568,12 +572,24 @@ export const Dashboard: React.FC = () => {
         };
 
         window.addEventListener('resize', handleUpdate);
+        window.addEventListener('scroll', handleUpdate, true); // Catch internal scrolls
+
+        // Observe nodes directly for surgical precision
         const observer = new ResizeObserver(handleUpdate);
+
+        const tasksEl = document.getElementById('task-list-node');
+        const timerEl = document.getElementById('focus-timer-node');
+        const vaultEl = document.getElementById('gold-vault-node');
+
+        if (tasksEl) observer.observe(tasksEl);
+        if (timerEl) observer.observe(timerEl);
+        if (vaultEl) observer.observe(vaultEl);
         if (layoutWrapperRef.current) observer.observe(layoutWrapperRef.current);
 
         return () => {
             clearInterval(timerId);
             window.removeEventListener('resize', handleUpdate);
+            window.removeEventListener('scroll', handleUpdate, true);
             observer.disconnect();
             if (line1Ref.current) { try { line1Ref.current.remove(); } catch (e) { } line1Ref.current = null; }
             if (line2Ref.current) { try { line2Ref.current.remove(); } catch (e) { } line2Ref.current = null; }
