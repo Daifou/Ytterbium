@@ -11,6 +11,7 @@ interface SystemReadoutProps {
     sessionStatus: any;
     sidebarAIState: 'idle' | 'analyzing' | 'confirming';
     sidebarAnalysis: any;
+    activeSessionGoal: number;
     onSidebarAISubmit: (task: string) => void;
     onConfirmSession: (action: 'start_new' | 'resume') => void;
     onCancelAI: () => void;
@@ -23,7 +24,7 @@ interface ProfileConfig {
 
 export const SystemReadout: React.FC<SystemReadoutProps> = ({
     mode, intensity, completedCount,
-    sessionStatus, sidebarAIState, sidebarAnalysis, onSidebarAISubmit, onConfirmSession, onCancelAI
+    sessionStatus, sidebarAIState, sidebarAnalysis, activeSessionGoal, onSidebarAISubmit, onConfirmSession, onCancelAI
 }) => {
     const [taskInput, setTaskInput] = React.useState('');
 
@@ -62,7 +63,7 @@ export const SystemReadout: React.FC<SystemReadoutProps> = ({
         }
     }, [mode, intensity]);
 
-    const sessionTarget = sidebarAnalysis?.suggestedSessions || 4;
+    const sessionTarget = sidebarAnalysis?.suggestedSessions || activeSessionGoal || 4;
     const currentSessionIndex = completedCount;
 
     return (

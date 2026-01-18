@@ -158,6 +158,7 @@ export const Dashboard: React.FC = () => {
     const [sidebarAIState, setSidebarAIState] = useState<'idle' | 'analyzing' | 'confirming'>('idle');
     const [sidebarAnalysis, setSidebarAnalysis] = useState<any>(null);
     const [sidebarTask, setSidebarTask] = useState('');
+    const [activeSessionGoal, setActiveSessionGoal] = useState(4);
 
     const tasksRef = useRef<HTMLDivElement>(null);
     const timerRefDiv = useRef<HTMLDivElement>(null);
@@ -404,7 +405,7 @@ export const Dashboard: React.FC = () => {
                 insight: aiResult.explanation,
                 type: aiResult.taskType,
                 focusMode: aiResult.focusMode,
-                suggestedSessions: Math.ceil(aiResult.suggestedIntensity / 3.33),
+                suggestedSessions: aiResult.suggestedSessions,
             });
             setSidebarAIState('confirming');
         } catch (error) {
@@ -425,6 +426,9 @@ export const Dashboard: React.FC = () => {
             await handleReset(); // Clear old session if any
             handleIntensityChange(sidebarAnalysis.intensity);
             setInsight(sidebarAnalysis.insight);
+            if (sidebarAnalysis.suggestedSessions) {
+                setActiveSessionGoal(sidebarAnalysis.suggestedSessions);
+            }
             await addTask(sidebarTask, currentUser?.id);
             setShouldTriggerCountdown(true);
         } else {
@@ -842,6 +846,7 @@ export const Dashboard: React.FC = () => {
                         sessionStatus={status}
                         sidebarAIState={sidebarAIState}
                         sidebarAnalysis={sidebarAnalysis}
+                        activeSessionGoal={activeSessionGoal}
                         onSidebarAISubmit={handleSidebarAIStart}
                         onConfirmSession={confirmSidebarSession}
                         onCancelAI={() => setSidebarAIState('idle')}

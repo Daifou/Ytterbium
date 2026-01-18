@@ -88,6 +88,7 @@ export const analyzeTaskGemini = async (taskDescription: string) => {
                 "focusMode": "Creative Focus" | "Balanced Focus" | "Deep Laser Focus",
                 "explanation": "One short sentence explaining why",
                 "suggestedIntensity": 3 | 6 | 10,
+                "suggestedSessions": 1-8,
                 "thinking_trace": "Brief internal neural analysis"
             }
         `;
@@ -114,6 +115,7 @@ export const analyzeTaskGemini = async (taskDescription: string) => {
       focusMode: parsed.focusMode || "Balanced Focus",
       explanation: parsed.explanation || "Cognitive calibration complete.",
       suggestedIntensity: (parsed.suggestedIntensity || 6) as FocusIntensity,
+      suggestedSessions: parsed.suggestedSessions || 2,
       rawReasoning: parsed.thinking_trace,
       source: 'Cloud (Gemini)' as const
     };

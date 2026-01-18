@@ -19,6 +19,7 @@ interface SidebarProps {
   sessionStatus: any;
   sidebarAIState: 'idle' | 'analyzing' | 'confirming';
   sidebarAnalysis: any;
+  activeSessionGoal: number;
   onSidebarAISubmit: (task: string) => void;
   onConfirmSession: (action: 'start_new' | 'resume') => void;
   onCancelAI: () => void;
@@ -26,7 +27,7 @@ interface SidebarProps {
 
 export const Sidebar: React.FC<SidebarProps> = ({
   currentMode, setMode, onSignOut, user, focusIntensity, completedCount,
-  sessionStatus, sidebarAIState, sidebarAnalysis, onSidebarAISubmit, onConfirmSession, onCancelAI
+  sessionStatus, sidebarAIState, sidebarAnalysis, activeSessionGoal, onSidebarAISubmit, onConfirmSession, onCancelAI
 }) => {
 
   const isFocus = currentMode === AppMode.FOCUS;
@@ -92,6 +93,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             sessionStatus={sessionStatus}
             sidebarAIState={sidebarAIState}
             sidebarAnalysis={sidebarAnalysis}
+            activeSessionGoal={activeSessionGoal}
             onSidebarAISubmit={onSidebarAISubmit}
             onConfirmSession={onConfirmSession}
             onCancelAI={onCancelAI}

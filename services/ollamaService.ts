@@ -6,6 +6,7 @@ interface TaskAnalysisResult {
     focusMode: 'Creative Focus' | 'Balanced Focus' | 'Deep Laser Focus';
     explanation: string;
     suggestedIntensity: FocusIntensity;
+    suggestedSessions: number;
     rawReasoning?: string;
     latency?: number;
     source?: 'Cloud (Groq)' | 'Cloud (Gemini)' | 'Local' | 'Recovery';
@@ -22,7 +23,7 @@ const PROJECT_CONTEXT = "Ytterbium is a productivity tool where Focus Intensity 
 
 export const ollamaService = {
     analyzeTask: async (taskDescription: string): Promise<TaskAnalysisResult> => {
-        const prompt = `${PROJECT_CONTEXT}\n\nTask: "${taskDescription}". Identify the best focus mode and intensity. Return ONLY a raw JSON object with this structure: {"thinking_trace":"Step-by-step analysis of why this mode was chosen","taskType":"Short category (e.g., Coding, Writing)","focusMode":"Creative Focus"|"Balanced Focus"|"Deep Laser Focus","explanation":"One short sentence to showing to the user","suggestedIntensity":3|6|10}`;
+        const prompt = `${PROJECT_CONTEXT}\n\nTask: "${taskDescription}". Identify the best focus mode and intensity. Return ONLY a raw JSON object with this structure: {"thinking_trace":"Step-by-step analysis of why this mode was chosen","taskType":"Short category (e.g., Coding, Writing)","focusMode":"Creative Focus"|"Balanced Focus"|"Deep Laser Focus","explanation":"One short sentence to showing to the user","suggestedIntensity":3|6|10,"suggestedSessions":1-8}`;
 
         const isProd = import.meta.env.PROD;
 
@@ -79,6 +80,7 @@ export const ollamaService = {
                 focusMode: result.focusMode || "Balanced Focus",
                 explanation: result.explanation || "Cognitive calibration complete.",
                 suggestedIntensity: (result.suggestedIntensity === 3 ? 3 : result.suggestedIntensity >= 9 ? 10 : 6) as FocusIntensity,
+                suggestedSessions: result.suggestedSessions || 2,
                 rawReasoning: result.thinking_trace || "Neural trace synthesized.",
                 latency: Math.round(endTime - startTime),
                 source: 'Cloud (Groq)'
@@ -126,6 +128,7 @@ export const ollamaService = {
                         focusMode: result.focusMode || "Balanced Focus",
                         explanation: result.explanation || "Local analysis complete.",
                         suggestedIntensity: (result.suggestedIntensity >= 9 ? 10 : result.suggestedIntensity) as FocusIntensity,
+                        suggestedSessions: result.suggestedSessions || 2,
                         rawReasoning: `[LOCAL] ${result.thinking_trace}`,
                         latency: Math.round(localEnd - localStart),
                         source: 'Local'
@@ -137,6 +140,7 @@ export const ollamaService = {
                         focusMode: "Balanced Focus",
                         explanation: "Stabilizing cognitive resonance manually.",
                         suggestedIntensity: 6,
+                        suggestedSessions: 2,
                         rawReasoning: `Recovery Protocol: All engines unavailable. Details: ${localError.message}`,
                         source: 'Recovery'
                     };
