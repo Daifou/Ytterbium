@@ -545,9 +545,9 @@ export const Dashboard: React.FC = () => {
 
             if (timerEl && vaultEl && !line2Ref.current) {
                 line2Ref.current = new LeaderLine(timerEl, vaultEl, {
-                    color: 'rgba(255, 255, 255, 0.15)',
-                    size: 1,
-                    path: 'fluid',
+                    color: 'rgba(255, 255, 255, 0.25)', // Matched opacity
+                    size: 1.2,
+                    path: 'arc', // Differentiated curve
                     startSocket: 'right',
                     endSocket: 'left',
                     startPlug: 'disc',
