@@ -21,12 +21,12 @@ interface FocusTimerProps {
 // ----------------------------------------------------------------------------------
 const getIntensityLabel = (intensity: number): { label: string, color: string } => {
   if (intensity <= 3) {
-    return { label: 'Creative Focus', color: 'text-purple-400' }; // Low sensitivity
+    return { label: 'Creative', color: 'text-neutral-400' };
   }
   if (intensity <= 7) {
-    return { label: 'Balanced Focus', color: 'text-cyan-400' }; // Medium sensitivity
+    return { label: 'Balanced', color: 'text-neutral-100' };
   }
-  return { label: 'Deep Laser Focus', color: 'text-red-400' }; // High sensitivity
+  return { label: 'Deep Laser', color: 'text-primary' };
 };
 
 export const FocusTimer: React.FC<FocusTimerProps> = ({
@@ -80,47 +80,36 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({
   if (status === SessionStatus.RUNNING) {
     if (fatigueScore > 70) {
       StatusIcon = Activity;
-      statusColor = "text-red-400";
-      statusText = "OVERLOAD";
-    } else if (fatigueScore > 40) {
-      StatusIcon = Gauge;
-      statusColor = "text-amber-400";
-      statusText = "ACTIVE";
+      statusColor = "text-primary";
+      statusText = "HIGH LOAD";
     } else {
       StatusIcon = Zap;
-      statusColor = "text-emerald-400";
-      statusText = "FLOW";
+      statusColor = "text-primary";
+      statusText = "FOCUSING";
     }
   } else if (status === SessionStatus.PAUSED) {
-    // [UPDATED] If paused because we hit the peak, show "PEAK REACHED"
     if (isFinished) {
       StatusIcon = Sparkles;
-      statusColor = "text-amber-400";
-      statusText = "PEAK REACHED";
+      statusColor = "text-primary";
+      statusText = "PEAK";
     } else {
       StatusIcon = Clock;
-      statusColor = "text-blue-400";
+      statusColor = "text-neutral-400";
       statusText = "PAUSED";
     }
   }
 
   const actionButtonClasses = `
     flex items-center justify-center
-    text-gray-500 hover:text-primary transition-all duration-200
-    p-1.5 rounded-md
-    shadow-[0_1px_0px_rgba(255,255,255,0.05)] hover:shadow-[0_2px_4px_rgba(0,0,0,0.3)]
-    bg-white/[0.02] hover:bg-white/[0.06]
-    border border-white/[0.02] hover:border-white/[0.1]
-    backdrop-blur-sm
+    text-neutral-500 hover:text-neutral-100 transition-all duration-200
+    p-1.5 rounded-lg
+    bg-neutral-800 border border-neutral-700
   `;
 
   const resetButtonStyle = `
-    text-gray-600 hover:text-red-400 transition-all duration-200
-    p-1.5 rounded-md
-    shadow-[0_1px_0px_rgba(255,255,255,0.05)] hover:shadow-[0_2px_4px_rgba(220,38,38,0.2)]
-    bg-white/[0.02] hover:bg-white/[0.06]
-    border border-white/[0.02] hover:border-red-400/[0.2]
-    backdrop-blur-sm
+    text-neutral-500 hover:text-primary transition-all duration-200
+    p-1.5 rounded-lg
+    bg-neutral-800 border border-neutral-700
   `;
 
   // APPLE SPECTRAL GLOW LOGIC
@@ -175,29 +164,21 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({
 
       {/* Header: Title bar aesthetic */}
       <div className="
-        px-2.5 py-1.5 
-        border-b border-white/[0.08] 
+        px-3 py-2
+        border-b border-neutral-800
         flex justify-between items-center 
-        bg-gradient-to-r from-white/[0.03] to-white/[0.01]
+        bg-neutral-900/50
         relative z-10 shrink-0
-        backdrop-blur-sm
-        after:absolute after:inset-0 after:rounded-t-2xl after:bg-gradient-to-b after:from-white/[0.04] after:to-transparent after:pointer-events-none
       ">
-        <h3 className="text-[10px] font-medium text-gray-400 tracking-tight">AI Timer</h3>
+        <h3 className="text-[10px] font-bold text-neutral-500 tracking-wider">TIMER</h3>
 
         {/* Status badge */}
         <div className={`
-          flex items-center gap-1 px-1.5 py-0.5 rounded-lg
+          flex items-center gap-1.5
           ${statusColor}
-          bg-white/[0.04]
-          border border-white/[0.1]
-          shadow-[0_2px_8px_rgba(0,0,0,0.15),0_1px_2px_rgba(255,255,255,0.05)_inset]
-          backdrop-blur-sm
-          relative
-          before:absolute before:inset-0 before:rounded-lg before:bg-gradient-to-b before:from-white/[0.08] before:to-transparent before:pointer-events-none
         `}>
-          <StatusIcon className="w-2 h-2 relative z-10" />
-          <span className="text-[8px] font-medium tracking-tighter relative z-10">{statusText}</span>
+          <StatusIcon className="w-2.5 h-2.5" />
+          <span className="text-[9px] font-bold tracking-tight uppercase">{statusText}</span>
         </div>
       </div>
 
@@ -205,43 +186,25 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({
       <div className="p-2.5 space-y-3 flex-1 flex flex-col relative z-10">
 
         {/* Timer Display */}
-        <div className="flex flex-col items-center justify-center">
+        <div className="flex flex-col items-center justify-center py-2">
           <div className={`
-            text-2xl font-mono font-medium tracking-tighter tabular-nums
-            drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]
-            ${isFinished ? 'text-amber-400' : 'text-white'}
+            text-3xl font-mono font-bold tracking-tight tabular-nums
+            ${isFinished ? 'text-primary' : 'text-neutral-100'}
           `}>
             {minutes}:{seconds}
           </div>
 
-          {/* Progress indicator - Invisible Target Logic */}
-          <div className="w-full max-w-[100px] flex items-center gap-2 mt-1">
-            <div className="
-              flex-1 h-0.5 
-              bg-white/[0.05] 
-              rounded-full overflow-hidden
-              shadow-[0_1px_2px_rgba(0,0,0,0.2)_inset]
-              border border-white/[0.05]
-            ">
+          {/* Progress indicator */}
+          <div className="w-full max-w-[120px] flex flex-col gap-1 mt-3">
+            <div className="w-full h-1 bg-neutral-800 rounded-full overflow-hidden">
               <motion.div
-                className={`
-                  h-full 
-                  ${isFinished
-                    ? 'bg-gradient-to-r from-amber-500 via-white to-amber-500'
-                    : isRunning
-                      ? 'bg-gradient-to-r from-emerald-500/60 via-emerald-400/40 to-emerald-500/60'
-                      : 'bg-gradient-to-r from-indigo-500/80 via-blue-400/80 to-cyan-400/80'
-                  }
-                  shadow-[0_0_6px_rgba(16,185,129,0.2),0_1px_1px_rgba(255,255,255,0.1)_inset]
-                  relative
-                  before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/[0.1] before:to-transparent before:opacity-30
-                `}
+                className={`h-full ${isFinished || isRunning ? 'bg-primary' : 'bg-neutral-600'}`}
                 initial={{ width: "0%" }}
                 animate={{ width: `${progressPercent}%` }}
                 transition={{ duration: 0.5, ease: "linear" }}
               />
             </div>
-            <div className={`text-[8px] font-mono tabular-nums w-5 text-right ${isFinished ? 'text-amber-400' : isRunning ? 'text-emerald-400' : 'text-gray-500'}`}>
+            <div className={`text-[9px] font-mono text-center ${isFinished ? 'text-primary' : 'text-neutral-500'}`}>
               {Math.round(progressPercent)}%
             </div>
           </div>
@@ -350,74 +313,63 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({
         <div className="mt-auto shrink-0 space-y-2">
 
           {/* Action Buttons */}
-          <div className="pt-2 border-t border-white/[0.08]">
+          <div className="pt-3 border-t border-neutral-800">
             <div className="flex items-center justify-center gap-2">
               {status === SessionStatus.RUNNING ? (
                 <>
                   <button
                     onClick={onPause}
                     className={actionButtonClasses}
-                    title="Pause Session"
                   >
-                    <Pause className="w-2.5 h-2.5" />
+                    <Pause className="w-3 h-3" />
                   </button>
                   <button
                     onClick={onReset}
                     className={resetButtonStyle}
-                    title="Reset Session"
                   >
-                    <Square className="w-2.5 h-2.5" />
+                    <Square className="w-3 h-3" />
                   </button>
                 </>
               ) : (
                 <button
                   onClick={onStart}
                   className="
-                    flex items-center justify-center gap-1.5
-                    flex-1 text-[9px] py-1.5
-                    border border-gray-300/[0.15]
-                    rounded-xl
-                    text-gray-300 hover:text-white
-                    bg-gradient-to-b from-white/[0.07] to-white/[0.03]
-                    hover:bg-gradient-to-b hover:from-white/[0.12] hover:to-white/[0.05]
-                    hover:border-gray-300/[0.25]
+                    flex-1 flex items-center justify-center gap-2
+                    text-[11px] font-bold py-2 px-4
+                    bg-primary hover:bg-primary-hover
+                    text-white rounded-lg
                     transition-all duration-200
-                    font-medium tracking-tighter
-                    shadow-[0_4px_12px_rgba(0,0,0,0.2),0_1px_2px_rgba(255,255,255,0.05)_inset]
-                    hover:shadow-[0_8px_24px_rgba(0,0,0,0.3),0_2px_4px_rgba(255,255,255,0.1)_inset]
-                    backdrop-blur-sm
-                    relative
-                    before:absolute before:inset-0 before:rounded-xl before:bg-gradient-to-b before:from-white/[0.1] before:to-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-200
                     active:scale-[0.98]
+                    uppercase tracking-wider
                   "
                 >
-                  <Play className="w-2.5 h-2.5 relative z-10" />
-                  <span className="relative z-10">{isFinished ? 'RESTART' : 'START'}</span>
+                  <Play className="w-3 h-3" />
+                  {isFinished ? 'RESTART' : 'START'}
                 </button>
               )}
             </div>
           </div>
 
           {/* Footer */}
-          <div className="pt-2 border-t border-white/[0.08]">
+          <div className="pt-2.5 border-t border-neutral-800">
             <div className="flex items-center justify-between">
-              <div className="text-[8px] text-gray-500 tracking-tighter">
-                {status === SessionStatus.IDLE ? 'Ready' :
-                  status === SessionStatus.RUNNING ? 'Optimizing...' :
-                    isFinished ? 'Finished' : 'Paused'}
+              <div className="text-[9px] text-neutral-600 font-bold tracking-tight uppercase">
+                {status === SessionStatus.IDLE ? 'READY' :
+                  status === SessionStatus.RUNNING ? 'LIVE' :
+                    isFinished ? 'DONE' : 'PAUSED'}
               </div>
 
               {/* Status indicators */}
-              <div className="flex items-center gap-0.5">
+              <div className="flex items-center gap-1">
                 {Array.from({ length: 4 }).map((_, i) => (
                   <div
                     key={i}
                     className={`
-                      w-0.5 h-1 rounded-sm 
-                      transition-all duration-300
+                      w-2 h-[2px] rounded-full
+                      transition-all duration-500
                       ${(status === SessionStatus.RUNNING || isFinished) && fatigueScore > (i * 25)
-                        ? 'bg-gradient-to-b from-emerald-500 to-amber-500 shadow-[0_0_4px_rgba(34,197,94,0.3)]'
-                        : 'bg-white/[0.05]'
+                        ? 'bg-primary'
+                        : 'bg-neutral-800'
                       }
                     `}
                   />

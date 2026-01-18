@@ -63,15 +63,15 @@ export const TaskList: React.FC<TaskListProps> = ({ tasks, onToggle, onAdd, onDe
   };
 
   return (
-    <div id="task-list-node" ref={containerRef} className="w-full h-full bg-[#0f0f12]/60 backdrop-blur-xl border border-white/[0.08] rounded-2xl overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.5)] transition-all hover:shadow-[0_12px_48px_rgba(0,0,0,0.6)] relative flex flex-col group/panel">
+    <div id="task-list-node" ref={containerRef} className="w-full h-full bg-neutral-900/80 backdrop-blur-xl border border-neutral-700/50 rounded-xl overflow-hidden relative flex flex-col group/panel transition-all duration-300 hover:border-neutral-600/50">
 
       {/* Energetic Link Layer - Abstract Neural Line */}
       <svg className="absolute top-0 left-4 w-4 h-full pointer-events-none z-0 opacity-30">
         <defs>
           <linearGradient id="neural-gradient" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#6366f1" stopOpacity="0" />
-            <stop offset="50%" stopColor="#818cf8" stopOpacity="0.8" />
-            <stop offset="100%" stopColor="#6366f1" stopOpacity="0" />
+            <stop offset="0%" stopColor="var(--primary)" stopOpacity="0" />
+            <stop offset="50%" stopColor="var(--primary)" stopOpacity="0.3" />
+            <stop offset="100%" stopColor="var(--primary)" stopOpacity="0" />
           </linearGradient>
         </defs>
         {/* Draw vertical connector for completed tasks */}
@@ -83,16 +83,16 @@ export const TaskList: React.FC<TaskListProps> = ({ tasks, onToggle, onAdd, onDe
           initial={{ pathLength: 0, opacity: 0 }}
           animate={{
             pathLength: tasks.some(t => t.completed) ? 1 : 0,
-            opacity: tasks.some(t => t.completed) ? 0.4 : 0
+            opacity: tasks.some(t => t.completed) ? 0.2 : 0
           }}
           transition={{ duration: 0.5 }}
         />
       </svg>
 
-      <div className="px-3 py-1.5 border-b border-white/[0.03] flex justify-between items-center bg-zinc-900/90 relative z-10 shrink-0">
-        <h3 className="text-[11px] font-medium text-gray-400">Contextual Tasks</h3>
-        <button onClick={() => setIsAdding(true)} className="text-gray-500 hover:text-white transition-colors">
-          <Plus className="w-3.5 h-3.5" />
+      <div className="px-3 py-2 border-b border-neutral-800 flex justify-between items-center bg-neutral-900/50 relative z-10 shrink-0">
+        <h3 className="text-[10px] font-bold text-neutral-500 tracking-wider">TASKS</h3>
+        <button onClick={() => setIsAdding(true)} className="text-neutral-500 hover:text-neutral-100 transition-colors">
+          <Plus className="w-4 h-4" />
         </button>
       </div>
 
@@ -105,26 +105,26 @@ export const TaskList: React.FC<TaskListProps> = ({ tasks, onToggle, onAdd, onDe
                 initial={{ opacity: 0, x: -5 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, height: 0 }}
-                className="group flex items-center justify-between px-3 py-2 hover:bg-white/5 transition-all duration-300 cursor-default border-l-2 border-transparent hover:border-white/10 relative"
+                className="group flex items-center justify-between px-3 py-2.5 hover:bg-neutral-800 transition-all duration-200 cursor-default border-l-2 border-transparent hover:border-primary/50 relative"
               >
                 <div className="flex items-center gap-3">
-                  <button onClick={(e) => handleTaskToggle(task.id, e)} className="text-gray-500 hover:text-indigo-400 transition-colors relative">
+                  <button onClick={(e) => handleTaskToggle(task.id, e)} className="text-neutral-500 hover:text-primary transition-colors relative">
                     {/* Energy burst on check */}
                     {task.completed && (
                       <MotionDiv
                         initial={{ scale: 0, opacity: 1 }}
                         animate={{ scale: 1.5, opacity: 0 }}
                         transition={{ duration: 0.4 }}
-                        className="absolute inset-0 bg-indigo-500/50 rounded-full blur-sm"
+                        className="absolute inset-0 bg-primary/30 rounded-full blur-sm"
                       />
                     )}
                     {task.completed ? (
-                      <CheckCircle2 className="w-3.5 h-3.5 text-indigo-400" />
+                      <CheckCircle2 className="w-3.5 h-3.5 text-primary" />
                     ) : (
-                      <Circle className="w-3.5 h-3.5 opacity-50" />
+                      <Circle className="w-3.5 h-3.5 opacity-30" />
                     )}
                   </button>
-                  <span className={`text-[11px] transition-colors ${task.completed ? 'text-gray-500 line-through' : 'text-gray-200 group-hover:text-white'}`}>
+                  <span className={`text-[11px] font-medium transition-colors ${task.completed ? 'text-neutral-600' : 'text-neutral-300 group-hover:text-neutral-100'}`}>
                     {task.title}
                   </span>
                 </div>
@@ -135,7 +135,7 @@ export const TaskList: React.FC<TaskListProps> = ({ tasks, onToggle, onAdd, onDe
                       e.stopPropagation();
                       setOpenMenuId(openMenuId === task.id ? null : task.id);
                     }}
-                    className={`text-gray-600 hover:text-gray-400 transition-opacity ${openMenuId === task.id ? 'opacity-100 text-gray-200' : 'opacity-0 group-hover:opacity-100'}`}
+                    className={`text-neutral-600 hover:text-neutral-400 transition-opacity ${openMenuId === task.id ? 'opacity-100 text-neutral-200' : 'opacity-0 group-hover:opacity-100'}`}
                   >
                     <MoreHorizontal className="w-3.5 h-3.5" />
                   </button>
@@ -147,17 +147,17 @@ export const TaskList: React.FC<TaskListProps> = ({ tasks, onToggle, onAdd, onDe
                         initial={{ opacity: 0, scale: 0.95, y: -5 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95, y: -5 }}
-                        className="absolute right-0 top-6 z-50 w-24 bg-[#18181b] border border-zinc-700 rounded-lg shadow-xl overflow-hidden"
+                        className="absolute right-0 top-6 z-50 w-24 bg-neutral-900 border border-neutral-700/50 rounded-lg shadow-2xl overflow-hidden"
                       >
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
                             handleDelete(task.id);
                           }}
-                          className="w-full flex items-center gap-2 px-3 py-2 text-[10px] text-red-400 hover:bg-white/5 hover:text-red-300 transition-colors"
+                          className="w-full flex items-center gap-2 px-3 py-2 text-[10px] text-primary hover:bg-neutral-800 transition-colors font-bold"
                         >
                           <Trash2 className="w-3 h-3" />
-                          Delete
+                          DELETE
                         </button>
                       </motion.div>
                     )}
@@ -168,10 +168,9 @@ export const TaskList: React.FC<TaskListProps> = ({ tasks, onToggle, onAdd, onDe
                 {task.completed && tasks[index + 1]?.completed && (
                   <MotionDiv
                     layoutId={`link-${index}`}
-                    // Updated: Thinner line and subtle glow
-                    className="absolute left-[25px] top-6 w-[1px] h-full bg-indigo-500/40 shadow-[0_0_4px_rgba(99,102,241,0.4)] z-0"
+                    className="absolute left-[25px] top-7 w-[1px] h-full bg-primary/20 z-0"
                     initial={{ height: 0 }}
-                    animate={{ height: '100%' }} // Adjusted to 100% for precise stacking
+                    animate={{ height: '100%' }}
                     transition={{ duration: 0.3, delay: 0.1 }}
                   />
                 )}

@@ -27,18 +27,21 @@
               pixel: ['"DotGothic16"', 'sans-serif'],
             },
             colors: {
-              // Intelligent Sky Palette
-              'pale-blue': '#e8f1f7',
-              'soft-sky': '#b8d4e8',
-              'clear-blue': '#7aa8c9',
-              'deep-intelligence': '#2d5f8f',
-              'warm-white': '#faf8f5',
-              'cloud-cream': '#f5f0eb',
-              'vesper-clay': '#e8dad3',
-              'warm-stone': '#d4c4b8',
-              'text-primary': '#1a2332',
-              'text-secondary': '#4a5568',
-              'text-tertiary': '#7a8599',
+              primary: {
+                DEFAULT: '#FF4D00',
+                hover: '#E64500',
+                soft: 'rgba(255, 77, 0, 0.1)',
+              },
+              neutral: {
+                950: '#050505', // Deepest black
+                900: '#0A0A0A', // Main background
+                850: '#121212', // Sidebar/Card background
+                800: '#1A1A1A', // Elevated surfaces
+                700: '#2A2A2A', // Borders/Dividers
+                600: '#525252', // Muted text/icons
+                400: '#A1A1A1', // Secondary text
+                100: '#EDEDED', // Primary text
+              }
             },
             animation: {
               'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',

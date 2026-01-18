@@ -755,10 +755,9 @@ export const Dashboard: React.FC = () => {
             </AnimatePresence>
 
             <div
-                className={`h-screen bg-[#050505] text-gray-200 selection:bg-primary/30 relative overflow-hidden flex flex-col ${alienMode ? 'font-alien' : 'font-sans'} ${isPaywallOpen ? 'pointer-events-none select-none' : ''}`}
+                className={`h-screen bg-neutral-900 text-neutral-100 selection:bg-primary/30 relative overflow-hidden flex flex-col ${alienMode ? 'font-alien' : 'font-sans'} ${isPaywallOpen ? 'pointer-events-none select-none' : ''}`}
             >
-                <AIWhisper />
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-indigo-500/5 blur-[120px] rounded-full pointer-events-none z-0" />
+                <div className="absolute inset-0 bg-neutral-900 z-0" />
 
                 {/* Main Application Layer */}
                 <div className="relative z-10 flex h-full">
@@ -818,22 +817,18 @@ export const Dashboard: React.FC = () => {
                     ) : (
                         <main
                             className="
-                    fixed md:top-12 md:right-12 md:bottom-12 md:left-[300px]
+                    fixed md:top-6 md:right-6 md:bottom-6 md:left-[280px]
                     inset-0 md:inset-auto z-10
                     flex flex-col items-center justify-center
-                    bg-[#0A0A0C]
-                    md:rounded-[32px]
-                    md:border md:border-white/5
+                    bg-neutral-950
+                    md:rounded-2xl
+                    md:border md:border-neutral-800
                     overflow-hidden
-                    shadow-2xl
                 "
                             style={{ perspective: '1600px' }}
                         >
 
                             <AIOptimizedIndicator currentInsight={insight} />
-                            <Background />
-                            <CosmicParticles />
-                            <QuantumRippleBackground zIndex={5} />
 
                             <AnimatePresence mode="wait">
                                 <MotionDiv

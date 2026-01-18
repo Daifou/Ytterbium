@@ -29,7 +29,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentMode, setMode, onSignOu
   return (
     <>
       {/* DESKTOP SIDEBAR - SURGICAL PRECISION */}
-      <aside className="fixed left-0 top-0 h-full w-[260px] hidden md:flex flex-col z-50 bg-[#080808] border-r border-[#EAEAEA]/[0.02] font-sans select-none antialiased">
+      <aside className="fixed left-0 top-0 h-full w-[260px] hidden md:flex flex-col z-50 bg-neutral-900 border-r border-neutral-700/30 font-sans select-none antialiased">
 
         {/* 1. TOP SECTION: Logo + Toggle - Pushed Higher */}
         <div className="flex flex-col px-6 pt-8 gap-12">
@@ -38,28 +38,28 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentMode, setMode, onSignOu
             href="/"
             className="flex items-center gap-3 group/logo transition-all duration-300 hover:opacity-70 hover:translate-y-[-1px]"
           >
-            <Logo className="w-8 h-8 opacity-90" />
-            <span className="text-[11px] font-semibold text-[#EAEAEA] tracking-[0.25em] uppercase opacity-80">
-              Ytterbium
+            <Logo className="w-8 h-8 opacity-100" />
+            <span className="text-[12px] font-bold text-neutral-100 tracking-[0.1em] lowercase py-2">
+              ytterbium
             </span>
           </a>
 
           {/* Minimalist Toggle Pill - GLASS HARDWARE */}
-          <div className="relative flex w-full h-10 p-[2px] rounded-full bg-[#0A0A0A] border border-white/10 shadow-inner">
-            {/* Active Indicator - Subtle Glass Glow */}
+          <div className="relative flex w-full h-9 p-[2px] rounded-lg bg-neutral-950 border border-neutral-700/50 shadow-inner">
+            {/* Active Indicator - Subtle Neutral Fill */}
             <motion.div
               initial={false}
               animate={{
                 x: isFocus ? 0 : '100%',
               }}
-              transition={{ type: "spring", stiffness: 300, damping: 30 }}
-              className="absolute top-[2px] left-[2px] w-[calc(50%-2px)] h-[calc(100%-4px)] rounded-full bg-white/[0.03] shadow-[inset_0_1px_4px_rgba(0,0,0,0.5),inset_0_0_8px_rgba(255,255,255,0.03)] border border-white/[0.05] z-0"
+              transition={{ type: "spring", stiffness: 400, damping: 35 }}
+              className="absolute top-[2px] left-[2px] w-[calc(50%-2px)] h-[calc(100%-4px)] rounded-[6px] bg-neutral-800 border border-neutral-700/50 z-0"
             />
 
             {/* Focus Button */}
             <button
               onClick={() => setMode(AppMode.FOCUS)}
-              className={`flex-1 relative z-10 flex items-center justify-center text-[12px] uppercase tracking-[0.05em] font-semibold transition-all duration-300 ${isFocus ? 'text-white' : 'text-white/40 font-medium'}`}
+              className={`flex-1 relative z-10 flex items-center justify-center text-[12px] tracking-tight font-medium transition-all duration-200 ${isFocus ? 'text-neutral-100' : 'text-neutral-600 hover:text-neutral-400'}`}
             >
               Focus
             </button>
@@ -67,7 +67,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentMode, setMode, onSignOu
             {/* Relax Button */}
             <button
               onClick={() => setMode(AppMode.RELAX)}
-              className={`flex-1 relative z-10 flex items-center justify-center text-[12px] uppercase tracking-[0.05em] font-semibold transition-all duration-300 ${isRelax ? 'text-white' : 'text-white/40 font-medium'}`}
+              className={`flex-1 relative z-10 flex items-center justify-center text-[12px] tracking-tight font-medium transition-all duration-200 ${isRelax ? 'text-neutral-100' : 'text-neutral-600 hover:text-neutral-400'}`}
             >
               Relax
             </button>
@@ -81,17 +81,17 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentMode, setMode, onSignOu
 
         {/* 3. BOTTOM SECTION: Profile (Anchored to Absolute Bottom) */}
         <footer className="p-6 pb-8 mt-auto">
-          <div className="group flex items-center gap-4 cursor-pointer pt-6 border-t border-white/[0.05]" onClick={onSignOut}>
-            {/* Avatar - Perfect Circle with 1px Border */}
-            <div className="relative w-8 h-8 rounded-full bg-transparent border border-white/15 flex items-center justify-center group-hover:border-white/25 transition-colors overflow-hidden">
-              <span className="text-[12px] text-white font-sans font-medium leading-none flex items-center justify-center w-full h-full pb-[0.5px] uppercase">{userInitials}</span>
+          <div className="group flex items-center gap-3 cursor-pointer pt-6 border-t border-neutral-800" onClick={onSignOut}>
+            {/* Avatar - Simple Neutral Circle */}
+            <div className="relative w-7 h-7 rounded bg-neutral-800 border border-neutral-700 flex items-center justify-center group-hover:border-neutral-600 transition-colors">
+              <span className="text-[11px] text-neutral-400 font-medium pb-[0.5px] uppercase">{userInitials}</span>
               {/* Online Dot */}
-              <div className="absolute -bottom-0.5 -right-0.5 w-2 h-2 bg-[#00FF85] rounded-full border-[2px] border-[#080808]" />
+              <div className="absolute -bottom-0.5 -right-0.5 w-2 h-2 bg-primary rounded-full border-[1.5px] border-neutral-900" />
             </div>
 
-            {/* Profile Text - Signature Style */}
-            <div className="flex flex-col">
-              <span className="text-[12px] text-white/90 font-medium tracking-wide group-hover:text-white transition-colors">
+            {/* Profile Text - Minimalist */}
+            <div className="flex flex-col min-w-0">
+              <span className="text-[12px] text-neutral-400 font-medium truncate group-hover:text-neutral-200 transition-colors">
                 {displayEmail.split('@')[0]}
               </span>
             </div>
