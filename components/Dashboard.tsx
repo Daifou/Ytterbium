@@ -531,29 +531,31 @@ export const Dashboard: React.FC = () => {
 
             if (tasksEl && timerEl && !line1Ref.current) {
                 line1Ref.current = new LeaderLine(tasksEl, timerEl, {
-                    color: 'rgba(255, 255, 255, 0.25)',
-                    size: 1.2,
+                    color: 'rgba(255, 255, 255, 0.2)',
+                    size: 1,
                     path: 'fluid',
                     startSocket: 'right',
                     endSocket: 'left',
                     startPlug: 'disc',
                     endPlug: 'disc',
-                    endPlugSize: 1,
-                    dash: { len: 6, gap: 4, animation: true }
+                    startPlugSize: 1.5,
+                    endPlugSize: 1.5,
+                    dash: { len: 4, gap: 4, animation: true }
                 });
             }
 
             if (timerEl && vaultEl && !line2Ref.current) {
                 line2Ref.current = new LeaderLine(timerEl, vaultEl, {
-                    color: 'rgba(255, 255, 255, 0.25)', // Matched opacity
-                    size: 1.2,
-                    path: 'arc', // Differentiated curve
+                    color: 'rgba(255, 255, 255, 0.2)',
+                    size: 1,
+                    path: 'fluid',
                     startSocket: 'right',
                     endSocket: 'left',
                     startPlug: 'disc',
                     endPlug: 'disc',
-                    endPlugSize: 1,
-                    dash: { len: 6, gap: 4, animation: true }
+                    startPlugSize: 1.5,
+                    endPlugSize: 1.5,
+                    dash: { len: 4, gap: 4, animation: true }
                 });
             }
 
