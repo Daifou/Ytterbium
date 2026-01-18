@@ -331,26 +331,8 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({
                   </button>
                 </>
               ) : (
-                <button
-                  onClick={onStart}
-                  className="
-                    flex-1 flex items-center justify-center gap-2
-                    text-[11px] font-bold py-2 px-4 
-                    rounded-lg
-                    transition-all duration-200
-                    active:scale-[0.98]
-                    uppercase tracking-wider
-                    
-                    bg-primary/20 hover:bg-primary/30
-                    text-white
-                    border border-primary/20 hover:border-primary/40
-                  "
-                >
-                  <Play className="w-3.5 h-3.5 fill-white" />
-                  <span>
-                    {isFinished ? 'RESTART' : 'START'}
-                  </span>
-                </button>
+                {/* Action buttons removed - Initiation handled by sidebar AI input */ }
+                < div />
               )}
             </div>
           </div>

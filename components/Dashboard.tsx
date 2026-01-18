@@ -154,6 +154,11 @@ export const Dashboard: React.FC = () => {
         action?: { label: string; onClick: () => void };
     } | null>(null);
 
+    // AI Sidebar Flow State
+    const [sidebarAIState, setSidebarAIState] = useState<'idle' | 'analyzing' | 'confirming'>('idle');
+    const [sidebarAnalysis, setSidebarAnalysis] = useState<any>(null);
+    const [sidebarTask, setSidebarTask] = useState('');
+
     const tasksRef = useRef<HTMLDivElement>(null);
     const timerRefDiv = useRef<HTMLDivElement>(null);
     const vaultRef = useRef<HTMLDivElement>(null);
@@ -384,6 +389,52 @@ export const Dashboard: React.FC = () => {
             setTasks(prev => [...prev, newTask]);
         }
     }, [currentUser, currentSessionId]);
+
+    const handleSidebarAIStart = async (taskText: string) => {
+        setSidebarTask(taskText);
+        setSidebarAIState('analyzing');
+
+        try {
+            // Import ollamaService if not already (it is in LandingPage, but Dashboard needs it too)
+            // Actually Dashboard.tsx imports are at top. Let's check.
+            const { ollamaService } = await import('../services/ollamaService');
+            const aiResult = await ollamaService.analyzeTask(taskText);
+            setSidebarAnalysis({
+                intensity: aiResult.suggestedIntensity,
+                insight: aiResult.explanation,
+                type: aiResult.taskType,
+                focusMode: aiResult.focusMode,
+                suggestedSessions: Math.ceil(aiResult.suggestedIntensity / 3.33),
+            });
+            setSidebarAIState('confirming');
+        } catch (error) {
+            console.error('Sidebar AI analysis failed:', error);
+            setSidebarAnalysis({
+                intensity: 6,
+                insight: 'Standard focus recommended.',
+                type: 'Task',
+                focusMode: 'Balanced Focus',
+                suggestedSessions: 2,
+            });
+            setSidebarAIState('confirming');
+        }
+    };
+
+    const confirmSidebarSession = async (action: 'start_new' | 'resume') => {
+        if (action === 'start_new') {
+            await handleReset(); // Clear old session if any
+            handleIntensityChange(sidebarAnalysis.intensity);
+            setInsight(sidebarAnalysis.insight);
+            await addTask(sidebarTask, currentUser?.id);
+            setShouldTriggerCountdown(true);
+        } else {
+            // Resume current or just close
+            setStatus(SessionStatus.RUNNING);
+        }
+        setSidebarAIState('idle');
+        setSidebarTask('');
+        setSidebarAnalysis(null);
+    };
 
 
     // Effects (Timer, Fatigue, Intervention, Layout)
@@ -770,6 +821,12 @@ export const Dashboard: React.FC = () => {
                         user={currentUser}
                         focusIntensity={focusIntensity}
                         completedCount={barsToday}
+                        sessionStatus={status}
+                        sidebarAIState={sidebarAIState}
+                        sidebarAnalysis={sidebarAnalysis}
+                        onSidebarAISubmit={handleSidebarAIStart}
+                        onConfirmSession={confirmSidebarSession}
+                        onCancelAI={() => setSidebarAIState('idle')}
                     />
 
                     <AuthModal

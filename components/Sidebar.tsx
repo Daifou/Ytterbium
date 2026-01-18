@@ -16,9 +16,18 @@ interface SidebarProps {
   user: User | null;
   focusIntensity: number;
   completedCount: number;
+  sessionStatus: any;
+  sidebarAIState: 'idle' | 'analyzing' | 'confirming';
+  sidebarAnalysis: any;
+  onSidebarAISubmit: (task: string) => void;
+  onConfirmSession: (action: 'start_new' | 'resume') => void;
+  onCancelAI: () => void;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ currentMode, setMode, onSignOut, user, focusIntensity, completedCount }) => {
+export const Sidebar: React.FC<SidebarProps> = ({
+  currentMode, setMode, onSignOut, user, focusIntensity, completedCount,
+  sessionStatus, sidebarAIState, sidebarAnalysis, onSidebarAISubmit, onConfirmSession, onCancelAI
+}) => {
 
   const isFocus = currentMode === AppMode.FOCUS;
   const isRelax = currentMode === AppMode.RELAX;
@@ -75,8 +84,18 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentMode, setMode, onSignOu
         </div>
 
         {/* 2. MIDDLE SECTION: Session Architecture (Void Space) */}
-        <div className="flex-1 flex flex-col justify-start px-6 pt-12">
-          <SystemReadout mode={currentMode} intensity={focusIntensity} completedCount={completedCount} />
+        <div className="flex-1 flex flex-col justify-start px-6 pt-12 overflow-y-auto no-scrollbar">
+          <SystemReadout
+            mode={currentMode}
+            intensity={focusIntensity}
+            completedCount={completedCount}
+            sessionStatus={sessionStatus}
+            sidebarAIState={sidebarAIState}
+            sidebarAnalysis={sidebarAnalysis}
+            onSidebarAISubmit={onSidebarAISubmit}
+            onConfirmSession={onConfirmSession}
+            onCancelAI={onCancelAI}
+          />
         </div>
 
         {/* 3. BOTTOM SECTION: Profile (Anchored to Absolute Bottom) */}

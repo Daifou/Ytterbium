@@ -2,10 +2,18 @@ import React, { useMemo } from 'react';
 import { AppMode } from '../types';
 import { motion, AnimatePresence } from 'framer-motion';
 
+import { Search, Sparkles, Check, X, ArrowRight } from 'lucide-react';
+
 interface SystemReadoutProps {
     mode: AppMode;
     intensity: number;
     completedCount: number;
+    sessionStatus: any;
+    sidebarAIState: 'idle' | 'analyzing' | 'confirming';
+    sidebarAnalysis: any;
+    onSidebarAISubmit: (task: string) => void;
+    onConfirmSession: (action: 'start_new' | 'resume') => void;
+    onCancelAI: () => void;
 }
 
 interface ProfileConfig {
@@ -13,7 +21,11 @@ interface ProfileConfig {
     description: string;
 }
 
-export const SystemReadout: React.FC<SystemReadoutProps> = ({ mode, intensity, completedCount }) => {
+export const SystemReadout: React.FC<SystemReadoutProps> = ({
+    mode, intensity, completedCount,
+    sessionStatus, sidebarAIState, sidebarAnalysis, onSidebarAISubmit, onConfirmSession, onCancelAI
+}) => {
+    const [taskInput, setTaskInput] = React.useState('');
 
     const readoutData = useMemo<ProfileConfig>(() => {
         // 1. RELAX MODE
@@ -120,6 +132,86 @@ export const SystemReadout: React.FC<SystemReadoutProps> = ({ mode, intensity, c
                                 </div>
                             </div>
                         </div>
+                    </div>
+
+                    {/* AI INTERFACE - INTEGRATED BELOW SESSIONS */}
+                    <div className="flex flex-col gap-3">
+                        {sidebarAIState === 'idle' && (
+                            <form
+                                onSubmit={(e) => {
+                                    e.preventDefault();
+                                    if (taskInput.trim()) onSidebarAISubmit(taskInput);
+                                }}
+                                className="relative group"
+                            >
+                                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-600 group-focus-within:text-primary transition-colors">
+                                    <Sparkles className="w-3.5 h-3.5" />
+                                </div>
+                                <input
+                                    type="text"
+                                    value={taskInput}
+                                    onChange={(e) => setTaskInput(e.target.value)}
+                                    placeholder="Initiate focus sequence..."
+                                    className="w-full bg-neutral-950/40 border border-neutral-800 rounded-lg pl-9 pr-3 py-2.5 text-[11px] text-neutral-200 placeholder-neutral-600 focus:outline-none focus:border-primary/50 focus:bg-neutral-900/40 transition-all font-sans"
+                                />
+                                {taskInput.trim() && (
+                                    <button
+                                        type="submit"
+                                        className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-md hover:bg-neutral-800 text-neutral-500 transition-colors"
+                                    >
+                                        <ArrowRight className="w-3 h-3" />
+                                    </button>
+                                )}
+                            </form>
+                        )}
+
+                        {sidebarAIState === 'analyzing' && (
+                            <div className="bg-neutral-950/60 border border-neutral-800 rounded-lg p-3 flex flex-col gap-2.5 animate-pulse">
+                                <div className="flex items-center gap-2">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-primary animate-bounce" />
+                                    <span className="text-[10px] text-neutral-500 uppercase tracking-widest font-bold">Analyzing Load...</span>
+                                </div>
+                                <div className="h-2 bg-neutral-800 rounded-full w-4/5" />
+                            </div>
+                        )}
+
+                        {sidebarAIState === 'confirming' && sidebarAnalysis && (
+                            <motion.div
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                className="bg-neutral-900/80 border border-primary/20 rounded-lg p-3.5 flex flex-col gap-4 shadow-xl shadow-primary/5"
+                            >
+                                <div className="flex flex-col gap-1">
+                                    <span className="text-[9px] text-primary/60 uppercase tracking-[0.2em] font-bold">Recommendation</span>
+                                    <span className="text-[11px] text-neutral-200 font-medium leading-relaxed">{sidebarAnalysis.focusMode} optimized.</span>
+                                </div>
+
+                                <div className="flex flex-col gap-2 pt-1">
+                                    <span className="text-[10px] text-neutral-400 font-medium leading-relaxed">
+                                        {sessionStatus === 'RUNNING' || sessionStatus === 'PAUSED'
+                                            ? "Complete old session and start new?"
+                                            : "Initialize focus environment?"}
+                                    </span>
+                                    <div className="flex gap-2 mt-1">
+                                        <button
+                                            onClick={() => {
+                                                onConfirmSession('start_new');
+                                                setTaskInput('');
+                                            }}
+                                            className="flex-1 bg-primary/10 hover:bg-primary/20 border border-primary/20 rounded-md py-1.5 text-[10px] text-primary font-bold transition-all uppercase tracking-wider"
+                                        >
+                                            Confirm
+                                        </button>
+                                        <button
+                                            onClick={onCancelAI}
+                                            className="px-3 bg-neutral-800 hover:bg-neutral-700 rounded-md py-1.5 text-[10px] text-neutral-400 font-bold transition-all uppercase tracking-wider"
+                                        >
+                                            <X className="w-3 h-3" />
+                                        </button>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        )}
                     </div>
 
                 </motion.div>
