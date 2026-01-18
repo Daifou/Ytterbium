@@ -334,47 +334,20 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({
                 <button
                   onClick={onStart}
                   className="
-                    group/start
-                    relative flex-1 flex items-center justify-center gap-2.5
-                    text-[11px] font-bold py-3 px-6 
+                    flex-1 flex items-center justify-center gap-2
+                    text-[11px] font-bold py-2 px-4 
                     rounded-lg
-                    transition-all duration-300 ease-out
-                    active:scale-[0.97]
-                    uppercase tracking-[0.14em]
-                    overflow-hidden
+                    transition-all duration-200
+                    active:scale-[0.98]
+                    uppercase tracking-wider
                     
-                    /* Heavenly Glass Body */
-                    bg-primary/20 
-                    backdrop-blur-md
+                    bg-primary/20 hover:bg-primary/30
                     text-white
-                    border border-primary/30
-                    shadow-[0_8px_16px_-6px_rgba(255,77,0,0.25)]
-                    
-                    /* Rim Light (Top Highlight) */
-                    before:absolute before:inset-x-0 before:top-0 before:h-[1px]
-                    before:bg-gradient-to-r before:from-transparent before:via-white/20 before:to-transparent
-                    
-                    /* Bottom Depth */
-                    after:absolute after:inset-x-0 after:bottom-0 after:h-[1px]
-                    after:bg-black/20
-                    
-                    /* Hover States */
-                    hover:bg-primary/30
-                    hover:border-primary/50
-                    hover:shadow-[0_12px_24px_-8px_rgba(255,77,0,0.4)]
-                    hover:translate-y-[-1px]
+                    border border-primary/20 hover:border-primary/40
                   "
                 >
-                  {/* Subtle Inner Glow on Hover */}
-                  <div className="absolute inset-0 bg-primary/20 opacity-0 group-hover/start:opacity-100 transition-opacity duration-300 blur-xl pointer-events-none" />
-
-                  <Play className="
-                    w-4 h-4 
-                    fill-white relative z-10
-                    transition-transform duration-300 group-hover/start:scale-110 
-                    drop-shadow-[0_0_8px_rgba(255,255,255,0.4)]
-                  " />
-                  <span className="relative z-10 drop-shadow-sm">
+                  <Play className="w-3.5 h-3.5 fill-white" />
+                  <span>
                     {isFinished ? 'RESTART' : 'START'}
                   </span>
                 </button>
