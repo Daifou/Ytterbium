@@ -331,8 +331,7 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({
                   </button>
                 </>
               ) : (
-                {/* Action buttons removed - Initiation handled by sidebar AI input */ }
-                < div />
+                <div />
               )}
             </div>
           </div>
