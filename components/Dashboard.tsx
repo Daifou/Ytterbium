@@ -531,28 +531,28 @@ export const Dashboard: React.FC = () => {
 
             if (tasksEl && timerEl && !line1Ref.current) {
                 line1Ref.current = new LeaderLine(tasksEl, timerEl, {
-                    color: 'rgba(255, 77, 0, 0.4)', // Using primary brand color
-                    size: 1.5,
-                    path: 'magnet',
+                    color: 'rgba(255, 255, 255, 0.25)',
+                    size: 1.2,
+                    path: 'fluid',
                     startSocket: 'right',
                     endSocket: 'left',
                     startPlug: 'disc',
-                    endPlug: 'arrow3',
-                    endPlugSize: 1.5,
+                    endPlug: 'disc',
+                    endPlugSize: 1,
                     dash: { len: 6, gap: 4, animation: true }
                 });
             }
 
             if (timerEl && vaultEl && !line2Ref.current) {
                 line2Ref.current = new LeaderLine(timerEl, vaultEl, {
-                    color: 'rgba(255, 77, 0, 0.25)',
-                    size: 1.2,
-                    path: 'magnet',
+                    color: 'rgba(255, 255, 255, 0.15)',
+                    size: 1,
+                    path: 'fluid',
                     startSocket: 'right',
                     endSocket: 'left',
                     startPlug: 'disc',
-                    endPlug: 'arrow3',
-                    endPlugSize: 1.5,
+                    endPlug: 'disc',
+                    endPlugSize: 1,
                     dash: { len: 6, gap: 4, animation: true }
                 });
             }
