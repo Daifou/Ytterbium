@@ -335,48 +335,24 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({
                   onClick={onStart}
                   className="
                     flex-1 flex items-center justify-center gap-2
-                    text-[11px] font-bold py-2 px-4
-                    bg-primary hover:bg-primary-hover
+                    text-[11px] font-bold py-2.5 px-4
+                    bg-primary/20 hover:bg-primary/30
+                    backdrop-blur-md
                     text-white rounded-lg
-                    transition-all duration-200
+                    border border-primary/30 hover:border-primary/50
+                    transition-all duration-300
                     active:scale-[0.98]
-                    uppercase tracking-wider
+                    uppercase tracking-widest
                   "
                 >
-                  <Play className="w-3 h-3" />
+                  <Play className="w-3.5 h-3.5 fill-white" />
                   {isFinished ? 'RESTART' : 'START'}
                 </button>
               )}
             </div>
           </div>
 
-          {/* Footer */}
-          <div className="pt-2.5 border-t border-neutral-800">
-            <div className="flex items-center justify-between">
-              <div className="text-[9px] text-neutral-600 font-bold tracking-tight uppercase">
-                {status === SessionStatus.IDLE ? 'READY' :
-                  status === SessionStatus.RUNNING ? 'LIVE' :
-                    isFinished ? 'DONE' : 'PAUSED'}
-              </div>
 
-              {/* Status indicators */}
-              <div className="flex items-center gap-1">
-                {Array.from({ length: 4 }).map((_, i) => (
-                  <div
-                    key={i}
-                    className={`
-                      w-2 h-[2px] rounded-full
-                      transition-all duration-500
-                      ${(status === SessionStatus.RUNNING || isFinished) && fatigueScore > (i * 25)
-                        ? 'bg-primary'
-                        : 'bg-neutral-800'
-                      }
-                    `}
-                  />
-                ))}
-              </div>
-            </div>
-          </div>
 
         </div>
       </div>

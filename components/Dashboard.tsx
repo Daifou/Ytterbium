@@ -820,12 +820,16 @@ export const Dashboard: React.FC = () => {
                     fixed md:top-6 md:right-6 md:bottom-6 md:left-[280px]
                     inset-0 md:inset-auto z-10
                     flex flex-col items-center justify-center
-                    bg-neutral-950
-                    md:rounded-2xl
-                    md:border md:border-neutral-800
-                    overflow-hidden
-                "
-                            style={{ perspective: '1600px' }}
+                            bg-neutral-950
+                            md:rounded-2xl
+                            md:border md:border-neutral-800
+                            overflow-hidden
+                        "
+                            style={{
+                                perspective: '1600px',
+                                backgroundImage: 'radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px)',
+                                backgroundSize: '24px 24px'
+                            }}
                         >
 
                             <AIOptimizedIndicator currentInsight={insight} />

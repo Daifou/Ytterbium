@@ -26,7 +26,7 @@ export const GoldVault: React.FC<GoldVaultProps> = ({ progress = 0, barsToday = 
             </div>
 
             {/* Content */}
-            <div className="relative z-10 flex-1 overflow-y-auto custom-scrollbar">
+            <div className="relative z-10 flex-1">
                 {/* Progress Section */}
                 <div className="px-3 py-2 hover:bg-neutral-800 transition-all duration-200">
                     <div className="flex items-center justify-between mb-1.5">
