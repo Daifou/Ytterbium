@@ -151,8 +151,8 @@ export const SystemReadout: React.FC<SystemReadoutProps> = ({
                                     type="text"
                                     value={taskInput}
                                     onChange={(e) => setTaskInput(e.target.value)}
-                                    placeholder="Initiate focus sequence..."
-                                    className="w-full bg-neutral-950/40 border border-neutral-800 rounded-lg pl-9 pr-3 py-2.5 text-[11px] text-neutral-200 placeholder-neutral-600 focus:outline-none focus:border-primary/50 focus:bg-neutral-900/40 transition-all font-sans"
+                                    placeholder="Enter your task..."
+                                    className="w-full bg-neutral-950/40 border border-neutral-800 rounded-full pl-9 pr-3 py-2.5 text-[11px] text-neutral-200 placeholder-neutral-600 focus:outline-none focus:border-primary/50 focus:bg-neutral-900/40 transition-all font-sans"
                                 />
                                 {taskInput.trim() && (
                                     <button
