@@ -1,3 +1,4 @@
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { User } from '@supabase/supabase-js';
 import { PricingCard } from './PricingCard';
@@ -11,6 +12,8 @@ interface PaywallModalProps {
 }
 
 export const PaywallModal: React.FC<PaywallModalProps> = ({ isOpen, onClose, onAuth, currentUser }) => {
+    const [isCheckingOut, setIsCheckingOut] = useState(false);
+
     return (
         <AnimatePresence>
             {isOpen && (
@@ -30,10 +33,10 @@ export const PaywallModal: React.FC<PaywallModalProps> = ({ isOpen, onClose, onA
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95, y: 10 }}
                         transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                        className="relative z-10 w-full max-w-[380px]"
+                        className={`relative z-10 w-full transition-all duration-500 ease-in-out ${isCheckingOut ? 'max-w-3xl' : 'max-w-[380px]'}`}
                     >
-                        {/* Close button in top right area of the space, but within the card usually looks better for this 'cute' look */}
-                        <div className="absolute -top-12 right-0 md:-right-12">
+                        {/* Close button in top right area of the space */}
+                        <div className={`absolute -top-12 right-0 transition-all ${isCheckingOut ? 'md:-right-4' : 'md:-right-12'}`}>
                             <button
                                 onClick={onClose}
                                 className="p-2 text-zinc-500 hover:text-white transition-colors"
@@ -47,7 +50,8 @@ export const PaywallModal: React.FC<PaywallModalProps> = ({ isOpen, onClose, onA
                             isAuthMode={true}
                             onAuth={onAuth}
                             currentUser={currentUser}
-                            className="!shadow-2xl"
+                            onCheckoutStateChange={setIsCheckingOut}
+                            className="!shadow-2xl transition-all duration-500"
                         />
                     </motion.div>
                 </div>

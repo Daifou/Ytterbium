@@ -13,6 +13,7 @@ interface PricingCardProps {
     isCompact?: boolean;
     isAuthMode?: boolean;
     onAuth?: (isLifetime: boolean) => void;
+    onCheckoutStateChange?: (isCheckingOut: boolean) => void;
 }
 
 export const PricingCard: React.FC<PricingCardProps> = ({
@@ -20,7 +21,8 @@ export const PricingCard: React.FC<PricingCardProps> = ({
     currentUser,
     isCompact = false,
     isAuthMode = false,
-    onAuth
+    onAuth,
+    onCheckoutStateChange
 }) => {
     const [selectedPlan, setSelectedPlan] = useState<'monthly' | 'lifetime'>('monthly');
     const [isLoading, setIsLoading] = useState(false);
@@ -65,15 +67,21 @@ export const PricingCard: React.FC<PricingCardProps> = ({
         }
 
         setIsCheckingOut(true);
+        onCheckoutStateChange?.(true);
+    };
+
+    const handleBackFromCheckout = () => {
+        setIsCheckingOut(false);
+        onCheckoutStateChange?.(false);
     };
 
     if (isCheckingOut && currentUser) {
         return (
-            <div className={`relative w-full h-[600px] md:h-[680px] animate-in fade-in zoom-in duration-500 ease-out ${className}`}>
+            <div className={`relative w-full h-[520px] md:h-[580px] animate-in fade-in zoom-in duration-500 ease-out ${className}`}>
                 <div className="relative w-full h-full bg-[#161617] border border-white/5 rounded-[24px] flex flex-col shadow-2xl overflow-hidden">
                     <div className="absolute top-0 right-0 left-0 p-5 z-50 flex justify-end pointer-events-none">
                         <button
-                            onClick={() => setIsCheckingOut(false)}
+                            onClick={handleBackFromCheckout}
                             className="pointer-events-auto text-zinc-500 hover:text-zinc-200 text-[11px] font-medium px-4 py-2 bg-zinc-900/50 rounded-full backdrop-blur-md border border-white/5 transition-all"
                         >
                             Back to options
