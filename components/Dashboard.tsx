@@ -999,6 +999,7 @@ export const Dashboard: React.FC = () => {
                 <PaywallModal
                     isOpen={isPaywallOpen}
                     currentUser={currentUser}
+                    onClose={() => setIsPaywallOpen(false)}
                     onAuth={async (isAnnual) => {
                         localStorage.setItem('pending_plan', isAnnual ? 'annual' : 'monthly');
                         await authService.signInWithGoogle();
