@@ -143,7 +143,7 @@ export const PricingCard: React.FC<PricingCardProps> = ({
                                     <span className="text-[11px] text-zinc-500 font-normal">Pay once, own forever</span>
                                 </div>
                                 <div className="text-right">
-                                    <span className={`block text-[18px] font-semibold ${selectedPlan === 'lifetime' ? 'text-zinc-100' : 'text-zinc-400'}`}>$100</span>
+                                    <span className={`block text-[18px] font-semibold ${selectedPlan === 'lifetime' ? 'text-zinc-100' : 'text-zinc-400'}`}>$30</span>
                                 </div>
                             </button>
                         </div>
@@ -164,14 +164,15 @@ export const PricingCard: React.FC<PricingCardProps> = ({
 
                         <motion.button
                             onClick={handleCheckout}
-                            whileHover={{ scale: 1.01 }}
+                            whileHover={{ scale: 1.01, backgroundColor: '#ffffff' }}
                             whileTap={{ scale: 0.99 }}
-                            className="w-full py-4.5 rounded-2xl bg-zinc-100 text-zinc-950 font-semibold text-[15px] shadow-sm hover:bg-white transition-all mb-5 flex items-center justify-center gap-2"
+                            className="w-full h-[58px] rounded-2xl bg-zinc-100 text-zinc-950 font-bold text-[15px] shadow-[0_1px_2px_rgba(0,0,0,0.1),0_0_0_1px_rgba(255,255,255,0.1)_inset] hover:shadow-[0_8px_20px_-4px_rgba(255,255,255,0.15)] transition-all mb-5 flex items-center justify-center gap-3 relative overflow-hidden group"
                         >
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-shimmer" />
                             {isLoading ? (
                                 <div className="w-5 h-5 border-2 border-zinc-300 border-t-zinc-900 rounded-full animate-spin" />
                             ) : (
-                                <>Continue to {selectedPlan === 'lifetime' ? 'Lifetime' : 'Checkout'}</>
+                                <span className="relative z-10">Continue to {selectedPlan === 'lifetime' ? 'Lifetime' : 'Checkout'}</span>
                             )}
                         </motion.button>
 
@@ -232,20 +233,26 @@ export const PricingCard: React.FC<PricingCardProps> = ({
                                     </div>
                                     <span className="text-zinc-500 text-[11px]">One-time payment</span>
                                 </div>
-                                <span className="text-zinc-100 font-bold text-[22px] tracking-tight">$100</span>
+                                <span className="text-zinc-100 font-bold text-[22px] tracking-tight">$30</span>
                             </button>
                         </div>
 
                         <motion.button
                             onClick={handleCheckout}
-                            whileHover={{ scale: 1.01 }}
+                            whileHover={{ scale: 1.01, backgroundColor: '#ffffff' }}
                             whileTap={{ scale: 0.99 }}
-                            className="w-full py-5 rounded-2xl bg-zinc-100 text-zinc-950 font-semibold text-[16px] tracking-tight hover:bg-white transition-colors shadow-lg"
+                            className="w-full h-[64px] rounded-2xl bg-zinc-100 text-zinc-950 font-bold text-[16px] tracking-tight hover:shadow-[0_20px_40px_-10px_rgba(255,255,255,0.1)] transition-all shadow-[0_1px_2px_rgba(0,0,0,0.1),0_0_0_1px_rgba(255,255,255,0.1)_inset] flex items-center justify-center relative overflow-hidden group"
                         >
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-shimmer" />
                             {isLoading ? (
-                                <div className="w-5 h-5 border-2 border-zinc-300 border-t-zinc-900 rounded-full animate-spin mx-auto" />
+                                <div className="w-5 h-5 border-2 border-zinc-300 border-t-zinc-900 rounded-full animate-spin" />
                             ) : (
-                                <>Get Started with Pro</>
+                                <span className="relative z-10 flex items-center gap-2">
+                                    Get Started with Pro
+                                    <svg className="w-4 h-4 transition-transform group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                                    </svg>
+                                </span>
                             )}
                         </motion.button>
                     </div>
