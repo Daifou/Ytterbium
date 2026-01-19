@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import type { User } from '@supabase/supabase-js';
 import { WhopCheckoutEmbed } from "@whop/checkout/react";
 import { authService } from '../services/authService';
@@ -12,53 +12,50 @@ interface PricingCardProps {
     onAuthRequired?: () => void;
     isCompact?: boolean;
     isAuthMode?: boolean;
-    onAuth?: (isAnnual: boolean) => void;
+    onAuth?: (isLifetime: boolean) => void;
 }
 
 export const PricingCard: React.FC<PricingCardProps> = ({
     className = '',
     currentUser,
-    onAuthRequired,
     isCompact = false,
     isAuthMode = false,
     onAuth
 }) => {
-    const [isAnnual, setIsAnnual] = useState(false);
+    const [selectedPlan, setSelectedPlan] = useState<'monthly' | 'lifetime'>('monthly');
     const [isLoading, setIsLoading] = useState(false);
     const [isCheckingOut, setIsCheckingOut] = useState(() => {
-        // Instant check: if user is logged in and has pending plan, start true
-        if (currentUser && typeof localStorage !== 'undefined') {
+        if (typeof window !== 'undefined' && currentUser) {
             return !!localStorage.getItem('pending_plan');
         }
         return false;
     });
-    const [isHovered, setIsHovered] = useState(false);
+
+    const PLAN_IDS = {
+        monthly: 'plan_8CWnEKzsQpVQh',
+        lifetime: 'plan_HuVT1w8USQWAY'
+    };
 
     useEffect(() => {
-        // Auto-trigger checkout if user just signed up with a pending plan
+        if (typeof window === 'undefined') return;
         const pendingPlan = localStorage.getItem('pending_plan');
         if (currentUser && pendingPlan) {
-            console.log("[PricingCard] Auto-triggering checkout for pending plan:", pendingPlan);
-            setIsAnnual(pendingPlan === 'annual');
+            setSelectedPlan(pendingPlan as any);
             setIsCheckingOut(true);
             localStorage.removeItem('pending_plan');
         }
     }, [currentUser]);
 
     const handleCheckout = async (e: React.MouseEvent) => {
+        e.preventDefault();
         if (isAuthMode && onAuth && !currentUser) {
-            e.preventDefault();
-            onAuth(isAnnual);
+            onAuth(selectedPlan === 'lifetime');
             return;
         }
 
         if (!currentUser) {
-            e.preventDefault();
             setIsLoading(true);
-
-            // Save pending plan for after auth
-            localStorage.setItem('pending_plan', isAnnual ? 'annual' : 'monthly');
-
+            localStorage.setItem('pending_plan', selectedPlan);
             const { error } = await authService.signInWithGoogle();
             if (error) {
                 console.error("Auth failed", error);
@@ -67,31 +64,25 @@ export const PricingCard: React.FC<PricingCardProps> = ({
             return;
         }
 
-        // For compact mode (paywall) or logged in users, show embedded checkout
-        e.preventDefault();
         setIsCheckingOut(true);
     };
 
     if (isCheckingOut && currentUser) {
         return (
-            <div className={`relative w-full h-[600px] md:h-[700px] animate-in fade-in zoom-in duration-500 ease-out ${className}`}>
-                <div className="relative w-full h-full bg-[#0a0a0b] border border-zinc-700 rounded-3xl flex flex-col shadow-2xl overflow-hidden">
-
-                    {/* Header Control */}
-                    <div className="absolute top-0 right-0 left-0 p-4 z-50 flex justify-end pointer-events-none">
+            <div className={`relative w-full h-[600px] md:h-[680px] animate-in fade-in zoom-in duration-500 ease-out ${className}`}>
+                <div className="relative w-full h-full bg-[#161617] border border-white/5 rounded-[24px] flex flex-col shadow-2xl overflow-hidden">
+                    <div className="absolute top-0 right-0 left-0 p-5 z-50 flex justify-end pointer-events-none">
                         <button
                             onClick={() => setIsCheckingOut(false)}
-                            className="pointer-events-auto text-zinc-500 hover:text-white text-xs px-3 py-1.5 bg-zinc-900/80 rounded-full backdrop-blur-sm border border-white/10 transition-colors"
+                            className="pointer-events-auto text-zinc-500 hover:text-zinc-200 text-[11px] font-medium px-4 py-2 bg-zinc-900/50 rounded-full backdrop-blur-md border border-white/5 transition-all"
                         >
-                            Cancel
+                            Back to options
                         </button>
                     </div>
-
-                    {/* Whop Checkout Embed - Scrollable Wrapper */}
-                    <div className="flex-1 overflow-y-auto pt-10 pb-4 scrollbar-hide">
+                    <div className="flex-1 overflow-y-auto pt-14 pb-4 scrollbar-hide">
                         <div className="px-4">
                             <WhopCheckoutEmbed
-                                planId="plan_e5QKHjthJdH40"
+                                planId={PLAN_IDS[selectedPlan]}
                                 returnUrl={window.location.origin + '/dashboard?checkout=success'}
                                 email={currentUser?.email || undefined}
                             />
@@ -102,112 +93,93 @@ export const PricingCard: React.FC<PricingCardProps> = ({
         );
     }
 
-    const currentPrice = isAnnual ? '50' : '5';
-    // Removed "per" to be cleaner
-    const period = isAnnual ? '/year' : '/mo';
-
-    // Compact mode for paywall - completely redesigned with Zinc aesthetic
     if (isCompact) {
         return (
             <motion.div
-                initial={{ opacity: 0, scale: 0.98 }}
-                animate={{ opacity: 1, scale: 1 }}
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
                 className={`w-full max-w-[380px] mx-auto ${className}`}
             >
-                <div className="relative rounded-[32px] bg-[#121214] border border-zinc-800/50 shadow-2xl overflow-hidden">
-                    {/* Top Accent */}
-                    <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-zinc-700 to-transparent" />
-
-                    <div className="p-8 pb-10 flex flex-col items-center">
-                        {/* Centered Logo */}
-                        <div className="mb-6">
-                            <div className="w-12 h-12 rounded-2xl bg-zinc-900 border border-zinc-800 flex items-center justify-center shadow-inner">
-                                <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                                </svg>
-                            </div>
-                        </div>
-
-                        {/* Title & Description */}
-                        <div className="text-center space-y-2 mb-8">
-                            <h2 className="text-2xl font-bold text-white tracking-tight">Upgrade to Pro</h2>
-                            <p className="text-sm text-zinc-500 max-w-[240px] leading-relaxed">
-                                Join 1,200+ top performers optimizing their focus daily.
+                <div className="relative rounded-[32px] bg-[#161617] border border-white/5 shadow-2xl overflow-hidden">
+                    <div className="p-8 pb-10 flex flex-col">
+                        <div className="mb-10 text-center">
+                            <h2 className="text-[24px] font-semibold text-zinc-100 tracking-tight mb-2">Pro Access</h2>
+                            <p className="text-[14px] text-zinc-500 leading-relaxed font-normal">
+                                Professional cognitive optimization.
                             </p>
                         </div>
 
-                        {/* Features List - Compact & Cute */}
-                        <div className="w-full space-y-3.5 mb-8">
-                            {[
-                                "Zero Eye Strain & Fatigue",
-                                "No Slouching / Gamer Posture",
-                                "Laser-Sharp Productivity",
-                                "Unlimited Access Forever"
-                            ].map((feature, i) => (
-                                <div key={i} className="flex items-center gap-3 group">
-                                    <div className="flex-shrink-0 w-5 h-5 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center">
-                                        <svg className="w-2.5 h-2.5 text-zinc-400 group-hover:text-white transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                                            <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                                        </svg>
+                        <div className="space-y-3 mb-10">
+                            <button
+                                onClick={() => setSelectedPlan('monthly')}
+                                className={`w-full text-left p-5 rounded-2xl border transition-all duration-300 flex items-center justify-between ${selectedPlan === 'monthly'
+                                    ? 'bg-zinc-800/40 border-zinc-700/50 ring-1 ring-white/5 shadow-inner'
+                                    : 'bg-transparent border-white/5 hover:bg-white/[0.02]'
+                                    }`}
+                            >
+                                <div>
+                                    <span className={`block text-[14px] font-medium ${selectedPlan === 'monthly' ? 'text-zinc-100' : 'text-zinc-400'}`}>Monthly access</span>
+                                    <span className="text-[11px] text-zinc-500 font-normal">Renewal every 30 days</span>
+                                </div>
+                                <div className="text-right">
+                                    <span className={`block text-[18px] font-semibold ${selectedPlan === 'monthly' ? 'text-zinc-100' : 'text-zinc-400'}`}>$5</span>
+                                    <span className="text-[11px] text-zinc-500 font-normal">per month</span>
+                                </div>
+                            </button>
+
+                            <button
+                                onClick={() => setSelectedPlan('lifetime')}
+                                className={`w-full text-left p-5 rounded-2xl border transition-all duration-300 flex items-center justify-between ${selectedPlan === 'lifetime'
+                                    ? 'bg-zinc-800/40 border-zinc-700/50 ring-1 ring-white/5 shadow-inner'
+                                    : 'bg-transparent border-white/5 hover:bg-white/[0.02]'
+                                    }`}
+                            >
+                                <div>
+                                    <div className="flex items-center gap-2 mb-0.5">
+                                        <span className={`text-[14px] font-medium ${selectedPlan === 'lifetime' ? 'text-zinc-100' : 'text-zinc-400'}`}>Lifetime access</span>
+                                        <span className="text-[9px] font-bold text-zinc-950 bg-zinc-200 px-1.5 py-0.5 rounded-sm uppercase tracking-wider">Better Value</span>
                                     </div>
-                                    <span className="text-[13px] text-zinc-400 font-medium group-hover:text-zinc-200 transition-colors">{feature}</span>
+                                    <span className="text-[11px] text-zinc-500 font-normal">Pay once, own forever</span>
+                                </div>
+                                <div className="text-right">
+                                    <span className={`block text-[18px] font-semibold ${selectedPlan === 'lifetime' ? 'text-zinc-100' : 'text-zinc-400'}`}>$100</span>
+                                </div>
+                            </button>
+                        </div>
+
+                        <div className="space-y-4 mb-10 px-1">
+                            {[
+                                "Full access to focus environment",
+                                "Zero Eye Strain & Fatigue metrics",
+                                "Unlimited session history",
+                                "Continuous neural optimization"
+                            ].map((f, i) => (
+                                <div key={i} className="flex items-center gap-4">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-zinc-700" />
+                                    <span className="text-[13px] text-zinc-400 font-medium tracking-tight leading-none">{f}</span>
                                 </div>
                             ))}
                         </div>
 
-                        {/* Pricing & Toggle */}
-                        <div className="w-full bg-zinc-900/50 border border-zinc-800/50 rounded-2xl p-4 mb-8">
-                            <div className="flex items-center justify-between">
-                                <div className="flex flex-col">
-                                    <span className="text-2xl font-bold text-white">${currentPrice}</span>
-                                    <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">{isAnnual ? 'Billed annually' : 'Billed monthly'}</span>
-                                </div>
-
-                                <div className="flex items-center gap-3">
-                                    <span className={`text-[11px] font-semibold tracking-tight transition-colors ${isAnnual ? 'text-white' : 'text-zinc-500'}`}>
-                                        Annual
-                                    </span>
-                                    <button
-                                        onClick={() => setIsAnnual(!isAnnual)}
-                                        className={`relative w-10 h-6 flex items-center rounded-full p-1 transition-all duration-300 ${isAnnual ? 'bg-zinc-100' : 'bg-zinc-800 border border-zinc-700'}`}
-                                    >
-                                        <motion.div
-                                            animate={{ x: isAnnual ? 16 : 0 }}
-                                            transition={{ type: "spring", stiffness: 600, damping: 30 }}
-                                            className={`w-4 h-4 rounded-full shadow-sm ${isAnnual ? 'bg-black' : 'bg-zinc-400'}`}
-                                        />
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Google Social Button - White Primary (Inspired by FLORA) */}
                         <motion.button
                             onClick={handleCheckout}
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
-                            className="w-full py-4 rounded-2xl bg-white text-black font-bold text-sm flex items-center justify-center gap-3 shadow-[0_10px_20px_-5px_rgba(255,255,255,0.1)] transition-all"
+                            whileHover={{ scale: 1.01 }}
+                            whileTap={{ scale: 0.99 }}
+                            className="w-full py-4.5 rounded-2xl bg-zinc-100 text-zinc-950 font-semibold text-[15px] shadow-sm hover:bg-white transition-all mb-5 flex items-center justify-center gap-2"
                         >
                             {isLoading ? (
                                 <div className="w-5 h-5 border-2 border-zinc-300 border-t-zinc-900 rounded-full animate-spin" />
                             ) : (
-                                <>
-                                    <svg className="w-5 h-5" viewBox="0 0 24 24">
-                                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-                                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
-                                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
-                                    </svg>
-                                    {currentUser ? "Continue to Checkout" : "Continue with Google"}
-                                </>
+                                <>Continue to {selectedPlan === 'lifetime' ? 'Lifetime' : 'Checkout'}</>
                             )}
                         </motion.button>
 
-                        <p className="mt-6 text-[10px] text-zinc-600 font-medium tracking-wide flex items-center gap-1.5">
-                            <span className="w-1 h-1 rounded-full bg-zinc-700" />
-                            Secure billing via Whop
-                            <span className="w-1 h-1 rounded-full bg-zinc-700" />
-                        </p>
+                        <div className="text-center opacity-40 hover:opacity-100 transition-opacity">
+                            <p className="text-[11px] text-zinc-500 font-medium tracking-tight">
+                                Secured by Whop • Professional billing system
+                            </p>
+                        </div>
                     </div>
                 </div>
             </motion.div>
@@ -216,153 +188,107 @@ export const PricingCard: React.FC<PricingCardProps> = ({
 
     return (
         <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            className={`w-full ${isCompact ? 'max-w-md' : 'max-w-5xl'} mx-auto ${className}`}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
+            initial={{ opacity: 0, scale: 0.995 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+            className={`w-full max-w-5xl mx-auto ${className}`}
         >
-            {/* Main Container: Effortless, Minimal, "Void" Black */}
-            <div className={`relative group rounded-[32px] bg-[#050505] border border-white/10 shadow-[0_40px_80px_-20px_rgba(0,0,0,0.5)] overflow-hidden grid ${isCompact ? 'grid-cols-1' : 'md:grid-cols-2'} gap-0 ${!isCompact && 'md:divide-x'} divide-white/5 transition-all duration-700 hover:border-white/20`}>
+            <div className={`relative group rounded-[32px] bg-[#161617] border border-white/5 shadow-[0_40px_80px_-20px_rgba(0,0,0,0.5)] overflow-hidden grid md:grid-cols-2 gap-0 divide-x divide-white/5 transition-all duration-700 hover:border-white/10`}>
 
-                {/* Decoration: Subtle warm glow, no "orbital sci-fi" */}
-                <div className="absolute inset-0 bg-gradient-to-tr from-indigo-500/[0.03] to-orange-500/[0.02] pointer-events-none" />
+                <div className="absolute inset-0 bg-gradient-to-tr from-indigo-500/[0.015] to-orange-500/[0.01] pointer-events-none" />
 
-                {/* LEFT PANEL: The "Confident Offer" */}
-                <div className={`relative p-8 md:p-14 flex flex-col h-full justify-between ${isCompact ? 'min-h-[420px] items-center text-center' : 'min-h-[500px]'}`}>
-
-                    {/* Header: Clean hierarchy */}
+                {/* Left Panel */}
+                <div className="relative p-10 md:p-14 flex flex-col h-full justify-between min-h-[550px]">
                     <div>
-                        <div className={`flex items-center gap-3 mb-8 ${isCompact ? 'justify-center' : ''}`}>
-                            <span className="text-zinc-400 text-[11px] font-semibold tracking-[0.2em] uppercase">Membership</span>
+                        <div className="flex items-center gap-3 mb-10">
+                            <span className="text-zinc-500 text-[11px] font-semibold tracking-[0.2em] uppercase">Professional Access</span>
                         </div>
-                        <h3 className="text-4xl md:text-5xl font-semibold text-white tracking-tighter mb-4">Pro Access</h3>
-                        <p className="text-zinc-500 text-[15px] leading-relaxed max-w-[300px] font-normal">
-                            The cost of a coffee for a month of peak performance.
+                        <h3 className="text-5xl font-semibold text-zinc-100 tracking-tighter mb-6">Pro Environment</h3>
+                        <p className="text-zinc-500 text-[16px] leading-relaxed max-w-[340px] font-normal">
+                            Professional cognitive optimization, powered by AI. <br />Join 1,200+ high-performers.
                         </p>
                     </div>
 
-                    <div className="mt-12 md:mt-0 w-full">
-                        {/* Price: Huge, undeniable confidence */}
-                        <div className={`flex items-baseline gap-1 mb-8 ${isCompact ? 'justify-center' : ''}`}>
-                            <span className="text-7xl font-semibold text-white tracking-tighter">${currentPrice}</span>
-                            <span className="text-zinc-500 text-xl tracking-tight">{period}</span>
-                        </div>
-
-                        {/* Toggle: Tactile, clean, "obvious" */}
-                        <div className={`flex items-center gap-4 mb-10 ${isCompact ? 'justify-center' : ''}`}>
+                    <div className="w-full">
+                        <div className="flex flex-col gap-3 mb-8">
                             <button
-                                onClick={() => setIsAnnual(!isAnnual)}
-                                className={`group relative w-12 h-7 flex items-center rounded-full p-1 transition-all duration-300 ${isAnnual ? 'bg-zinc-800' : 'bg-zinc-900 border border-zinc-800'}`}
+                                onClick={() => setSelectedPlan('monthly')}
+                                className={`flex items-center justify-between p-5 rounded-2xl border transition-all duration-300 ${selectedPlan === 'monthly' ? 'bg-zinc-800/40 border-zinc-700 shadow-inner' : 'border-white/5 hover:bg-white/[0.02]'}`}
                             >
-                                <motion.div
-                                    animate={{ x: isAnnual ? 20 : 0 }}
-                                    transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                                    className="w-5 h-5 bg-white rounded-full shadow-sm group-hover:scale-90 transition-transform"
-                                />
+                                <div className="flex flex-col items-start">
+                                    <span className="text-zinc-100 font-medium text-[15px]">Monthly access</span>
+                                    <span className="text-zinc-500 text-[11px]">Renewal every 30 days</span>
+                                </div>
+                                <span className="text-zinc-100 font-bold text-[22px] tracking-tight">$5</span>
                             </button>
-                            <span className={`text-sm font-medium transition-colors duration-300 ${isAnnual ? 'text-white' : 'text-zinc-500'}`}>
-                                Billed Annually
-                            </span>
-                            {isAnnual && (
-                                <span className="text-[10px] font-bold text-orange-900 bg-orange-100/90 px-2.5 py-0.5 rounded-full uppercase tracking-wide">
-                                    Save 15%
-                                </span>
-                            )}
+                            <button
+                                onClick={() => setSelectedPlan('lifetime')}
+                                className={`flex items-center justify-between p-5 rounded-2xl border transition-all duration-300 ${selectedPlan === 'lifetime' ? 'bg-zinc-800/40 border-zinc-700 shadow-inner' : 'border-white/5 hover:bg-white/[0.02]'}`}
+                            >
+                                <div className="flex flex-col items-start">
+                                    <div className="flex items-center gap-2 mb-0.5">
+                                        <span className="text-zinc-100 font-medium text-[15px]">Lifetime access</span>
+                                        <span className="text-[9px] font-bold text-zinc-950 bg-zinc-200 px-1.5 py-0.5 rounded-sm uppercase tracking-wider">Better Value</span>
+                                    </div>
+                                    <span className="text-zinc-500 text-[11px]">One-time payment</span>
+                                </div>
+                                <span className="text-zinc-100 font-bold text-[22px] tracking-tight">$100</span>
+                            </button>
                         </div>
 
-                        {/* Action Button: Warm, high-contrast, simple */}
                         <motion.button
                             onClick={handleCheckout}
                             whileHover={{ scale: 1.01 }}
                             whileTap={{ scale: 0.99 }}
-                            className="w-full py-4 rounded-xl bg-white text-black font-semibold text-[15px] tracking-tight hover:bg-zinc-100 transition-colors shadow-xl shadow-white/5 flex items-center justify-center gap-2 group"
+                            className="w-full py-5 rounded-2xl bg-zinc-100 text-zinc-950 font-semibold text-[16px] tracking-tight hover:bg-white transition-colors shadow-lg"
                         >
                             {isLoading ? (
-                                <div className="w-4 h-4 border-2 border-zinc-400 border-t-zinc-900 rounded-full animate-spin" />
-                            ) : isAuthMode ? (
-                                <>
-                                    <svg className="w-4 h-4" viewBox="0 0 24 24">
-                                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-                                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
-                                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
-                                    </svg>
-                                    Continue with Google
-                                </>
+                                <div className="w-5 h-5 border-2 border-zinc-300 border-t-zinc-900 rounded-full animate-spin mx-auto" />
                             ) : (
-                                <>
-                                    Upgrade Now
-                                    <svg className="w-4 h-4 text-zinc-400 group-hover:translate-x-0.5 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                                    </svg>
-                                </>
+                                <>Get Started with Pro</>
                             )}
                         </motion.button>
-                        <p className="mt-5 text-center text-[10px] text-zinc-600 font-medium tracking-wide">
-                            Secure billing via Whop
-                        </p>
                     </div>
                 </div>
 
-                {/* RIGHT PANEL: The "Value" - Warm, Clean, Human - Only show if not compact */}
-                {!isCompact && (
-                    <div className="relative p-10 md:p-14 bg-zinc-900/10 flex flex-col justify-center">
-                        <div className="space-y-8">
-                            {[
-                                { title: "Zero Eye Strain", desc: "End your day without dryness, blur, or fatigue." },
-                                { title: "No Gamer Posture", desc: "Sit long without slouching or pain." },
-                                { title: "Cortisol Under Control", desc: "Work hard without wrecking your hormones." },
-                                { title: "Real Rest", desc: "Guided breaks that truly refresh your mind and body." },
-                                { title: "Avoid the \"Worked All Day, Did Nothing\" Feeling", desc: "" },
-                                { title: "Laser-Sharp Productivity", desc: "Focus when it matters; stop when it doesn't." },
-                                { title: "Sleep Like You Used To", desc: "Fall asleep fast, wake up restored." },
-                                { title: "Prevent Mental Fog", desc: "Get alerted before focus drops." },
-                            ].map((item, i) => (
-                                <div
-                                    key={i}
-                                    className="group flex gap-5 items-start"
-                                >
-                                    {/* Icon: Minimal, "quiet" circle */}
-                                    <div className="mt-0.5 w-6 h-6 rounded-full border border-zinc-800 flex items-center justify-center bg-zinc-900/50 text-zinc-400 group-hover:text-white group-hover:border-zinc-600 transition-all duration-500">
-                                        <svg className="w-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                                            <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                                        </svg>
-                                    </div>
-                                    <div>
-                                        <h4 className="text-white text-[15px] font-medium leading-none mb-2 transition-colors group-hover:text-white/90">{item.title}</h4>
-                                        <p className="text-zinc-500 text-[13px] leading-relaxed max-w-[280px] group-hover:text-zinc-400 transition-colors">{item.desc}</p>
-                                    </div>
-                                </div>
-                            ))}
-
-                            {/* Last item standalone for emphasis */}
-                            <div className="flex gap-5 items-center pt-2">
-                                <div className="w-6 h-6 rounded-full bg-white flex items-center justify-center shadow-lg shadow-white/10">
-                                    <svg className="w-3 h-3 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                {/* Right Panel */}
+                <div className="relative p-10 md:p-14 bg-zinc-900/5 flex flex-col justify-center">
+                    <div className="space-y-10">
+                        {[
+                            { title: "Zero Eye Strain", desc: "No more dryness, blurs, or end-of-day fatigue." },
+                            { title: "Gamer Posture Correction", desc: "AI-driven real-time posture optimization." },
+                            { title: "Cortisol Management", desc: "Protect your biological health while you work." },
+                            { title: "Deep Restoration", desc: "Guided cognitive breaks that actually refuel." }
+                        ].map((item, i) => (
+                            <div key={i} className="group flex gap-6 items-start">
+                                <div className="mt-1 w-5 h-5 rounded-full border border-zinc-800 flex items-center justify-center bg-zinc-900/50 text-zinc-600 transition-colors group-hover:text-zinc-200 group-hover:border-zinc-700">
+                                    <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                                     </svg>
                                 </div>
-                                <span className="text-white text-[15px] font-medium">Unlimited Access Forever</span>
+                                <div>
+                                    <h4 className="text-zinc-100 text-[15px] font-semibold leading-none mb-2.5">{item.title}</h4>
+                                    <p className="text-zinc-500 text-[14px] leading-relaxed max-w-[300px] font-normal">{item.desc}</p>
+                                </div>
                             </div>
-                        </div>
+                        ))}
+                    </div>
 
-                        <div className="mt-12 pt-10 border-t border-white/5 opacity-80">
-                            <div className="flex items-center gap-4">
-                                <div className="flex -space-x-3">
-                                    {[...Array(3)].map((_, i) => (
-                                        <div key={i} className="w-8 h-8 rounded-full bg-zinc-800 border-2 border-[#09090b]" /> // Fakes avatars
-                                    ))}
-                                </div>
-                                <div className="flex flex-col">
-                                    <span className="text-white text-xs font-semibold">Join 1,200+ Performers</span>
-                                    <span className="text-zinc-600 text-[10px]">Optimizing daily</span>
-                                </div>
-                            </div>
+                    <div className="mt-14 pt-10 border-t border-white/5 flex items-center gap-4">
+                        <div className="flex -space-x-3">
+                            {[1, 2, 3].map((i) => (
+                                <div key={i} className="w-9 h-9 rounded-full bg-zinc-800 border-2 border-[#161617]" />
+                            ))}
+                        </div>
+                        <div className="flex flex-col">
+                            <span className="text-zinc-300 text-[12px] font-semibold">Join 1,200+ Performers</span>
+                            <span className="text-zinc-600 text-[11px] font-normal">Optimizing cognitive capital</span>
                         </div>
                     </div>
-                )}
+                </div>
+            </div>
+            <div className="mt-8 text-center opacity-30 hover:opacity-100 transition-opacity">
+                <p className="text-[11px] text-zinc-500 tracking-tight">Professional environment for professionals • Secure via Whop</p>
             </div>
         </motion.div>
     );
