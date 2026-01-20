@@ -102,185 +102,100 @@ export const PricingCard: React.FC<PricingCardProps> = ({
     }
 
     if (isCompact) {
-        // Calculate trial dates
-        const today = new Date();
-        const reminderDate = new Date(today);
-        reminderDate.setDate(today.getDate() + 5);
-        const trialEndDate = new Date(today);
-        trialEndDate.setDate(today.getDate() + 7);
-
-        const formatDate = (date: Date) => {
-            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-        };
-
         return (
             <motion.div
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-                className={`w-full max-w-[800px] mx-auto ${className}`}
+                className={`w-full max-w-[420px] mx-auto ${className}`}
             >
                 <div className="relative rounded-3xl bg-white/[0.02] border border-white/[0.08] shadow-2xl overflow-hidden backdrop-blur-xl">
-                    <div className="grid md:grid-cols-[280px_1fr] gap-0">
-                        {/* Left: Timeline */}
-                        <div className="p-8 border-r border-white/[0.08] bg-white/[0.01]">
-                            <div className="mb-8">
-                                <h2 className="text-[19px] font-semibold text-white tracking-tight mb-2">
-                                    Try Ytterbium Free
-                                </h2>
-                                <p className="text-[13px] text-zinc-400">
-                                    Free 7-day trial • Cancel anytime
-                                </p>
-                            </div>
-
-                            {/* Timeline */}
-                            <div className="space-y-6 relative">
-                                {/* Connecting line */}
-                                <div className="absolute left-[11px] top-8 bottom-8 w-[2px] bg-white/10" />
-
-                                {/* Step 1 */}
-                                <div className="relative flex gap-4">
-                                    <div className="w-6 h-6 rounded-full bg-white/10 border-2 border-white/30 flex items-center justify-center flex-shrink-0 z-10">
-                                        <div className="w-2 h-2 rounded-full bg-white" />
-                                    </div>
-                                    <div>
-                                        <div className="text-[13px] font-semibold text-white mb-1">Today: Choose plan</div>
-                                        <div className="text-[11px] text-zinc-500">Monthly or lifetime</div>
-                                    </div>
-                                </div>
-
-                                {/* Step 2 */}
-                                <div className="relative flex gap-4">
-                                    <div className="w-6 h-6 rounded-full bg-white/10 border-2 border-white/20 flex items-center justify-center flex-shrink-0 z-10">
-                                        <div className="text-[10px] font-bold text-white">2</div>
-                                    </div>
-                                    <div>
-                                        <div className="text-[13px] font-semibold text-zinc-300 mb-1">Payment info</div>
-                                        <div className="text-[11px] text-zinc-500">$0 now • Charged {formatDate(trialEndDate)}</div>
-                                    </div>
-                                </div>
-
-                                {/* Step 3 */}
-                                <div className="relative flex gap-4">
-                                    <div className="w-6 h-6 rounded-full bg-white/10 border-2 border-white/20 flex items-center justify-center flex-shrink-0 z-10">
-                                        <div className="text-[10px] font-bold text-white">3</div>
-                                    </div>
-                                    <div>
-                                        <div className="text-[13px] font-semibold text-zinc-300 mb-1">{formatDate(reminderDate)}: Reminder</div>
-                                        <div className="text-[11px] text-zinc-500">2 days before trial ends</div>
-                                    </div>
-                                </div>
-
-                                {/* Step 4 */}
-                                <div className="relative flex gap-4">
-                                    <div className="w-6 h-6 rounded-full bg-white/10 border-2 border-white/20 flex items-center justify-center flex-shrink-0 z-10">
-                                        <div className="text-[10px] font-bold text-white">4</div>
-                                    </div>
-                                    <div>
-                                        <div className="text-[13px] font-semibold text-zinc-300 mb-1">{formatDate(trialEndDate)}: Starts</div>
-                                        <div className="text-[11px] text-zinc-500">Card charged</div>
-                                    </div>
-                                </div>
-                            </div>
+                    <div className="relative p-10 flex flex-col">
+                        {/* Header */}
+                        <div className="mb-8 text-center">
+                            <h2 className="text-[26px] font-semibold text-white tracking-tight mb-2">Unlock Full Access</h2>
+                            <p className="text-[14px] text-zinc-400 leading-relaxed">
+                                Start optimizing your cognitive performance
+                            </p>
                         </div>
 
-                        {/* Right: Plans */}
-                        <div className="p-8">
-                            {/* Plan Selection */}
-                            <div className="space-y-3 mb-6">
-                                <button
-                                    onClick={() => setSelectedPlan('monthly')}
-                                    className={`w-full text-left p-4 rounded-2xl border transition-all duration-300 flex items-center justify-between group ${selectedPlan === 'monthly'
-                                            ? 'bg-white/[0.06] border-white/20 shadow-lg'
-                                            : 'bg-white/[0.02] border-white/[0.08] hover:bg-white/[0.04] hover:border-white/[0.12]'
-                                        }`}
-                                >
-                                    <div className="flex items-center gap-3">
-                                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${selectedPlan === 'monthly' ? 'border-white bg-white' : 'border-zinc-600'
-                                            }`}>
-                                            {selectedPlan === 'monthly' && (
-                                                <div className="w-2.5 h-2.5 rounded-full bg-zinc-950" />
-                                            )}
-                                        </div>
-                                        <div>
-                                            <span className={`block text-[14px] font-medium ${selectedPlan === 'monthly' ? 'text-white' : 'text-zinc-300 group-hover:text-white'}`}>
-                                                Monthly
-                                            </span>
-                                            <span className="text-[11px] text-zinc-500">$5/mo after trial</span>
-                                        </div>
-                                    </div>
-                                    <span className={`text-[20px] font-semibold tracking-tight ${selectedPlan === 'monthly' ? 'text-white' : 'text-zinc-400'}`}>
-                                        $5
-                                    </span>
-                                </button>
-
-                                <button
-                                    onClick={() => setSelectedPlan('lifetime')}
-                                    className={`w-full text-left p-4 rounded-2xl border transition-all duration-300 flex items-center justify-between group relative ${selectedPlan === 'lifetime'
-                                            ? 'bg-white/[0.06] border-white/20 shadow-lg'
-                                            : 'bg-white/[0.02] border-white/[0.08] hover:bg-white/[0.04] hover:border-white/[0.12]'
-                                        }`}
-                                >
-                                    <div className="absolute -top-2 -right-2 px-2.5 py-0.5 bg-white text-zinc-950 rounded-full text-[9px] font-bold uppercase tracking-wide shadow-lg">
-                                        Best Value
-                                    </div>
-                                    <div className="flex items-center gap-3">
-                                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${selectedPlan === 'lifetime' ? 'border-white bg-white' : 'border-zinc-600'
-                                            }`}>
-                                            {selectedPlan === 'lifetime' && (
-                                                <div className="w-2.5 h-2.5 rounded-full bg-zinc-950" />
-                                            )}
-                                        </div>
-                                        <div>
-                                            <span className={`block text-[14px] font-medium ${selectedPlan === 'lifetime' ? 'text-white' : 'text-zinc-300 group-hover:text-white'}`}>
-                                                Lifetime
-                                            </span>
-                                            <span className="text-[11px] text-zinc-500">One-time after trial</span>
-                                        </div>
-                                    </div>
-                                    <span className={`text-[20px] font-semibold tracking-tight ${selectedPlan === 'lifetime' ? 'text-white' : 'text-zinc-400'}`}>
-                                        $30
-                                    </span>
-                                </button>
-                            </div>
-
-                            {/* Features */}
-                            <div className="mb-6 space-y-2.5 px-1">
-                                {[
-                                    "Full focus environment",
-                                    "Eye strain tracking",
-                                    "Unlimited session history",
-                                    "AI posture optimization",
-                                    "Cortisol management"
-                                ].map((f, i) => (
-                                    <div key={i} className="flex items-center gap-2.5">
-                                        <svg className="w-3.5 h-3.5 text-zinc-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                                        </svg>
-                                        <span className="text-[12px] text-zinc-400 font-normal">{f}</span>
-                                    </div>
-                                ))}
-                            </div>
-
-                            {/* CTA */}
-                            <motion.button
-                                onClick={handleCheckout}
-                                whileHover={{ scale: 1.01 }}
-                                whileTap={{ scale: 0.99 }}
-                                className="w-full h-[50px] rounded-2xl bg-white text-zinc-950 font-semibold text-[14px] shadow-[0_1px_3px_rgba(0,0,0,0.2)] hover:shadow-[0_8px_30px_rgba(255,255,255,0.12)] transition-all mb-4 flex items-center justify-center relative overflow-hidden group"
+                        {/* Plan Selection */}
+                        <div className="space-y-3 mb-8">
+                            <button
+                                onClick={() => setSelectedPlan('monthly')}
+                                className={`w-full text-left p-5 rounded-2xl border transition-all duration-300 flex items-center justify-between group ${selectedPlan === 'monthly'
+                                        ? 'bg-white/[0.06] border-white/20 shadow-lg'
+                                        : 'bg-white/[0.02] border-white/[0.08] hover:bg-white/[0.04] hover:border-white/[0.12]'
+                                    }`}
                             >
-                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
-                                {isLoading ? (
-                                    <div className="w-4 h-4 border-2 border-zinc-300 border-t-zinc-950 rounded-full animate-spin" />
-                                ) : (
-                                    <span className="relative z-10">Start Free Trial</span>
-                                )}
-                            </motion.button>
+                                <div>
+                                    <span className={`block text-[15px] font-medium mb-1 ${selectedPlan === 'monthly' ? 'text-white' : 'text-zinc-300 group-hover:text-white'}`}>
+                                        Monthly
+                                    </span>
+                                    <span className="text-[12px] text-zinc-500">Billed monthly</span>
+                                </div>
+                                <span className={`text-[24px] font-semibold tracking-tight ${selectedPlan === 'monthly' ? 'text-white' : 'text-zinc-300 group-hover:text-white'}`}>
+                                    $5
+                                </span>
+                            </button>
 
-                            {/* Trust Badge */}
-                            <div className="text-center">
-                                <p className="text-[10px] text-zinc-500">7 days free • Then ${selectedPlan === 'monthly' ? '5/mo' : '30 once'}</p>
-                            </div>
+                            <button
+                                onClick={() => setSelectedPlan('lifetime')}
+                                className={`w-full text-left p-5 rounded-2xl border transition-all duration-300 flex items-center justify-between group relative ${selectedPlan === 'lifetime'
+                                        ? 'bg-white/[0.06] border-white/20 shadow-lg'
+                                        : 'bg-white/[0.02] border-white/[0.08] hover:bg-white/[0.04] hover:border-white/[0.12]'
+                                    }`}
+                            >
+                                <div className="absolute -top-2.5 -right-2.5 px-3 py-1 bg-white text-zinc-950 rounded-full text-[10px] font-bold uppercase tracking-wide shadow-lg">
+                                    Best Value
+                                </div>
+                                <div>
+                                    <span className={`block text-[15px] font-medium mb-1 ${selectedPlan === 'lifetime' ? 'text-white' : 'text-zinc-300 group-hover:text-white'}`}>
+                                        Lifetime
+                                    </span>
+                                    <span className="text-[12px] text-zinc-500">One-time payment</span>
+                                </div>
+                                <span className={`text-[24px] font-semibold tracking-tight ${selectedPlan === 'lifetime' ? 'text-white' : 'text-zinc-300 group-hover:text-white'}`}>
+                                    $30
+                                </span>
+                            </button>
+                        </div>
+
+                        {/* Features */}
+                        <div className="mb-8 space-y-3">
+                            {[
+                                "Full access to focus environment",
+                                "Zero Eye Strain & Fatigue metrics",
+                                "Unlimited session history",
+                                "Continuous neural optimization"
+                            ].map((f, i) => (
+                                <div key={i} className="flex items-center gap-3">
+                                    <svg className="w-4 h-4 text-zinc-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                    </svg>
+                                    <span className="text-[13px] text-zinc-300 font-normal">{f}</span>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* CTA */}
+                        <motion.button
+                            onClick={handleCheckout}
+                            whileHover={{ scale: 1.01 }}
+                            whileTap={{ scale: 0.99 }}
+                            className="w-full h-[54px] rounded-2xl bg-white text-zinc-950 font-semibold text-[15px] shadow-[0_1px_3px_rgba(0,0,0,0.2)] hover:shadow-[0_8px_30px_rgba(255,255,255,0.12)] transition-all mb-6 flex items-center justify-center relative overflow-hidden group"
+                        >
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+                            {isLoading ? (
+                                <div className="w-5 h-5 border-2 border-zinc-300 border-t-zinc-950 rounded-full animate-spin" />
+                            ) : (
+                                <span className="relative z-10">Get Started</span>
+                            )}
+                        </motion.button>
+
+                        {/* Trust Badge */}
+                        <div className="text-center">
+                            <p className="text-[11px] text-zinc-500">Secure checkout • Cancel anytime</p>
                         </div>
                     </div>
                 </div>
@@ -367,7 +282,7 @@ export const PricingCard: React.FC<PricingCardProps> = ({
                     ].map((item, i) => (
                         <div key={i} className="flex items-start gap-4 group">
                             <div className="mt-0.5 w-5 h-5 rounded-full bg-white/10 border border-white/20 flex items-center justify-center flex-shrink-0 group-hover:bg-white/20 transition-colors">
-                                <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth{3}>
+                                <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                                 </svg>
                             </div>
