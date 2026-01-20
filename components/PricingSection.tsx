@@ -60,19 +60,22 @@ export const PricingSection: React.FC<PricingSectionProps> = ({ currentUser, onA
                                 quote: "My deep work blocks doubled. Pays for itself in one morning.",
                                 author: "Alex D.",
                                 role: "Senior Engineer",
-                                avatar: "/pixel_avatar_1_1768936646830.png"
+                                initials: "AD",
+                                color: "bg-[#71717a]" // Zinc-500 neutral
                             },
                             {
                                 quote: "Stops me before I crash. Saves my entire afternoon.",
                                 author: "Sarah K.",
                                 role: "Product Designer",
-                                avatar: "/pixel_avatar_2_1768936665326.png"
+                                initials: "SK",
+                                color: "bg-[#a1a1aa]" // Zinc-400 lighter
                             },
                             {
                                 quote: "Clean UI keeps me in flow. Simple and effective.",
                                 author: "James M.",
                                 role: "Writer",
-                                avatar: "/pixel_avatar_3_1768936679628.png"
+                                initials: "JM",
+                                color: "bg-[#52525b]" // Zinc-600 darker
                             }
                         ].map((t, i) => (
                             <motion.div
@@ -99,12 +102,9 @@ export const PricingSection: React.FC<PricingSectionProps> = ({ currentUser, onA
 
                                 {/* Author */}
                                 <div className="flex items-center gap-3">
-                                    <img
-                                        src={t.avatar}
-                                        alt={t.author}
-                                        className="w-10 h-10 rounded-lg"
-                                        style={{ imageRendering: 'pixelated' }}
-                                    />
+                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${t.color} text-white text-xs font-medium tracking-wider shadow-inner`}>
+                                        {t.initials}
+                                    </div>
                                     <div>
                                         <div className="text-white text-[13px] font-semibold">{t.author}</div>
                                         <div className="text-zinc-500 text-[11px]">{t.role}</div>
