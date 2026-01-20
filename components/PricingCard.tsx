@@ -78,13 +78,13 @@ export const PricingCard: React.FC<PricingCardProps> = ({
     if (isCheckingOut && currentUser) {
         return (
             <div className={`relative w-full h-[520px] md:h-[580px] animate-in fade-in zoom-in duration-500 ease-out ${className}`}>
-                <div className="relative w-full h-full bg-[#161617] border border-white/5 rounded-[24px] flex flex-col shadow-2xl overflow-hidden">
+                <div className="relative w-full h-full bg-[#0a0a0a] border border-zinc-800/50 rounded-[20px] flex flex-col shadow-2xl overflow-hidden">
                     <div className="absolute top-0 right-0 left-0 p-5 z-50 flex justify-end pointer-events-none">
                         <button
                             onClick={handleBackFromCheckout}
-                            className="pointer-events-auto text-zinc-500 hover:text-zinc-200 text-[11px] font-medium px-4 py-2 bg-zinc-900/50 rounded-full backdrop-blur-md border border-white/5 transition-all"
+                            className="pointer-events-auto text-zinc-500 hover:text-zinc-200 text-[11px] font-medium px-4 py-2 bg-zinc-900/80 rounded-full backdrop-blur-md border border-zinc-800 transition-all hover:bg-zinc-800/80"
                         >
-                            Back to options
+                            ← Back
                         </button>
                     </div>
                     <div className="flex-1 overflow-y-auto pt-14 pb-4 scrollbar-hide">
@@ -106,87 +106,88 @@ export const PricingCard: React.FC<PricingCardProps> = ({
             <motion.div
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                className={`w-full max-w-[380px] mx-auto ${className}`}
+                transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                className={`w-full max-w-[420px] mx-auto ${className}`}
             >
-                <div className="relative rounded-[32px] bg-[#161617] border border-white/5 shadow-2xl overflow-hidden">
-                    <div className="p-8 pb-10 flex flex-col">
-                        <div className="mb-10 text-center">
-                            <h2 className="text-[24px] font-semibold text-zinc-100 tracking-tight mb-2">Pro Access</h2>
-                            <p className="text-[14px] text-zinc-500 leading-relaxed font-normal">
-                                Professional cognitive optimization.
+                <div className="relative rounded-[24px] bg-[#0a0a0a] border border-zinc-800/60 shadow-[0_20px_70px_-20px_rgba(0,0,0,0.8)] overflow-hidden">
+                    {/* Subtle gradient overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-[#FF4D00]/[0.02] via-transparent to-transparent pointer-events-none" />
+
+                    <div className="relative p-8 pb-9 flex flex-col">
+                        {/* Header */}
+                        <div className="mb-8 text-center">
+                            <h2 className="text-[22px] font-semibold text-white tracking-tight mb-2">Unlock Full Access</h2>
+                            <p className="text-[13px] text-zinc-500 leading-relaxed font-normal">
+                                Professional cognitive optimization
                             </p>
                         </div>
 
-                        <div className="space-y-3 mb-10">
+                        {/* Plan Options */}
+                        <div className="space-y-2.5 mb-8">
                             <button
                                 onClick={() => setSelectedPlan('monthly')}
-                                className={`w-full text-left p-5 rounded-2xl border transition-all duration-300 flex items-center justify-between ${selectedPlan === 'monthly'
-                                    ? 'bg-zinc-800/40 border-zinc-700/50 ring-1 ring-white/5 shadow-inner'
-                                    : 'bg-transparent border-white/5 hover:bg-white/[0.02]'
+                                className={`w-full text-left p-4 rounded-xl border transition-all duration-300 flex items-center justify-between group ${selectedPlan === 'monthly'
+                                        ? 'bg-zinc-900/60 border-[#FF4D00]/30 shadow-[0_0_0_1px_#FF4D00/10_inset]'
+                                        : 'bg-transparent border-zinc-800/50 hover:border-zinc-700/60 hover:bg-zinc-900/20'
                                     }`}
                             >
                                 <div>
-                                    <span className={`block text-[14px] font-medium ${selectedPlan === 'monthly' ? 'text-zinc-100' : 'text-zinc-400'}`}>Monthly access</span>
-                                    <span className="text-[11px] text-zinc-500 font-normal">Renewal every 30 days</span>
+                                    <span className={`block text-[14px] font-medium mb-0.5 ${selectedPlan === 'monthly' ? 'text-white' : 'text-zinc-400 group-hover:text-zinc-300'}`}>
+                                        Monthly
+                                    </span>
+                                    <span className="text-[11px] text-zinc-600 font-normal">Billed monthly</span>
                                 </div>
                                 <div className="text-right">
-                                    <span className={`block text-[18px] font-semibold ${selectedPlan === 'monthly' ? 'text-zinc-100' : 'text-zinc-400'}`}>$5</span>
-                                    <span className="text-[11px] text-zinc-500 font-normal">per month</span>
+                                    <span className={`block text-[20px] font-semibold tracking-tight ${selectedPlan === 'monthly' ? 'text-white' : 'text-zinc-400 group-hover:text-zinc-300'}`}>
+                                        $5
+                                    </span>
                                 </div>
                             </button>
 
                             <button
                                 onClick={() => setSelectedPlan('lifetime')}
-                                className={`w-full text-left p-5 rounded-2xl border transition-all duration-300 flex items-center justify-between ${selectedPlan === 'lifetime'
-                                    ? 'bg-zinc-800/40 border-zinc-700/50 ring-1 ring-white/5 shadow-inner'
-                                    : 'bg-transparent border-white/5 hover:bg-white/[0.02]'
+                                className={`w-full text-left p-4 rounded-xl border transition-all duration-300 flex items-center justify-between group relative overflow-hidden ${selectedPlan === 'lifetime'
+                                        ? 'bg-zinc-900/60 border-[#FF4D00]/30 shadow-[0_0_0_1px_#FF4D00/10_inset]'
+                                        : 'bg-transparent border-zinc-800/50 hover:border-zinc-700/60 hover:bg-zinc-900/20'
                                     }`}
                             >
+                                {/* Best Value badge */}
+                                <div className="absolute -top-1 -right-1 px-2 py-0.5 bg-[#FF4D00] rounded-bl-lg rounded-tr-[10px]">
+                                    <span className="text-[9px] font-bold text-white uppercase tracking-wider">Best Value</span>
+                                </div>
                                 <div>
-                                    <div className="flex items-center gap-2 mb-0.5">
-                                        <span className={`text-[14px] font-medium ${selectedPlan === 'lifetime' ? 'text-zinc-100' : 'text-zinc-400'}`}>Lifetime access</span>
-                                        <span className="text-[9px] font-bold text-zinc-950 bg-zinc-200 px-1.5 py-0.5 rounded-sm uppercase tracking-wider">Better Value</span>
-                                    </div>
-                                    <span className="text-[11px] text-zinc-500 font-normal">Pay once, own forever</span>
+                                    <span className={`block text-[14px] font-medium mb-0.5 ${selectedPlan === 'lifetime' ? 'text-white' : 'text-zinc-400 group-hover:text-zinc-300'}`}>
+                                        Lifetime
+                                    </span>
+                                    <span className="text-[11px] text-zinc-600 font-normal">One-time payment</span>
                                 </div>
                                 <div className="text-right">
-                                    <span className={`block text-[18px] font-semibold ${selectedPlan === 'lifetime' ? 'text-zinc-100' : 'text-zinc-400'}`}>$30</span>
+                                    <span className={`block text-[20px] font-semibold tracking-tight ${selectedPlan === 'lifetime' ? 'text-white' : 'text-zinc-400 group-hover:text-zinc-300'}`}>
+                                        $30
+                                    </span>
                                 </div>
                             </button>
                         </div>
 
-                        <div className="space-y-4 mb-10 px-1">
-                            {[
-                                "Full access to focus environment",
-                                "Zero Eye Strain & Fatigue metrics",
-                                "Unlimited session history",
-                                "Continuous neural optimization"
-                            ].map((f, i) => (
-                                <div key={i} className="flex items-center gap-4">
-                                    <div className="w-1.5 h-1.5 rounded-full bg-zinc-700" />
-                                    <span className="text-[13px] text-zinc-400 font-medium tracking-tight leading-none">{f}</span>
-                                </div>
-                            ))}
-                        </div>
-
+                        {/* CTA Button */}
                         <motion.button
                             onClick={handleCheckout}
-                            whileHover={{ scale: 1.01, backgroundColor: '#ffffff' }}
+                            whileHover={{ scale: 1.01 }}
                             whileTap={{ scale: 0.99 }}
-                            className="w-full h-[58px] rounded-2xl bg-zinc-100 text-zinc-950 font-bold text-[15px] shadow-[0_1px_2px_rgba(0,0,0,0.1),0_0_0_1px_rgba(255,255,255,0.1)_inset] hover:shadow-[0_8px_20px_-4px_rgba(255,255,255,0.15)] transition-all mb-5 flex items-center justify-center gap-3 relative overflow-hidden group"
+                            className="w-full h-[56px] rounded-xl bg-[#FF4D00] text-white font-semibold text-[15px] shadow-[0_0_0_1px_rgba(255,77,0,0.3)_inset,0_1px_2px_rgba(0,0,0,0.2)] hover:shadow-[0_0_20px_rgba(255,77,0,0.3),0_0_0_1px_rgba(255,77,0,0.5)_inset] transition-all mb-5 flex items-center justify-center gap-2 relative overflow-hidden group"
                         >
-                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-shimmer" />
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
                             {isLoading ? (
-                                <div className="w-5 h-5 border-2 border-zinc-300 border-t-zinc-900 rounded-full animate-spin" />
+                                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                             ) : (
-                                <span className="relative z-10">Continue to {selectedPlan === 'lifetime' ? 'Lifetime' : 'Checkout'}</span>
+                                <span className="relative z-10">Continue to Checkout</span>
                             )}
                         </motion.button>
 
-                        <div className="text-center opacity-40 hover:opacity-100 transition-opacity">
-                            <p className="text-[11px] text-zinc-500 font-medium tracking-tight">
-                                Secured by Whop • Professional billing system
+                        {/* Trust badge */}
+                        <div className="text-center">
+                            <p className="text-[11px] text-zinc-600 font-medium">
+                                Secure checkout powered by Whop
                             </p>
                         </div>
                     </div>
@@ -199,64 +200,73 @@ export const PricingCard: React.FC<PricingCardProps> = ({
         <motion.div
             initial={{ opacity: 0, scale: 0.995 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
             className={`w-full max-w-5xl mx-auto ${className}`}
         >
-            <div className={`relative group rounded-[32px] bg-[#161617] border border-white/5 shadow-[0_40px_80px_-20px_rgba(0,0,0,0.5)] overflow-hidden grid md:grid-cols-2 gap-0 divide-x divide-white/5 transition-all duration-700 hover:border-white/10`}>
+            <div className="relative group rounded-[28px] bg-[#0a0a0a] border border-zinc-800/60 shadow-[0_40px_100px_-30px_rgba(0,0,0,0.7)] overflow-hidden grid md:grid-cols-2 gap-0 divide-x divide-zinc-800/50 transition-all duration-700 hover:border-zinc-700/60">
 
-                <div className="absolute inset-0 bg-gradient-to-tr from-indigo-500/[0.015] to-orange-500/[0.01] pointer-events-none" />
+                {/* Subtle gradient overlay */}
+                <div className="absolute inset-0 bg-gradient-to-br from-[#FF4D00]/[0.015] via-transparent to-transparent pointer-events-none" />
 
-                {/* Left Panel */}
-                <div className="relative p-10 md:p-14 flex flex-col h-full justify-between min-h-[550px]">
+                {/* Left Panel - Plan Selection */}
+                <div className="relative p-10 md:p-12 flex flex-col h-full justify-between min-h-[580px]">
                     <div>
-                        <div className="flex items-center gap-3 mb-10">
-                            <span className="text-zinc-500 text-[11px] font-semibold tracking-[0.2em] uppercase">Professional Access</span>
+                        <div className="flex items-center gap-3 mb-8">
+                            <div className="w-1.5 h-1.5 rounded-full bg-[#FF4D00]" />
+                            <span className="text-zinc-500 text-[11px] font-medium tracking-[0.15em] uppercase">Pro Access</span>
                         </div>
-                        <h3 className="text-5xl font-semibold text-zinc-100 tracking-tighter mb-6">Pro Environment</h3>
-                        <p className="text-zinc-500 text-[16px] leading-relaxed max-w-[340px] font-normal">
-                            Professional cognitive optimization, powered by AI. <br />Join 1,200+ high-performers.
+                        <h3 className="text-[42px] font-semibold text-white tracking-tighter leading-none mb-5">Pro Environment</h3>
+                        <p className="text-zinc-500 text-[15px] leading-relaxed max-w-[340px] font-normal">
+                            AI-powered cognitive optimization. <br />Join 1,200+ high-performers.
                         </p>
                     </div>
 
                     <div className="w-full">
-                        <div className="flex flex-col gap-3 mb-8">
+                        <div className="flex flex-col gap-2.5 mb-7">
                             <button
                                 onClick={() => setSelectedPlan('monthly')}
-                                className={`flex items-center justify-between p-5 rounded-2xl border transition-all duration-300 ${selectedPlan === 'monthly' ? 'bg-zinc-800/40 border-zinc-700 shadow-inner' : 'border-white/5 hover:bg-white/[0.02]'}`}
+                                className={`flex items-center justify-between p-4 rounded-xl border transition-all duration-300 group ${selectedPlan === 'monthly'
+                                        ? 'bg-zinc-900/60 border-[#FF4D00]/30 shadow-[0_0_0_1px_#FF4D00/10_inset]'
+                                        : 'border-zinc-800/50 hover:border-zinc-700/60 hover:bg-zinc-900/20'
+                                    }`}
                             >
                                 <div className="flex flex-col items-start">
-                                    <span className="text-zinc-100 font-medium text-[15px]">Monthly access</span>
-                                    <span className="text-zinc-500 text-[11px]">Renewal every 30 days</span>
+                                    <span className={`font-medium text-[15px] mb-0.5 ${selectedPlan === 'monthly' ? 'text-white' : 'text-zinc-400 group-hover:text-zinc-300'}`}>Monthly Access</span>
+                                    <span className="text-zinc-600 text-[11px]">Billed monthly</span>
                                 </div>
-                                <span className="text-zinc-100 font-bold text-[22px] tracking-tight">$5</span>
+                                <span className={`font-semibold text-[22px] tracking-tight ${selectedPlan === 'monthly' ? 'text-white' : 'text-zinc-400 group-hover:text-zinc-300'}`}>$5</span>
                             </button>
+
                             <button
                                 onClick={() => setSelectedPlan('lifetime')}
-                                className={`flex items-center justify-between p-5 rounded-2xl border transition-all duration-300 ${selectedPlan === 'lifetime' ? 'bg-zinc-800/40 border-zinc-700 shadow-inner' : 'border-white/5 hover:bg-white/[0.02]'}`}
+                                className={`flex items-center justify-between p-4 rounded-xl border transition-all duration-300 group relative overflow-hidden ${selectedPlan === 'lifetime'
+                                        ? 'bg-zinc-900/60 border-[#FF4D00]/30 shadow-[0_0_0_1px_#FF4D00/10_inset]'
+                                        : 'border-zinc-800/50 hover:border-zinc-700/60 hover:bg-zinc-900/20'
+                                    }`}
                             >
-                                <div className="flex flex-col items-start">
-                                    <div className="flex items-center gap-2 mb-0.5">
-                                        <span className="text-zinc-100 font-medium text-[15px]">Lifetime access</span>
-                                        <span className="text-[9px] font-bold text-zinc-950 bg-zinc-200 px-1.5 py-0.5 rounded-sm uppercase tracking-wider">Better Value</span>
-                                    </div>
-                                    <span className="text-zinc-500 text-[11px]">One-time payment</span>
+                                <div className="absolute -top-1 -right-1 px-2.5 py-0.5 bg-[#FF4D00] rounded-bl-lg rounded-tr-[10px]">
+                                    <span className="text-[9px] font-bold text-white uppercase tracking-wider">Best Value</span>
                                 </div>
-                                <span className="text-zinc-100 font-bold text-[22px] tracking-tight">$30</span>
+                                <div className="flex flex-col items-start">
+                                    <span className={`font-medium text-[15px] mb-0.5 ${selectedPlan === 'lifetime' ? 'text-white' : 'text-zinc-400 group-hover:text-zinc-300'}`}>Lifetime Access</span>
+                                    <span className="text-zinc-600 text-[11px]">One-time payment</span>
+                                </div>
+                                <span className={`font-semibold text-[22px] tracking-tight ${selectedPlan === 'lifetime' ? 'text-white' : 'text-zinc-400 group-hover:text-zinc-300'}`}>$30</span>
                             </button>
                         </div>
 
                         <motion.button
                             onClick={handleCheckout}
-                            whileHover={{ scale: 1.01, backgroundColor: '#ffffff' }}
+                            whileHover={{ scale: 1.01 }}
                             whileTap={{ scale: 0.99 }}
-                            className="w-full h-[64px] rounded-2xl bg-zinc-100 text-zinc-950 font-bold text-[16px] tracking-tight hover:shadow-[0_20px_40px_-10px_rgba(255,255,255,0.1)] transition-all shadow-[0_1px_2px_rgba(0,0,0,0.1),0_0_0_1px_rgba(255,255,255,0.1)_inset] flex items-center justify-center relative overflow-hidden group"
+                            className="w-full h-[62px] rounded-xl bg-[#FF4D00] text-white font-semibold text-[16px] tracking-tight shadow-[0_0_0_1px_rgba(255,77,0,0.3)_inset,0_2px_4px_rgba(0,0,0,0.2)] hover:shadow-[0_0_25px_rgba(255,77,0,0.35),0_0_0_1px_rgba(255,77,0,0.5)_inset] transition-all flex items-center justify-center relative overflow-hidden group"
                         >
-                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-shimmer" />
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
                             {isLoading ? (
-                                <div className="w-5 h-5 border-2 border-zinc-300 border-t-zinc-900 rounded-full animate-spin" />
+                                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                             ) : (
                                 <span className="relative z-10 flex items-center gap-2">
-                                    Get Started with Pro
+                                    Get Started
                                     <svg className="w-4 h-4 transition-transform group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
                                     </svg>
@@ -266,44 +276,44 @@ export const PricingCard: React.FC<PricingCardProps> = ({
                     </div>
                 </div>
 
-                {/* Right Panel */}
-                <div className="relative p-10 md:p-14 bg-zinc-900/5 flex flex-col justify-center">
-                    <div className="space-y-10">
+                {/* Right Panel - Features */}
+                <div className="relative p-10 md:p-12 bg-zinc-900/10 flex flex-col justify-center">
+                    <div className="space-y-8">
                         {[
-                            { title: "Zero Eye Strain", desc: "No more dryness, blurs, or end-of-day fatigue." },
-                            { title: "Gamer Posture Correction", desc: "AI-driven real-time posture optimization." },
-                            { title: "Cortisol Management", desc: "Protect your biological health while you work." },
-                            { title: "Deep Restoration", desc: "Guided cognitive breaks that actually refuel." }
+                            { title: "Zero Eye Strain", desc: "Eliminate dryness and end-of-day fatigue" },
+                            { title: "Posture Optimization", desc: "Real-time AI-driven corrections" },
+                            { title: "Cortisol Management", desc: "Protect biological health while working" },
+                            { title: "Deep Restoration", desc: "Guided breaks that actually refuel" }
                         ].map((item, i) => (
-                            <div key={i} className="group flex gap-6 items-start">
-                                <div className="mt-1 w-5 h-5 rounded-full border border-zinc-800 flex items-center justify-center bg-zinc-900/50 text-zinc-600 transition-colors group-hover:text-zinc-200 group-hover:border-zinc-700">
+                            <div key={i} className="group flex gap-5 items-start">
+                                <div className="mt-0.5 w-5 h-5 rounded-full border border-zinc-800 flex items-center justify-center bg-zinc-900/50 text-zinc-600 transition-all duration-300 group-hover:text-[#FF4D00] group-hover:border-[#FF4D00]/30">
                                     <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                                     </svg>
                                 </div>
                                 <div>
-                                    <h4 className="text-zinc-100 text-[15px] font-semibold leading-none mb-2.5">{item.title}</h4>
-                                    <p className="text-zinc-500 text-[14px] leading-relaxed max-w-[300px] font-normal">{item.desc}</p>
+                                    <h4 className="text-white text-[15px] font-semibold leading-none mb-2">{item.title}</h4>
+                                    <p className="text-zinc-500 text-[13px] leading-relaxed max-w-[280px] font-normal">{item.desc}</p>
                                 </div>
                             </div>
                         ))}
                     </div>
 
-                    <div className="mt-14 pt-10 border-t border-white/5 flex items-center gap-4">
-                        <div className="flex -space-x-3">
+                    <div className="mt-12 pt-8 border-t border-zinc-800/50 flex items-center gap-4">
+                        <div className="flex -space-x-2.5">
                             {[1, 2, 3].map((i) => (
-                                <div key={i} className="w-9 h-9 rounded-full bg-zinc-800 border-2 border-[#161617]" />
+                                <div key={i} className="w-9 h-9 rounded-full bg-zinc-800 border-2 border-[#0a0a0a]" />
                             ))}
                         </div>
                         <div className="flex flex-col">
-                            <span className="text-zinc-300 text-[12px] font-semibold">Join 1,200+ Performers</span>
-                            <span className="text-zinc-600 text-[11px] font-normal">Optimizing cognitive capital</span>
+                            <span className="text-zinc-300 text-[12px] font-semibold">1,200+ Performers</span>
+                            <span className="text-zinc-600 text-[11px] font-normal">Optimizing daily</span>
                         </div>
                     </div>
                 </div>
             </div>
-            <div className="mt-8 text-center opacity-30 hover:opacity-100 transition-opacity">
-                <p className="text-[11px] text-zinc-500 tracking-tight">Professional environment for professionals • Secure via Whop</p>
+            <div className="mt-6 text-center opacity-40 hover:opacity-100 transition-opacity">
+                <p className="text-[11px] text-zinc-600 tracking-tight">Secure checkout powered by Whop</p>
             </div>
         </motion.div>
     );
