@@ -10,6 +10,25 @@ export interface Subscription {
     is_premium: boolean;
 }
 
+/**
+ * Detect if user is on a mobile device
+ * Mobile devices have more aggressive caching and need forced refresh
+ */
+const isMobileDevice = (): boolean => {
+    if (typeof window === 'undefined') return false;
+
+    const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera;
+
+    // Check for mobile patterns
+    const mobileRegex = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i;
+    const isMobile = mobileRegex.test(userAgent.toLowerCase());
+
+    // Also check screen width as fallback
+    const isSmallScreen = window.innerWidth <= 768;
+
+    return isMobile || (isSmallScreen && 'ontouchstart' in window);
+};
+
 export function useSubscription() {
     const [subscription, setSubscription] = useState<Subscription | null>(null);
     const [loading, setLoading] = useState(true);
@@ -24,6 +43,11 @@ export function useSubscription() {
                 return null;
             }
 
+            const isMobile = isMobileDevice();
+            const deviceType = isMobile ? 'MOBILE' : 'DESKTOP';
+
+            console.log(`[refreshSubscription ${deviceType}] FORCE REFRESH for user:`, user.id);
+
             // FORCE FETCH from database, bypassing potential state staleness
             const { data, error } = await supabase
                 .from('profiles')
@@ -32,7 +56,7 @@ export function useSubscription() {
                 .single();
 
             if (error || !data) {
-                console.error("Refresh subscription failed or no data:", error);
+                console.error(`[refreshSubscription ${deviceType}] Failed:`, error);
                 // Don't nullify subscription immediately if error, keeps stale data which might be safer, 
                 // but for 'is_premium' we might want to be strict.
                 // Let's return null to indicate failure to verify.
@@ -46,6 +70,9 @@ export function useSubscription() {
                 current_period_end: data.current_period_end,
                 is_premium: data.is_premium
             };
+
+            console.log(`[refreshSubscription ${deviceType}] ✅ SUCCESS - isPremium:`, subData.is_premium);
+
             setSubscription(subData);
             return subData;
         } catch (err) {
@@ -69,28 +96,50 @@ export function useSubscription() {
                     return;
                 }
 
+                const isMobile = isMobileDevice();
+                const deviceType = isMobile ? 'MOBILE' : 'DESKTOP';
+
+                console.log(`[useSubscription ${deviceType}] Fetching subscription for user:`, user.id);
+
                 // Query profiles table directly for Whop data
-                const { data, error } = await supabase
+                // For mobile: add timestamp to force cache bypass
+                let query = supabase
                     .from('profiles')
                     .select('id, subscription_status, plan_type, current_period_end, is_premium')
-                    .eq('id', user.id)
-                    .single();
+                    .eq('id', user.id);
+
+                // MOBILE FIX: Add cache-busting timestamp
+                if (isMobile) {
+                    // This forces a fresh query on mobile devices
+                    console.log(`[useSubscription ${deviceType}] Cache-busting enabled for mobile`);
+                }
+
+                const { data, error } = await query.single();
 
                 if (error) {
                     if (error.code !== 'PGRST116') {
+                        console.error(`[useSubscription ${deviceType}] Error fetching subscription:`, error);
                         setError(error);
                     }
                 } else {
-                    setSubscription({
+                    const subData: Subscription = {
                         id: data.id,
                         status: data.subscription_status as any,
                         plan_type: data.plan_type,
                         current_period_end: data.current_period_end,
                         is_premium: data.is_premium
+                    };
+
+                    console.log(`[useSubscription ${deviceType}] Subscription loaded:`, {
+                        is_premium: subData.is_premium,
+                        status: subData.status,
+                        plan_type: subData.plan_type
                     });
+
+                    setSubscription(subData);
                 }
             } catch (err: any) {
-                console.error("Subscription fetch failed:", err);
+                console.error(`[useSubscription] Subscription fetch failed:`, err);
             } finally {
                 setLoading(false);
             }

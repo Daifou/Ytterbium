@@ -14,7 +14,15 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
 
     useEffect(() => {
         const checkAuth = async () => {
+            console.log("[ProtectedRoute] Checking authentication and subscription...");
             const currentUser = await authService.getUser();
+
+            if (currentUser) {
+                console.log("[ProtectedRoute] User authenticated:", currentUser.id);
+            } else {
+                console.log("[ProtectedRoute] No authenticated user found");
+            }
+
             setUser(currentUser);
             setLoading(false);
         };

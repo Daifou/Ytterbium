@@ -37,8 +37,17 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
             setCurrentUser(user);
 
             if (user) {
+                // CRITICAL: Wait for subscription to load before making decisions
+                // This prevents mobile race conditions where isPremium is checked before data loads
+                console.log("[LandingPage] User detected, waiting for subscription load...");
+
                 // Use refreshSubscription for consistency
                 const subData = await refreshSubscription();
+
+                console.log("[LandingPage] Subscription check complete:", {
+                    isPremium: subData?.is_premium,
+                    status: subData?.status
+                });
 
                 if (subData) {
                     setFreeSessionsUsed((subData as any).free_sessions_used || 0);
@@ -46,7 +55,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
                     // Auto-Restore Session if Premium + Pending Session
                     const pendingSession = localStorage.getItem('pending_session');
                     if (pendingSession && subData.is_premium) {
-                        console.log("[LandingPage] Premium user with pending session - auto-entering dashboard...");
+                        console.log("[LandingPage] ✅ Premium user with pending session - auto-entering dashboard...");
                         try {
                             const sessionData = JSON.parse(pendingSession);
                             onEnter({
@@ -125,12 +134,18 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
 
         // 3. If user is logged in, FORCE fresh subscription check to avoid stale data
         if (currentUser) {
-            console.log("[LandingPage] Verifying subscription status for logged-in user...");
+            console.log("[LandingPage handleStartSession] Verifying subscription for logged-in user...");
             const freshSub = await refreshSubscription();
+
+            console.log("[LandingPage handleStartSession] Fresh subscription result:", {
+                isPremium: freshSub?.is_premium,
+                status: freshSub?.status,
+                userId: currentUser.id
+            });
 
             // If user is premium, go straight to dashboard
             if (freshSub?.is_premium) {
-                console.log("[LandingPage] User is verified premium. Entering dashboard immediately.");
+                console.log("[LandingPage handleStartSession] ✅ VERIFIED PREMIUM - Entering dashboard");
                 setIsSyncing(false);
                 onEnter({
                     task,
@@ -143,7 +158,9 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
             }
 
             // If not premium, fall through to show paywall
-            console.log("[LandingPage] User is logged in but not premium. Showing paywall.");
+            console.log("[LandingPage handleStartSession] ⚠️ User is logged in but NOT premium - showing paywall");
+        } else {
+            console.log("[LandingPage handleStartSession] No user logged in - showing paywall/auth");
         }
 
         // 4. Not logged in OR Not Premium -> Show Unified Pricing Modal

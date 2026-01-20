@@ -25,8 +25,10 @@ const App: React.FC = () => {
   useEffect(() => {
     const rehydrate = async () => {
       try {
+        console.log("[App] Starting session rehydration...");
         const session = await authService.getSession();
         if (session) {
+          console.log("[App] Session found, verifying with backend...");
           // Rehydration logic: verify with backend if token exists
           const response = await fetch('/api/user/me', {
             headers: {
@@ -34,11 +36,14 @@ const App: React.FC = () => {
             }
           });
           if (response.ok) {
-            console.log("[App] Session rehydrated successfully");
+            console.log("[App] ✅ Session rehydrated successfully");
           } else if (response.status === 401) {
             // Token might be invalid/expired, sign out
+            console.log("[App] ⚠️ Session invalid, signing out...");
             await authService.signOut();
           }
+        } else {
+          console.log("[App] No session found");
         }
       } catch (err) {
         console.error("[App] Rehydration failed", err);
