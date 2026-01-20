@@ -191,8 +191,8 @@ export const PricingCard: React.FC<PricingCardProps> = ({
                                 <button
                                     onClick={() => setSelectedPlan('monthly')}
                                     className={`w-full text-left p-4 rounded-2xl border transition-all duration-300 flex items-center justify-between group ${selectedPlan === 'monthly'
-                                            ? 'bg-white/[0.06] border-white/20 shadow-lg'
-                                            : 'bg-white/[0.02] border-white/[0.08] hover:bg-white/[0.04] hover:border-white/[0.12]'
+                                        ? 'bg-white/[0.06] border-white/20 shadow-lg'
+                                        : 'bg-white/[0.02] border-white/[0.08] hover:bg-white/[0.04] hover:border-white/[0.12]'
                                         }`}
                                 >
                                     <div className="flex items-center gap-3">
@@ -217,8 +217,8 @@ export const PricingCard: React.FC<PricingCardProps> = ({
                                 <button
                                     onClick={() => setSelectedPlan('lifetime')}
                                     className={`w-full text-left p-4 rounded-2xl border transition-all duration-300 flex items-center justify-between group relative ${selectedPlan === 'lifetime'
-                                            ? 'bg-white/[0.06] border-white/20 shadow-lg'
-                                            : 'bg-white/[0.02] border-white/[0.08] hover:bg-white/[0.04] hover:border-white/[0.12]'
+                                        ? 'bg-white/[0.06] border-white/20 shadow-lg'
+                                        : 'bg-white/[0.02] border-white/[0.08] hover:bg-white/[0.04] hover:border-white/[0.12]'
                                         }`}
                                 >
                                     <div className="absolute -top-2 -right-2 px-2.5 py-0.5 bg-white text-zinc-950 rounded-full text-[9px] font-bold uppercase tracking-wide shadow-lg">
@@ -302,8 +302,8 @@ export const PricingCard: React.FC<PricingCardProps> = ({
                     <button
                         onClick={() => setSelectedPlan('monthly')}
                         className={`p-6 rounded-2xl border transition-all duration-300 text-left group ${selectedPlan === 'monthly'
-                                ? 'bg-white/[0.06] border-white/20 shadow-lg'
-                                : 'bg-white/[0.02] border-white/[0.08] hover:bg-white/[0.04] hover:border-white/[0.12]'
+                            ? 'bg-white/[0.06] border-white/20 shadow-lg'
+                            : 'bg-white/[0.02] border-white/[0.08] hover:bg-white/[0.04] hover:border-white/[0.12]'
                             }`}
                     >
                         <div className="flex items-start justify-between mb-3">
@@ -328,8 +328,8 @@ export const PricingCard: React.FC<PricingCardProps> = ({
                     <button
                         onClick={() => setSelectedPlan('lifetime')}
                         className={`p-6 rounded-2xl border transition-all duration-300 text-left group relative ${selectedPlan === 'lifetime'
-                                ? 'bg-white/[0.06] border-white/20 shadow-lg'
-                                : 'bg-white/[0.02] border-white/[0.08] hover:bg-white/[0.04] hover:border-white/[0.12]'
+                            ? 'bg-white/[0.06] border-white/20 shadow-lg'
+                            : 'bg-white/[0.02] border-white/[0.08] hover:bg-white/[0.04] hover:border-white/[0.12]'
                             }`}
                     >
                         <div className="absolute -top-3 -right-3 px-3 py-1 bg-white text-zinc-950 rounded-full text-[10px] font-bold uppercase tracking-wide shadow-lg">
@@ -367,7 +367,7 @@ export const PricingCard: React.FC<PricingCardProps> = ({
                     ].map((item, i) => (
                         <div key={i} className="flex items-start gap-4 group">
                             <div className="mt-0.5 w-5 h-5 rounded-full bg-white/10 border border-white/20 flex items-center justify-center flex-shrink-0 group-hover:bg-white/20 transition-colors">
-                                <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth{3}>
+                                <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                                 </svg>
                             </div>
