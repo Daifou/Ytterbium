@@ -10,111 +10,110 @@ interface PricingSectionProps {
 
 export const PricingSection: React.FC<PricingSectionProps> = ({ currentUser, onAuthRequired }) => {
     return (
-        <section id="pricing" className="relative py-24 md:py-32 w-full overflow-hidden bg-[#09090b] text-white">
+        <section id="pricing" className="relative py-32 md:py-40 w-full overflow-hidden bg-[#09090b] text-white">
             <div className="max-w-6xl mx-auto px-6 relative z-10">
-                {/* Pricing Card Container with Grid */}
-                <div className="flex justify-center mb-24">
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.8 }}
-                        className="relative w-full max-w-5xl overflow-visible"
-                    >
+                {/* Section Header */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.8 }}
+                    className="text-center mb-20"
+                >
+                    {/* Background Grid */}
+                    <div className="absolute inset-0 pointer-events-none -z-10"
+                        style={{
+                            backgroundImage: `
+                                linear-gradient(to right, rgba(255,255,255,0.03) 1px, transparent 1px),
+                                linear-gradient(to bottom, rgba(255,255,255,0.03) 1px, transparent 1px)
+                            `,
+                            backgroundSize: '60px 60px',
+                            maskImage: 'radial-gradient(circle at center, black 30%, transparent 80%)',
+                            WebkitMaskImage: 'radial-gradient(circle at center, black 30%, transparent 80%)'
+                        }}
+                    />
 
-                        {/* Section Header */}
-                        <div className="relative z-10 text-center py-20 overflow-hidden">
-                            {/* Clipped Grid Background (Now restricted to header) */}
-                            <div className="absolute inset-0 pointer-events-none"
-                                style={{
-                                    backgroundImage: `
-                                        linear-gradient(to right, rgba(255,255,255,0.05) 1px, transparent 1px),
-                                        linear-gradient(to bottom, rgba(255,255,255,0.05) 1px, transparent 1px)
-                                    `,
-                                    backgroundSize: '50px 50px',
-                                    maskImage: 'radial-gradient(circle at center, black 50%, transparent 95%)',
-                                    WebkitMaskImage: 'radial-gradient(circle at center, black 50%, transparent 95%)'
-                                }}
-                            />
+                    <h2 className="text-4xl md:text-5xl font-black text-white tracking-tighter uppercase mb-4">
+                        Invest in your <br />
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 via-white to-indigo-300">
+                            Cognitive Capital.
+                        </span>
+                    </h2>
+                </motion.div>
 
+                {/* Pricing Card */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.8, delay: 0.2 }}
+                    className="mb-32"
+                >
+                    <PricingCard currentUser={currentUser} onAuthRequired={onAuthRequired} />
+                </motion.div>
+
+                {/* Testimonials */}
+                <div className="border-t border-white/[0.08] pt-20">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        {[
+                            {
+                                quote: "My deep work blocks doubled. Pays for itself in one morning.",
+                                author: "Alex D.",
+                                role: "Senior Engineer",
+                                avatar: "/pixel_avatar_1_1768936646830.png"
+                            },
+                            {
+                                quote: "Stops me before I crash. Saves my entire afternoon.",
+                                author: "Sarah K.",
+                                role: "Product Designer",
+                                avatar: "/pixel_avatar_2_1768936665326.png"
+                            },
+                            {
+                                quote: "Clean UI keeps me in flow. Simple and effective.",
+                                author: "James M.",
+                                role: "Writer",
+                                avatar: "/pixel_avatar_3_1768936679628.png"
+                            }
+                        ].map((t, i) => (
                             <motion.div
-                                initial={{ opacity: 0, y: 10 }}
+                                key={i}
+                                initial={{ opacity: 0, y: 20 }}
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
-                                transition={{ duration: 0.6 }}
-                                className="max-w-2xl mx-auto px-6"
+                                transition={{ duration: 0.5, delay: i * 0.1 }}
+                                className="group relative p-6 rounded-2xl bg-white/[0.02] border border-white/[0.08] hover:bg-white/[0.04] hover:border-white/[0.12] transition-all duration-300"
                             >
-                                <h2 className="text-4xl md:text-5xl font-black text-white tracking-tighter uppercase">
-                                    Invest in your <br />
-                                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 via-white to-indigo-300">
-                                        Cognitive Capital.
-                                    </span>
-                                </h2>
-                            </motion.div>
-                        </div>
-
-
-                        {/* Pricing Card Section */}
-                        <div className="relative z-10 w-full pb-24 flex justify-center">
-                            <PricingCard currentUser={currentUser} onAuthRequired={onAuthRequired} />
-                        </div>
-                    </motion.div>
-                </div>
-
-                {/* Testimonials / Social Proof */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 border-t border-zinc-900 pt-16 mt-24">
-                    {[
-                        {
-                            quote: "Since using Ytterbium, my deep work blocks have doubled. It pays for itself in one morning.",
-                            author: "Alex D.",
-                            role: "Senior Engineer",
-                            avatar: "/pixel_avatar_1_1768936646830.png"
-                        },
-                        {
-                            quote: "The fatigue detection is specific. It stops me before I crash, which saves my entire afternoon.",
-                            author: "Sarah K.",
-                            role: "Product Designer",
-                            avatar: "/pixel_avatar_2_1768936665326.png"
-                        },
-                        {
-                            quote: "Simple, beautiful, and effective. It's the cleanliness of the UI that keeps me in flow.",
-                            author: "James M.",
-                            role: "Writer",
-                            avatar: "/pixel_avatar_3_1768936679628.png"
-                        }
-                    ].map((t, i) => (
-                        <motion.div
-                            key={i}
-                            initial={{ opacity: 0, y: 20 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ duration: 0.5, delay: 0.4 + (i * 0.1) }}
-                            className="space-y-4"
-                        >
-                            <div className="flex text-indigo-500 mb-2">
-                                {[...Array(5)].map((_, j) => (
-                                    <svg key={j} className="w-4 h-4 fill-current" viewBox="0 0 20 20">
-                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                                    </svg>
-                                ))}
-                            </div>
-                            <p className="text-zinc-300 text-sm leading-relaxed italic">"{t.quote}"</p>
-                            <div className="flex items-center gap-3 pt-2">
-                                <img
-                                    src={t.avatar}
-                                    alt={t.author}
-                                    className="w-10 h-10 rounded-lg object-cover"
-                                    style={{ imageRendering: 'pixelated' }}
-                                />
-                                <div>
-                                    <div className="text-white text-xs font-bold uppercase tracking-wider">{t.author}</div>
-                                    <div className="text-zinc-600 text-[10px] uppercase tracking-wider">{t.role}</div>
+                                {/* Stars */}
+                                <div className="flex gap-1 mb-4">
+                                    {[...Array(5)].map((_, j) => (
+                                        <svg key={j} className="w-4 h-4 text-white/60 fill-current" viewBox="0 0 20 20">
+                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                        </svg>
+                                    ))}
                                 </div>
-                            </div>
-                        </motion.div>
-                    ))}
-                </div>
 
+                                {/* Quote */}
+                                <p className="text-zinc-200 text-[14px] leading-relaxed mb-5">
+                                    "{t.quote}"
+                                </p>
+
+                                {/* Author */}
+                                <div className="flex items-center gap-3">
+                                    <img
+                                        src={t.avatar}
+                                        alt={t.author}
+                                        className="w-10 h-10 rounded-lg"
+                                        style={{ imageRendering: 'pixelated' }}
+                                    />
+                                    <div>
+                                        <div className="text-white text-[13px] font-semibold">{t.author}</div>
+                                        <div className="text-zinc-500 text-[11px]">{t.role}</div>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        ))}
+                    </div>
+                </div>
             </div>
         </section>
     );
