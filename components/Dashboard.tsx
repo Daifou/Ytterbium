@@ -318,6 +318,16 @@ export const Dashboard: React.FC = () => {
         setStatus(SessionStatus.RUNNING);
         setInsight('AI optimizing focus...');
 
+        // [AUTO-PIP] Open the mini player automatically on start (counts as user gesture)
+        if (!pipWindow) {
+            try {
+                // Larger height to accommodate cognitive load metric comfortably
+                await openPip({ width: 320, height: 140 });
+            } catch (e) {
+                console.warn("Auto-PiP on start failed:", e);
+            }
+        }
+
         if (!currentSessionId) {
             const sessionId = await databaseService.createSession(effectiveUserId, {
                 duration_seconds: duration,
