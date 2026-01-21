@@ -1038,12 +1038,11 @@ export const Dashboard: React.FC = () => {
                     status={status}
                     elapsedSeconds={elapsed}
                     durationSeconds={duration}
+                    fatigueScore={currentMetrics?.fatigueScore || 0}
                     isVisible={!pipWindow && mode !== AppMode.FOCUS && (status === SessionStatus.RUNNING || status === SessionStatus.PAUSED)}
                     onClick={() => setMode(AppMode.FOCUS)}
                     variant="overlay"
                 />
-
-
 
                 {/* 
                   2. Document PiP Portal 
@@ -1054,6 +1053,7 @@ export const Dashboard: React.FC = () => {
                         status={status}
                         elapsedSeconds={elapsed}
                         durationSeconds={duration}
+                        fatigueScore={currentMetrics?.fatigueScore || 0}
                         isVisible={true}
                         onClick={() => { }} // No interaction needed in PiP typically
                         variant="pip"

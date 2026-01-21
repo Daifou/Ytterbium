@@ -181,16 +181,6 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({
           flex items-center gap-1.5
           ${statusColor}
         `}>
-          {onTogglePiP && (
-            <button
-              onClick={onTogglePiP}
-              className="mr-2 group flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-neutral-800 hover:bg-neutral-700 border border-neutral-700 transition-all cursor-pointer"
-              title="Keep timer visible over other apps"
-            >
-              <AppWindow className="w-2.5 h-2.5 text-neutral-400 group-hover:text-emerald-400" />
-              <span className="text-[8px] font-medium text-neutral-400 group-hover:text-white uppercase tracking-tight">Window Mode</span>
-            </button>
-          )}
           <StatusIcon className="w-2.5 h-2.5" />
           <span className="text-[9px] font-bold tracking-tight uppercase">{statusText}</span>
         </div>
@@ -360,6 +350,6 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({
           </div>
         </div>
       </div>
-    </div>
+    </div >
   );
 };
