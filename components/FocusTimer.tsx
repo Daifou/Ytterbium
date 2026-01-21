@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Play, Pause, Square, Clock, Zap, Activity, Gauge, Target, Sparkles } from 'lucide-react';
+import { Play, Pause, Square, Clock, Zap, Activity, Gauge, Target, Sparkles, AppWindow } from 'lucide-react'; // Added AppWindow icon
 import { SessionStatus } from '../types';
 
 interface FocusTimerProps {
@@ -14,6 +14,7 @@ interface FocusTimerProps {
   onReset: () => void;
   onIntensityChange: (intensity: number) => void;
   currentInsight?: string; // Prop kept for compatibility with App.tsx
+  onTogglePiP?: () => void; // Added for Document PiP access
 }
 
 // ----------------------------------------------------------------------------------
@@ -40,6 +41,7 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({
   onReset,
   onIntensityChange,
   currentInsight,
+  onTogglePiP
 }) => {
   const [sliderValue, setSliderValue] = useState(currentIntensity);
 
@@ -170,13 +172,25 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({
         bg-neutral-900/50
         relative z-10 shrink-0
       ">
-        <h3 className="text-[10px] font-bold text-neutral-500 tracking-wider">TIMER</h3>
+        <div className="flex items-center gap-2">
+          <h3 className="text-[10px] font-bold text-neutral-500 tracking-wider">TIMER</h3>
+        </div>
 
         {/* Status badge */}
         <div className={`
           flex items-center gap-1.5
           ${statusColor}
         `}>
+          {onTogglePiP && (
+            <button
+              onClick={onTogglePiP}
+              className="mr-2 group flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-neutral-800 hover:bg-neutral-700 border border-neutral-700 transition-all cursor-pointer"
+              title="Keep timer visible over other apps"
+            >
+              <AppWindow className="w-2.5 h-2.5 text-neutral-400 group-hover:text-emerald-400" />
+              <span className="text-[8px] font-medium text-neutral-400 group-hover:text-white uppercase tracking-tight">Window Mode</span>
+            </button>
+          )}
           <StatusIcon className="w-2.5 h-2.5" />
           <span className="text-[9px] font-bold tracking-tight uppercase">{statusText}</span>
         </div>

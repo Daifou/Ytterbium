@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { createPortal } from 'react-dom'; // Added for PiP
 import LeaderLine from 'leader-line-new';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sidebar } from './Sidebar';
 import { FocusTimer } from './FocusTimer';
+import { MiniFocusTimer } from './MiniFocusTimer';
 import { RelaxTimer } from './RelaxTimer';
 import { StatsView } from './StatsView';
 import { TaskList } from './TaskList';
@@ -23,6 +25,7 @@ import { MacNotification } from './MacNotification';
 import { Moon } from 'lucide-react';
 import type { User } from '@supabase/supabase-js';
 import { useSubscription } from '../hooks/useSubscription';
+import { useDocumentPiP } from '../hooks/useDocumentPiP'; // Added
 import { useLocation } from 'react-router-dom';
 import { InfiniteCanvas } from './InfiniteCanvas';
 import { CanvasHUD } from './CanvasHUD';
@@ -112,6 +115,7 @@ const NodesDataSync = ({ timerProps, taskListProps, goldVaultProps }: any) => {
 };
 
 export const Dashboard: React.FC = () => {
+    const { pipWindow, openPip, closePip } = useDocumentPiP(); // PiP Hook
     const location = useLocation();
     const [mode, setMode] = useState<AppMode>(AppMode.FOCUS);
     const [status, setStatus] = useState<SessionStatus>(SessionStatus.IDLE);
@@ -177,6 +181,22 @@ export const Dashboard: React.FC = () => {
     const line2Ref = useRef<any>(null);
     const [barsToday, setBarsToday] = useState(0);
     const [totalBars, setTotalBars] = useState(0);
+
+    // Auto-PiP Logic (Visibility Change)
+    useEffect(() => {
+        const handleVisibilityChange = async () => {
+            if (document.hidden && status === SessionStatus.RUNNING && !pipWindow) {
+                console.log("Tab hidden, attempting Auto-PiP...");
+                try {
+                    await openPip({ width: 300, height: 100 });
+                } catch (e) {
+                    console.warn("Auto-PiP blocked by browser (requires user gesture):", e);
+                }
+            }
+        };
+        document.addEventListener("visibilitychange", handleVisibilityChange);
+        return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
+    }, [status, pipWindow, openPip]);
 
     const refreshVaultStats = useCallback(async () => {
         if (currentUser) {
@@ -967,7 +987,7 @@ export const Dashboard: React.FC = () => {
                                                         layout
                                                         className={`w-[14rem] h-[14rem] relative z-30 overflow-visible`}
                                                     >
-                                                        <FocusTimer status={status} elapsedSeconds={elapsed} durationSeconds={duration} fatigueScore={currentMetrics?.fatigueScore || 0} onStart={() => handleStart()} onPause={handlePause} onReset={handleReset} onIntensityChange={handleIntensityChange} currentIntensity={focusIntensity} currentInsight={insight} />
+                                                        <FocusTimer status={status} elapsedSeconds={elapsed} durationSeconds={duration} fatigueScore={currentMetrics?.fatigueScore || 0} onStart={() => handleStart()} onPause={handlePause} onReset={handleReset} onIntensityChange={handleIntensityChange} currentIntensity={focusIntensity} currentInsight={insight} onTogglePiP={() => pipWindow ? closePip() : openPip({ width: 300, height: 100 })} />
                                                     </motion.div>
                                                     {!isMobile && <div className="w-[8rem] relative z-0 pointer-events-none" />}
                                                     <motion.div
@@ -1013,6 +1033,34 @@ export const Dashboard: React.FC = () => {
                     onClose={() => setNotification(null)}
                     action={notification?.action}
                 />
+
+                <MiniFocusTimer
+                    status={status}
+                    elapsedSeconds={elapsed}
+                    durationSeconds={duration}
+                    isVisible={!pipWindow && mode !== AppMode.FOCUS && (status === SessionStatus.RUNNING || status === SessionStatus.PAUSED)}
+                    onClick={() => setMode(AppMode.FOCUS)}
+                    variant="overlay"
+                />
+
+
+
+                {/* 
+                  2. Document PiP Portal 
+                     - Renders the "pip" variant into the separate window
+                */}
+                {pipWindow && createPortal(
+                    <MiniFocusTimer
+                        status={status}
+                        elapsedSeconds={elapsed}
+                        durationSeconds={duration}
+                        isVisible={true}
+                        onClick={() => { }} // No interaction needed in PiP typically
+                        variant="pip"
+                    />,
+                    pipWindow.document.body
+                )}
+
             </div>
         </>
     );
