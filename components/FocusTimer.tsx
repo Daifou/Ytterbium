@@ -315,14 +315,23 @@ export const FocusTimer: React.FC<FocusTimerProps> = ({
           {/* Action Buttons */}
           <div className="pt-2 border-t border-neutral-800">
             <div className="flex items-center justify-center gap-2">
-              {status === SessionStatus.RUNNING ? (
+              {status === SessionStatus.RUNNING || status === SessionStatus.PAUSED ? (
                 <>
-                  <button
-                    onClick={onPause}
-                    className={actionButtonClasses}
-                  >
-                    <Pause className="w-3 h-3" />
-                  </button>
+                  {status === SessionStatus.RUNNING ? (
+                    <button
+                      onClick={onPause}
+                      className={actionButtonClasses}
+                    >
+                      <Pause className="w-3 h-3" />
+                    </button>
+                  ) : (
+                    <button
+                      onClick={onStart}
+                      className={actionButtonClasses}
+                    >
+                      <Play className="w-3 h-3" />
+                    </button>
+                  )}
                   <button
                     onClick={onReset}
                     className={resetButtonStyle}
