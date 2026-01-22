@@ -185,18 +185,26 @@ export const Dashboard: React.FC = () => {
     // Auto-PiP Logic (Visibility Change)
     useEffect(() => {
         const handleVisibilityChange = async () => {
-            if (document.hidden && status === SessionStatus.RUNNING && !pipWindow) {
-                console.log("Tab hidden, attempting Auto-PiP...");
-                try {
-                    await openPip({ width: 300, height: 100 });
-                } catch (e) {
-                    console.warn("Auto-PiP blocked by browser (requires user gesture):", e);
+            if (document.visibilityState === 'hidden') {
+                if (status === SessionStatus.RUNNING && !pipWindow) {
+                    console.log("Tab hidden, attempting Auto-PiP...");
+                    try {
+                        // Larger height to accommodate cognitive load metric comfortably
+                        await openPip({ width: 320, height: 140 });
+                    } catch (e) {
+                        console.warn("Auto-PiP blocked by browser (requires user gesture):", e);
+                    }
+                }
+            } else if (document.visibilityState === 'visible') {
+                if (pipWindow) {
+                    console.log("Tab visible, closing PiP...");
+                    closePip();
                 }
             }
         };
         document.addEventListener("visibilitychange", handleVisibilityChange);
         return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
-    }, [status, pipWindow, openPip]);
+    }, [status, pipWindow, openPip, closePip]);
 
     const refreshVaultStats = useCallback(async () => {
         if (currentUser) {
