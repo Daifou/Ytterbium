@@ -154,6 +154,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
                     intensity: analysisResult.intensity,
                     insight: analysisResult.insight,
                     focusMode: analysisResult.focusMode,
+                    suggestedSessions: analysisResult.suggestedSessions,
                     user: currentUser,
                 });
                 return;
@@ -349,13 +350,16 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
                 isAuthMode={!currentUser}
                 onAuthRequired={handleGoogleSignUp}
             />
-            {/* Footer */}
-            <footer className="relative z-10 py-12 border-t border-white/5 text-center">
-                <p className="text-zinc-500 text-xs tracking-widest uppercase font-medium">
-                    © 2026 Ytterbium.
-                </p>
-            </footer>
+            {/* Footer - Only visible on Hero stage */}
+            {stage === 'hero' && (
+                <footer className="relative z-10 py-12 border-t border-white/5 text-center">
+                    <p className="text-zinc-500 text-xs tracking-widest uppercase font-medium">
+                        © 2026 Ytterbium.
+                    </p>
+                </footer>
+            )}
         </div >
+
 
     );
 };

@@ -29,15 +29,21 @@ export const ResultView: React.FC<ResultViewProps> = ({
                 initial={{ scale: 0.98, opacity: 0, y: 20 }}
                 animate={{ scale: 1, opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-                className="w-full max-w-5xl h-auto md:h-[600px] flex flex-col md:flex-row bg-[#09090b] border border-white/10 rounded-2xl shadow-2xl overflow-hidden mt-10 md:mt-20"
+                className="w-full max-w-5xl h-auto md:h-[540px] flex flex-col md:flex-row bg-[#09090b] border border-white/10 rounded-2xl shadow-2xl overflow-hidden"
             >
                 {/* 1. LEFT COLUMN: CHAT STYLE (35%) */}
                 <div className="w-full md:w-[40%] flex flex-col border-b md:border-b-0 md:border-r border-white/10 bg-[#0d0d0e] relative">
                     <div className="flex-1 p-6 md:p-8 flex flex-col gap-6 overflow-hidden">
 
+                        <div className="mb-4">
+                            <h2 className="text-xl md:text-2xl font-medium text-white/90 leading-snug text-balance">
+                                "{task}"
+                            </h2>
+                        </div>
+
                         {/* User Bubble */}
                         <div className="flex flex-col items-end space-y-2">
-                            <div className="bg-zinc-800 px-4 py-3 rounded-2xl rounded-tr-sm max-w-[90%] border border-zinc-700">
+                            <div className="bg-zinc-800 px-4 py-3 rounded-2xl rounded-tr-sm max-w-[95%] border border-white/5">
                                 <p className="text-zinc-200 text-sm leading-relaxed font-sans">{task}</p>
                             </div>
                             <span className="text-[10px] text-zinc-500 font-medium px-1">You</span>

@@ -722,6 +722,7 @@ export const Dashboard: React.FC = () => {
                 focusIntensity,
                 // store the theoretical start time to calculate accurate elapsed on reload
                 startTime: Date.now() - (elapsed * 1000),
+                activeSessionGoal, // PERSIST GOAL
                 lastUpdated: Date.now()
             };
             localStorage.setItem('ytterbium_active_session', JSON.stringify(state));
@@ -732,6 +733,7 @@ export const Dashboard: React.FC = () => {
                 duration,
                 focusIntensity,
                 elapsed, // Fixed elapsed for paused state
+                activeSessionGoal, // PERSIST GOAL
                 lastUpdated: Date.now()
             };
             localStorage.setItem('ytterbium_active_session', JSON.stringify(state));
@@ -755,6 +757,7 @@ export const Dashboard: React.FC = () => {
                         setMode(parsed.mode);
                         setDuration(parsed.duration);
                         setFocusIntensity(parsed.focusIntensity);
+                        if (parsed.activeSessionGoal) setActiveSessionGoal(parsed.activeSessionGoal);
                         setElapsed(diff); // Catch up to now
                         setStatus(SessionStatus.RUNNING);
                         setInsight('Session restored. Neural sync re-established.');
@@ -763,6 +766,7 @@ export const Dashboard: React.FC = () => {
                     setMode(parsed.mode);
                     setDuration(parsed.duration);
                     setFocusIntensity(parsed.focusIntensity);
+                    if (parsed.activeSessionGoal) setActiveSessionGoal(parsed.activeSessionGoal);
                     setElapsed(parsed.elapsed);
                     setStatus(SessionStatus.PAUSED);
                     setInsight('Paused session restored.');
