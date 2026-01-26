@@ -118,11 +118,55 @@ export const Dashboard: React.FC = () => {
     const { pipWindow, openPip, closePip } = useDocumentPiP(); // PiP Hook
     const location = useLocation();
     const [mode, setMode] = useState<AppMode>(AppMode.FOCUS);
-    const [status, setStatus] = useState<SessionStatus>(SessionStatus.IDLE);
-    const [duration, setDuration] = useState(DEFAULT_DURATION);
-    const [elapsed, setElapsed] = useState(0);
+    const [status, setStatus] = useState<SessionStatus>(() => {
+        if (typeof window === 'undefined') return SessionStatus.IDLE;
+        const saved = localStorage.getItem('ytterbium_active_session');
+        if (saved) {
+            try {
+                const parsed = JSON.parse(saved);
+                if (parsed.status) return parsed.status as SessionStatus;
+            } catch (e) { }
+        }
+        return SessionStatus.IDLE;
+    });
+    const [duration, setDuration] = useState(() => {
+        if (typeof window === 'undefined') return DEFAULT_DURATION;
+        const saved = localStorage.getItem('ytterbium_active_session');
+        if (saved) {
+            try {
+                const parsed = JSON.parse(saved);
+                if (parsed.duration) return parsed.duration;
+            } catch (e) { }
+        }
+        return DEFAULT_DURATION;
+    });
+    const [elapsed, setElapsed] = useState(() => {
+        if (typeof window === 'undefined') return 0;
+        const saved = localStorage.getItem('ytterbium_active_session');
+        if (saved) {
+            try {
+                const parsed = JSON.parse(saved);
+                if (parsed.status === SessionStatus.RUNNING && parsed.startTime) {
+                    const diff = Math.floor((Date.now() - parsed.startTime) / 1000);
+                    return diff > 0 ? diff : 0;
+                }
+                if (parsed.elapsed) return parsed.elapsed;
+            } catch (e) { }
+        }
+        return 0;
+    });
 
-    const [focusIntensity, setFocusIntensity] = useState(5);
+    const [focusIntensity, setFocusIntensity] = useState(() => {
+        if (typeof window === 'undefined') return 5;
+        const saved = localStorage.getItem('ytterbium_active_session');
+        if (saved) {
+            try {
+                const parsed = JSON.parse(saved);
+                if (parsed.focusIntensity) return parsed.focusIntensity;
+            } catch (e) { }
+        }
+        return 5;
+    });
     const isFocusMode = mode === AppMode.FOCUS;
 
     const [currentUser, setCurrentUser] = useState<User | null>(null); // Restored
@@ -162,7 +206,24 @@ export const Dashboard: React.FC = () => {
     const [sidebarAIState, setSidebarAIState] = useState<'idle' | 'analyzing' | 'confirming'>('idle');
     const [sidebarAnalysis, setSidebarAnalysis] = useState<any>(null);
     const [sidebarTask, setSidebarTask] = useState('');
-    const [activeSessionGoal, setActiveSessionGoal] = useState(4);
+    const [activeSessionGoal, setActiveSessionGoal] = useState(() => {
+        if (typeof window === 'undefined') return 4;
+        const saved = localStorage.getItem('ytterbium_active_session');
+        if (saved) {
+            try {
+                const parsed = JSON.parse(saved);
+                if (parsed.activeSessionGoal) return parsed.activeSessionGoal;
+            } catch (e) { }
+        }
+        const pending = localStorage.getItem('pending_session');
+        if (pending) {
+            try {
+                const parsed = JSON.parse(pending);
+                if (parsed.suggestedSessions) return parsed.suggestedSessions;
+            } catch (e) { }
+        }
+        return 4;
+    });
 
     const tasksRef = useRef<HTMLDivElement>(null);
     const timerRefDiv = useRef<HTMLDivElement>(null);
@@ -743,38 +804,11 @@ export const Dashboard: React.FC = () => {
     }, [status, mode, duration, focusIntensity, elapsed]);
 
     useEffect(() => {
-        // RESTORE STATE ON MOUNT
+        // RESTORE STATE ON MOUNT (Fallback/Double Check)
+        // Since we initialize in useState, this is mostly for logging or edge cases
         const saved = localStorage.getItem('ytterbium_active_session');
         if (saved) {
-            try {
-                const parsed = JSON.parse(saved);
-                // Validate if simplified
-                if (parsed.status === SessionStatus.RUNNING) {
-                    const now = Date.now();
-                    const diff = Math.floor((now - parsed.startTime) / 1000);
-                    // Check if legitimate (e.g. less than 24 hours)
-                    if (diff < 86400) {
-                        setMode(parsed.mode);
-                        setDuration(parsed.duration);
-                        setFocusIntensity(parsed.focusIntensity);
-                        if (parsed.activeSessionGoal) setActiveSessionGoal(parsed.activeSessionGoal);
-                        setElapsed(diff); // Catch up to now
-                        setStatus(SessionStatus.RUNNING);
-                        setInsight('Session restored. Neural sync re-established.');
-                    }
-                } else if (parsed.status === SessionStatus.PAUSED) {
-                    setMode(parsed.mode);
-                    setDuration(parsed.duration);
-                    setFocusIntensity(parsed.focusIntensity);
-                    if (parsed.activeSessionGoal) setActiveSessionGoal(parsed.activeSessionGoal);
-                    setElapsed(parsed.elapsed);
-                    setStatus(SessionStatus.PAUSED);
-                    setInsight('Paused session restored.');
-                }
-            } catch (e) {
-                console.error("Failed to restore session", e);
-                localStorage.removeItem('ytterbium_active_session');
-            }
+            console.log("[Dashboard] Session state rehydrated from localStorage");
         }
     }, []);
 

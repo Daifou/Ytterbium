@@ -30,6 +30,18 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
     const chatInputRef = useRef<HTMLInputElement>(null);
     const [isSyncing, setIsSyncing] = useState(false);
 
+    // Lock body scroll when in 'analyzing' or 'result' stages
+    useEffect(() => {
+        if (stage === 'analyzing' || stage === 'result') {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'auto';
+        }
+        return () => {
+            document.body.style.overflow = 'auto';
+        };
+    }, [stage]);
+
     // Check for existing user & usage stats
     // Check for existing user & Auto-Enter for Premium with Pending Session
     useEffect(() => {
