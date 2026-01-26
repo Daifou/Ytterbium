@@ -226,7 +226,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
                                         {/* Subheadline - The "Clinical Detail" */}
                                         <div className="mt-12 max-w-2xl mx-auto px-6">
                                             <p className="text-zinc-400 text-base md:text-[18px] leading-relaxed font-light tracking-wide text-balance">
-                                                Blurred vision. Tension headaches. Mental fog. Your body is screaming warnings you've learned to ignore.
+                                                Blurred vision. Tension headaches. Mental fog.<br />
+                                                Ytterbium stops you before permanent damage.
                                             </p>
                                         </div>
                                     </h1>
