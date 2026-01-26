@@ -29,7 +29,7 @@ export const ResultView: React.FC<ResultViewProps> = ({
                 initial={{ scale: 0.98, opacity: 0, y: 10 }}
                 animate={{ scale: 1, opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-                className="w-full max-w-5xl h-auto md:h-[500px] flex flex-col md:flex-row bg-[#09090b] border border-white/10 rounded-2xl shadow-2xl overflow-hidden relative"
+                className="w-full max-w-5xl h-auto md:h-[500px] flex flex-col md:flex-row bg-[#09090b] border border-white/10 rounded-2xl shadow-2xl overflow-hidden relative md:translate-y-8"
             >
                 {/* 1. LEFT COLUMN: CHAT STYLE (35%) */}
                 <div className="w-full md:w-[40%] flex flex-col border-b md:border-b-0 md:border-r border-white/10 bg-[#0d0d0e] relative">

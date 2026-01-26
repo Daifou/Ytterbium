@@ -117,7 +117,17 @@ const NodesDataSync = ({ timerProps, taskListProps, goldVaultProps }: any) => {
 export const Dashboard: React.FC = () => {
     const { pipWindow, openPip, closePip } = useDocumentPiP(); // PiP Hook
     const location = useLocation();
-    const [mode, setMode] = useState<AppMode>(AppMode.FOCUS);
+    const [mode, setMode] = useState<AppMode>(() => {
+        if (typeof window === 'undefined') return AppMode.FOCUS;
+        const saved = localStorage.getItem('ytterbium_active_session');
+        if (saved) {
+            try {
+                const parsed = JSON.parse(saved);
+                if (parsed.mode) return parsed.mode as AppMode;
+            } catch (e) { }
+        }
+        return AppMode.FOCUS;
+    });
     const [status, setStatus] = useState<SessionStatus>(() => {
         if (typeof window === 'undefined') return SessionStatus.IDLE;
         const saved = localStorage.getItem('ytterbium_active_session');
