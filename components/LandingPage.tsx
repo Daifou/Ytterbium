@@ -239,7 +239,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
                                     transition={{ delay: 0.6, duration: 0.8, ease: "easeOut" }}
                                     className="relative group mt-4 max-w-2xl mx-auto"
                                 >
-                                    <div className="relative bg-[#18181b] border border-zinc-800 rounded-2xl md:rounded-[36px] overflow-hidden shadow-2xl transition-all duration-500 group-hover:border-zinc-700/50 group-hover:shadow-indigo-500/5">
+                                    <div className="relative bg-[#18181b] border border-zinc-800 rounded-2xl md:rounded-[36px] overflow-hidden shadow-2xl transition-all duration-500 group-hover:border-zinc-700/50">
                                         <form
                                             onSubmit={(e) => {
                                                 e.preventDefault();
@@ -346,7 +346,14 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
                 isAuthMode={!currentUser}
                 onAuthRequired={handleGoogleSignUp}
             />
+            {/* Footer */}
+            <footer className="relative z-10 py-12 border-t border-white/5 text-center">
+                <p className="text-zinc-500 text-xs tracking-widest uppercase font-medium">
+                    © 2026 Ytterbium.
+                </p>
+            </footer>
         </div >
+
     );
 };
 

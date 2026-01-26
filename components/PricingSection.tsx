@@ -11,6 +11,19 @@ interface PricingSectionProps {
 export const PricingSection: React.FC<PricingSectionProps> = ({ currentUser, onAuthRequired }) => {
     return (
         <section id="pricing" className="relative py-32 md:py-40 w-full overflow-hidden bg-[#09090b] text-white">
+            {/* Background Grid - Pinned to Top */}
+            <div className="absolute top-0 left-0 right-0 h-[800px] pointer-events-none -z-10"
+                style={{
+                    backgroundImage: `
+                        linear-gradient(to right, rgba(255,255,255,0.03) 1px, transparent 1px),
+                        linear-gradient(to bottom, rgba(255,255,255,0.03) 1px, transparent 1px)
+                    `,
+                    backgroundSize: '60px 60px',
+                    maskImage: 'linear-gradient(to bottom, black, transparent)',
+                    WebkitMaskImage: 'linear-gradient(to bottom, black, transparent)'
+                }}
+            />
+
             <div className="max-w-6xl mx-auto px-6 relative z-10">
                 {/* Section Header */}
                 <motion.div
@@ -20,18 +33,7 @@ export const PricingSection: React.FC<PricingSectionProps> = ({ currentUser, onA
                     transition={{ duration: 0.8 }}
                     className="text-center mb-20"
                 >
-                    {/* Background Grid */}
-                    <div className="absolute inset-0 pointer-events-none -z-10"
-                        style={{
-                            backgroundImage: `
-                                linear-gradient(to right, rgba(255,255,255,0.03) 1px, transparent 1px),
-                                linear-gradient(to bottom, rgba(255,255,255,0.03) 1px, transparent 1px)
-                            `,
-                            backgroundSize: '60px 60px',
-                            maskImage: 'radial-gradient(circle at center, black 30%, transparent 80%)',
-                            WebkitMaskImage: 'radial-gradient(circle at center, black 30%, transparent 80%)'
-                        }}
-                    />
+
 
                     <h2 className="text-4xl md:text-5xl font-black text-white tracking-tighter uppercase mb-4">
                         Invest in your <br />
@@ -53,7 +55,7 @@ export const PricingSection: React.FC<PricingSectionProps> = ({ currentUser, onA
                 </motion.div>
 
                 {/* Testimonials */}
-                <div className="border-t border-white/[0.08] pt-20">
+                <div className="pt-20">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         {[
                             {
