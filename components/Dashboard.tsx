@@ -259,8 +259,26 @@ export const Dashboard: React.FC = () => {
                     const activeSession = await databaseService.getCurrentSession(user.id);
                     if (activeSession) {
                         setCurrentSessionId(activeSession.id);
-                        setStatus(activeSession.status as SessionStatus);
-                        setElapsed(activeSession.elapsed_seconds);
+
+                        // Smart Timer Persistence: Check local state before overwriting with DB
+                        let preserveLocalState = false;
+                        const localState = localStorage.getItem('ytterbium_active_session');
+                        if (localState) {
+                            try {
+                                const parsed = JSON.parse(localState);
+                                if (parsed.status === SessionStatus.RUNNING) {
+                                    // If local state is valid and running, prefer it (handles page refreshes)
+                                    preserveLocalState = true;
+                                    console.log("[Dashboard] Preserving local timer state over DB snapshot");
+                                }
+                            } catch (e) { }
+                        }
+
+                        if (!preserveLocalState) {
+                            setStatus(activeSession.status as SessionStatus);
+                            setElapsed(activeSession.elapsed_seconds);
+                        }
+
                         setFocusIntensity(activeSession.focus_intensity);
                         if (activeSession.type === 'RELAX') setMode(AppMode.RELAX);
                         setInsight(`Welcome back. Resuming ${activeSession.type.toLowerCase()} session.`);
@@ -273,6 +291,9 @@ export const Dashboard: React.FC = () => {
                         localStorage.removeItem('pending_session');
                         handleIntensityChange(sessionData.intensity);
                         setInsight(sessionData.insight);
+                        if (sessionData.suggestedSessions) {
+                            setActiveSessionGoal(sessionData.suggestedSessions);
+                        }
                         await addTask(sessionData.task, user.id);
 
                         setPendingStartUserId(user.id);

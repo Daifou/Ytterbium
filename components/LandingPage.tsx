@@ -128,6 +128,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
             intensity: analysisResult.intensity,
             insight: analysisResult.insight,
             focusMode: analysisResult.focusMode,
+            suggestedSessions: analysisResult.suggestedSessions,
         }));
 
         // 2. Show loading state while checking subscription
