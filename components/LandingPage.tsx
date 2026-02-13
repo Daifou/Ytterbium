@@ -322,7 +322,6 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
                                     transition={{ delay: 1.5, duration: 1 }}
                                     className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-zinc-600"
                                 >
-                                    <span className="text-[10px] uppercase tracking-[0.2em] font-medium">Discover Ytterbium</span>
                                     <motion.div
                                         animate={{ y: [0, 8, 0] }}
                                         transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
