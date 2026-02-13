@@ -51,7 +51,7 @@ export const Header: React.FC<HeaderProps> = ({ onGetStartedClick, onLoginClick,
                                     block: 'start'
                                 });
                             }}
-                            className="text-zinc-200 hover:text-white transition-colors duration-200 text-[11px] uppercase tracking-[0.03em] font-normal"
+                            className="text-zinc-200 hover:text-white transition-colors duration-200 text-sm font-sans font-medium tracking-tight"
                         >
                             Pricing
                         </a>
@@ -73,7 +73,7 @@ export const Header: React.FC<HeaderProps> = ({ onGetStartedClick, onLoginClick,
                             <div className="hidden md:flex px-10 border-r border-zinc-800 h-full items-center">
                                 <button
                                     onClick={onLoginClick}
-                                    className="text-zinc-200 hover:text-white transition-colors duration-200 text-[11px] uppercase tracking-[0.03em] font-normal"
+                                    className="text-zinc-200 hover:text-white transition-colors duration-200 text-sm font-sans font-medium tracking-tight"
                                 >
                                     Log in
                                 </button>
