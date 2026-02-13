@@ -213,7 +213,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
             />
 
             {/* Main Content */}
-            <div className="relative z-10 min-h-screen flex items-center justify-center px-6 pt-20">
+            <div className="relative z-20 min-h-screen flex items-center justify-center px-6 pt-20">
                 <AnimatePresence mode="wait">
                     {/* Hero Section - Centered Input */}
                     <AnimatePresence>
@@ -314,6 +314,21 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
                                         </motion.button>
                                     ))}
                                 </div>
+
+                                {/* Scroll Indicator */}
+                                <motion.div
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    transition={{ delay: 1.5, duration: 1 }}
+                                    className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-zinc-600"
+                                >
+                                    <span className="text-[10px] uppercase tracking-[0.2em] font-medium">Discover Ytterbium</span>
+                                    <motion.div
+                                        animate={{ y: [0, 8, 0] }}
+                                        transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+                                        className="w-px h-12 bg-gradient-to-b from-zinc-800 to-transparent"
+                                    />
+                                </motion.div>
 
                             </motion.div>
                         )}

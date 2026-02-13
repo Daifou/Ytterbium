@@ -64,6 +64,9 @@ export const StickyScroll = () => {
                         <div className="w-16 lg:w-24 flex items-center justify-center">2026</div>
                     </div>
 
+                    {/* Top Fade Gradient for better Hero -> Scroll transition */}
+                    <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-[#09090b] to-transparent z-30 pointer-events-none" />
+
                     {/* MAIN CONTENT GRID - Stacks on Mobile */}
                     <div className="flex-1 flex flex-col lg:flex-row divide-y lg:divide-y-0 lg:divide-x divide-white/10 overflow-hidden">
 
